@@ -1,5 +1,11 @@
 # Istoric versiuni
 
+## 1.1.1
+
+- Animația „agentului” (consola cu activitatea unei zile) revine pe prima pagină ca variantă implicită.
+- Setări → Aspect → „Prima pagină: element din dreapta titlului”: alegi între animație și fotografie.
+- Cardurile plutitoare din jurul animației nu mai acoperă textul.
+
 ## 1.1.0 — asistent AI și fotografii
 
 - **Asistent virtual pe site**: răspunde vizitatorilor 24/7 din serviciile, zonele, întrebările frecvente și articolele site-ului. Când cineva vrea ofertă, cere acordul, salvează cererea în CRM (sursa „Asistent AI”) și trimite notificare pe email. Conversațiile se văd în Panou → Asistent AI.

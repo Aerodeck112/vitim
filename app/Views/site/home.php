@@ -30,7 +30,7 @@ $all = Site::services();
       <?php endif; ?>
     </div>
     <div class="hero-visual">
-      <?php if ($heroImg = setting('home_hero_image')): ?>
+      <?php if (setting('home_hero_style', 'animatie') === 'foto' && ($heroImg = setting('home_hero_image'))): ?>
       <figure class="hero-photo">
         <img src="<?= e(upload_url((string)$heroImg)) ?>" srcset="<?= e(\App\Core\Uploader::srcset((string)$heroImg)) ?>" sizes="(max-width:1024px) 100vw, 560px" alt="<?= e(\App\Core\DB::val('SELECT alt FROM media WHERE path = ?', [$heroImg]) ?: setting('brand_name')) ?>" width="960" height="1200" fetchpriority="high">
       </figure>

@@ -42,6 +42,7 @@ final class SettingsController extends AdminController
             'aspect' => ['label' => 'Aspect', 'fields' => [
                 ['logo', 'Logo (temă luminoasă / implicit)', 'image', 'PNG sau WebP cu fundal transparent, ~280×68 px.'], ['logo_dark', 'Logo pentru tema întunecată (opțional)', 'image'],
                 ['theme_default', 'Tema implicită a site-ului', 'select', '', ['dark' => 'Întunecată', 'light' => 'Luminoasă']],
+                ['home_hero_style', 'Prima pagină: element din dreapta titlului', 'select', 'Animația arată „o zi de lucru” a agentului VITIM. Fotografia folosește imaginea de mai jos.', ['animatie' => 'Animație (consolă agent)', 'foto' => 'Fotografie']],
                 ['home_hero_image', 'Fotografie mare pe prima pagină', 'image', 'Ideal o poză reală: echipa, o intervenție, sediul. Format lat, minim 1600 px.'],
                 ['about_image', 'Fotografie pagina Despre noi', 'image', 'Pune aici o poză cu echipa ta – crește mult încrederea.'],
                 ['announcement', 'Bară de anunț (sus)', 'text', 'Ex: „Nou: audit de securitate gratuit în octombrie”. Gol = ascunsă.'], ['announcement_link', 'Link anunț', 'text'],
