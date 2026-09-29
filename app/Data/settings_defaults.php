@@ -1,0 +1,109 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Valori implicite pentru setări. Tot ce e aici se poate modifica din Panou → Setări.
+ */
+return [
+    // ---------- Firmă ----------
+    'company_name' => 'VITIM SRL',
+    'brand_name' => 'VITIM',
+    'brand_tagline' => 'IT, securitate, marketing și AI pentru afaceri',
+    'company_cui' => '',
+    'company_reg' => '',
+    'company_address' => '',
+    'company_city' => 'Târgu Mureș',
+    'company_county' => 'Mureș',
+    'company_postal' => '',
+    'company_lat' => '46.5425',
+    'company_lng' => '24.5575',
+    'phone' => '0744 599 333',
+    'whatsapp' => '0744599333',
+    'email' => 'office@vitim.ro',
+    'hours' => 'Luni – Vineri: 08:00 – 18:00',
+    'hours_schema' => '[{"days":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"08:00","closes":"18:00"}]',
+    'support_note' => 'Intervenții urgente pentru clienții cu abonament, inclusiv în afara programului.',
+    'founded_year' => '',
+    'social_facebook' => 'https://www.facebook.com/profile.php?id=61555623215133',
+    'social_instagram' => '',
+    'social_linkedin' => '',
+    'social_youtube' => '',
+    'social_tiktok' => '',
+    'google_maps_url' => '',
+    'google_business_url' => '',
+    'logo' => '',
+    'logo_dark' => '',
+
+    // ---------- SEO ----------
+    'seo_title_suffix' => ' | VITIM',
+    'seo_home_title' => 'VITIM – Mentenanță IT, securitate cibernetică, SEO și agenți AI | Mureș, Bistrița, Alba',
+    'seo_home_description' => 'Suport și mentenanță IT remote și on-site în Mureș, Bistrița-Năsăud și Alba. Recuperări de date, securitate cibernetică, SEO avansat, Google & Meta Ads, automatizări și agenți AI pentru firme.',
+    'seo_default_og' => '',
+    'seo_google_verification' => '',
+    'seo_bing_verification' => '',
+    'seo_indexnow_key' => '',
+    'seo_robots_extra' => '',
+    'seo_noindex_site' => '0',
+    'seo_llms_intro' => 'VITIM este o firmă din Târgu Mureș care oferă servicii IT (mentenanță, suport remote, reparații, recuperări de date, securitate cibernetică), marketing tehnic (SEO, Google Ads, Meta Ads, tracking) și soluții AI (agenți AI, integrare AI, automatizări, software personalizat). Intervenții on-site în județele Mureș, Bistrița-Năsăud și Alba; suport remote în toată România.',
+
+    // ---------- Integrări ----------
+    'ga4_id' => '',
+    'gtm_id' => '',
+    'google_ads_id' => '',
+    'google_ads_lead_label' => '',
+    'meta_pixel_id' => '',
+    'clarity_id' => '',
+    'turnstile_site_key' => '',
+    'turnstile_secret' => '',
+    'custom_head' => '',
+    'custom_body' => '',
+
+    // ---------- Email / SMTP ----------
+    'mail_driver' => 'smtp',
+    'smtp_host' => '',
+    'smtp_port' => '465',
+    'smtp_secure' => 'ssl',
+    'smtp_user' => '',
+    'smtp_pass' => '',
+    'mail_from' => 'office@vitim.ro',
+    'mail_from_name' => 'VITIM',
+    'mail_reply_to' => '',
+    'notify_email' => 'office@vitim.ro',
+    'newsletter_hourly_limit' => '200',
+    'newsletter_batch' => '20',
+    'newsletter_double_optin' => '1',
+    'autoreply_enabled' => '1',
+    'autoreply_subject' => 'Am primit mesajul tău – VITIM',
+    'autoreply_body' => '<p>Salut {{prenume}},</p><p>Îți mulțumim că ne-ai scris! Am primit solicitarea ta și revenim cu un răspuns în cel mai scurt timp, de regulă în aceeași zi lucrătoare.</p><p>Dacă e ceva urgent, ne poți suna direct la <strong>{{telefon}}</strong>.</p><p>Cu drag,<br>Echipa VITIM</p>',
+    'cron_key' => '',
+
+    // ---------- Site ----------
+    'page_cache' => '1',
+    'page_cache_ttl' => '3600',
+    'maintenance_mode' => '0',
+    'cookie_banner' => '1',
+    'theme_default' => 'dark',
+    'announcement' => '',
+    'announcement_link' => '',
+
+    // ---------- Prima pagină ----------
+    'home_badge' => 'Partenerul tău IT & AI din Transilvania',
+    'home_title' => 'Tehnologie care lucrează <span class="grad">pentru afacerea ta</span>',
+    'home_subtitle' => 'Mentenanță IT, securitate cibernetică și recuperări de date – remote în toată țara și on-site în Mureș, Bistrița-Năsăud și Alba. Plus marketing tehnic, SEO și agenți AI care îți aduc clienți și îți automatizează munca.',
+    'home_cta_primary' => 'Cere o ofertă gratuită',
+    'home_cta_secondary' => 'Vezi serviciile',
+    'home_points' => '["Răspuns rapid, fără birocrație","Suport remote + intervenții la sediu","Prețuri clare, abonamente lunare"]',
+    'home_trust' => '["Microsoft 365","Google Workspace","Google Ads","Meta Ads","OpenAI","Claude","n8n","Make","Cloudflare","WordPress","Synology","Fortinet"]',
+    'home_why' => '[{"icon":"zap","title":"Reacție rapidă","text":"Majoritatea problemelor le rezolvăm remote în câteva minute. Când e nevoie de noi la fața locului, venim."},{"icon":"shield","title":"Securitate by default","text":"Backup verificat, parole și acces gestionate corect, echipamente actualizate. Prevenim, nu doar reparăm."},{"icon":"layers","title":"Un singur partener","text":"IT, site, marketing și AI la un singur furnizor: fără pasat mingea între firme, fără explicații repetate."},{"icon":"chart","title":"Rezultate măsurabile","text":"Rapoarte clare: tichete rezolvate, poziții în Google, lead-uri și cost pe client. Știi exact pe ce dai banii."},{"icon":"cpu","title":"AI pus la treabă","text":"Nu vorbim doar despre AI – îl integrăm în procesele tale ca să economisești ore în fiecare săptămână."},{"icon":"handshake","title":"Om, nu robot","text":"Ai un contact direct, care îți cunoaște firma și îți vorbește pe limba ta, fără jargon inutil."}]',
+    'home_process' => '[{"title":"Discuție gratuită","text":"Ne spui ce te doare sau ce vrei să obții. 15–30 de minute, telefonic sau online."},{"title":"Audit & propunere","text":"Analizăm situația și îți trimitem o propunere clară: ce facem, în cât timp și cât costă."},{"title":"Implementare","text":"Lucrăm rapid și transparent, cu minim de întreruperi pentru echipa ta."},{"title":"Suport & optimizare","text":"Rămânem alături: monitorizăm, întreținem și îmbunătățim continuu."}]',
+    'home_stats' => '[{"value":"3","label":"județe cu intervenții on-site"},{"value":"100%","label":"suport remote în toată România"},{"value":"4","label":"domenii: IT, securitate, marketing, AI"}]',
+    'home_faq' => '[{"q":"Lucrați doar în Mureș?","a":"Intervențiile la sediu le facem în județele Mureș, Bistrița-Năsăud și Alba. Suportul remote, marketingul, SEO și proiectele AI le livrăm pentru clienți din toată România."},{"q":"Aveți abonamente lunare pentru mentenanță IT?","a":"Da. Abonamentul include monitorizare, actualizări, backup verificat, suport remote și un număr de ore de intervenție la sediu, cu timp de răspuns garantat. Prețul depinde de numărul de calculatoare și servere."},{"q":"Cât costă o ofertă sau un audit?","a":"Discuția inițială și oferta sunt gratuite. Pentru auditurile detaliate (securitate, SEO, infrastructură) primești un preț fix înainte de a începe."},{"q":"Puteți recupera datele de pe un hard disk sau SSD defect?","a":"În multe cazuri, da. Evaluăm gratuit suportul de stocare și îți spunem șansele de recuperare și costul înainte de orice intervenție. Important: nu mai porni dispozitivul după ce a cedat."},{"q":"Ce înseamnă concret un agent AI pentru firma mea?","a":"Un asistent software care preia sarcini repetitive: răspunde la întrebări din documentele firmei, califică lead-uri, completează CRM-ul, generează oferte sau rapoarte. Îl conectăm la sistemele pe care le folosești deja."},{"q":"Lucrați și cu firme mici?","a":"Da, cu drag. Majoritatea clienților noștri sunt IMM-uri, cabinete, magazine și firme de servicii care vor un partener IT de încredere fără să angajeze un departament intern."}]',
+    'home_cta_title' => 'Hai să vorbim despre afacerea ta',
+    'home_cta_text' => 'Spune-ne în câteva cuvinte ce ai nevoie. Revenim în aceeași zi lucrătoare cu pașii următori – fără obligații.',
+
+    // ---------- Formular / CRM ----------
+    'crm_stages' => '[{"key":"nou","label":"Nou","color":"#3b82f6"},{"key":"contactat","label":"Contactat","color":"#8b5cf6"},{"key":"oferta","label":"Ofertă trimisă","color":"#f59e0b"},{"key":"negociere","label":"Negociere","color":"#ec4899"},{"key":"castigat","label":"Câștigat","color":"#10b981"},{"key":"pierdut","label":"Pierdut","color":"#6b7280"}]',
+    'form_budgets' => '["Sub 1.000 lei","1.000 – 5.000 lei","5.000 – 15.000 lei","Peste 15.000 lei","Abonament lunar","Nu știu încă"]',
+    'consent_text' => 'Sunt de acord cu prelucrarea datelor mele pentru a fi contactat(ă) în legătură cu această solicitare, conform Politicii de confidențialitate.',
+    'newsletter_consent_text' => 'Vreau să primesc ocazional noutăți, ghiduri și oferte de la VITIM. Mă pot dezabona oricând.',
+];

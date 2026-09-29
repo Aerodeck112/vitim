@@ -1,0 +1,162 @@
+<?php
+declare(strict_types=1);
+
+use App\Core\DB;
+use App\Core\Icons;
+use App\Core\Site;
+
+/**
+ * Definițiile secțiunilor de conținut editabile din panou.
+ * col: main (coloana principală) | side (coloana laterală)
+ */
+$cats = [];
+foreach (Site::categories() as $k => $c) {
+    $cats[$k] = $c['name'];
+}
+$icons = array_combine(Icons::names(), Icons::names());
+$faqFields = [['key' => 'q', 'label' => 'Întrebare'], ['key' => 'a', 'label' => 'Răspuns', 'type' => 'textarea']];
+
+return [
+    'servicii' => [
+        'table' => 'services',
+        'label' => 'Servicii',
+        'singular' => 'serviciu',
+        'order' => 'sort, title',
+        'search' => ['title', 'slug', 'excerpt'],
+        'url' => '/servicii/{slug}',
+        'list' => ['title' => 'Serviciu', 'category' => 'Categorie', 'onsite' => 'La sediu', 'published' => 'Status', 'updated_at' => 'Actualizat'],
+        'filters' => ['category' => $cats],
+        'seo' => true,
+        'fields' => [
+            ['name' => 'title', 'label' => 'Denumire serviciu', 'type' => 'text', 'required' => true],
+            ['name' => 'slug', 'label' => 'Adresă (slug)', 'type' => 'slug', 'from' => 'title', 'prefix' => '/servicii/'],
+            ['name' => 'h1', 'label' => 'Titlu mare (H1) pe pagină', 'type' => 'text', 'hint' => 'Dacă e gol, se folosește denumirea. Include cuvântul cheie principal.'],
+            ['name' => 'excerpt', 'label' => 'Descriere scurtă', 'type' => 'textarea', 'required' => true, 'hint' => 'Apare pe carduri, în introducerea paginii și ca descriere implicită în Google.'],
+            ['name' => 'body', 'label' => 'Conținutul paginii', 'type' => 'richtext', 'hint' => 'Folosește titluri H2/H3 – cuprinsul se generează automat.'],
+            ['name' => 'features', 'label' => 'Ce include (carduri)', 'type' => 'repeater', 'fields' => [['key' => 'icon', 'label' => 'Iconiță', 'type' => 'select', 'options' => array_keys($icons)], ['key' => 'title', 'label' => 'Titlu'], ['key' => 'text', 'label' => 'Text', 'type' => 'textarea']]],
+            ['name' => 'process', 'label' => 'Pași de lucru (opțional – altfel se folosesc cei generali)', 'type' => 'repeater', 'fields' => [['key' => 'title', 'label' => 'Pas'], ['key' => 'text', 'label' => 'Descriere', 'type' => 'textarea']]],
+            ['name' => 'faq', 'label' => 'Întrebări frecvente (apar și în Google ca FAQ)', 'type' => 'repeater', 'fields' => $faqFields],
+            ['name' => 'published', 'label' => 'Publicat', 'type' => 'checkbox', 'col' => 'side', 'default' => 1],
+            ['name' => 'category', 'label' => 'Categorie', 'type' => 'select', 'options' => $cats, 'col' => 'side'],
+            ['name' => 'tagline', 'label' => 'Subtitlu scurt (meniu)', 'type' => 'text', 'col' => 'side'],
+            ['name' => 'icon', 'label' => 'Iconiță', 'type' => 'select', 'options' => $icons, 'col' => 'side'],
+            ['name' => 'onsite', 'label' => 'Disponibil și la sediul clientului', 'type' => 'checkbox', 'col' => 'side'],
+            ['name' => 'featured', 'label' => 'Evidențiat pe prima pagină', 'type' => 'checkbox', 'col' => 'side'],
+            ['name' => 'price_from', 'label' => 'Preț de la (opțional)', 'type' => 'text', 'col' => 'side', 'hint' => 'Ex: 490 lei/lună'],
+            ['name' => 'image', 'label' => 'Imagine', 'type' => 'image', 'col' => 'side'],
+            ['name' => 'keywords', 'label' => 'Cuvinte cheie țintă (intern)', 'type' => 'textarea', 'col' => 'side', 'hint' => 'Pentru evidența ta și auditul SEO. Nu se afișează.'],
+            ['name' => 'sort', 'label' => 'Ordine', 'type' => 'number', 'col' => 'side'],
+        ],
+    ],
+    'zone' => [
+        'table' => 'locations',
+        'label' => 'Zone deservite',
+        'singular' => 'zonă',
+        'order' => "CASE WHEN type='judet' THEN id ELSE parent_id END, type <> 'judet', sort, name",
+        'search' => ['name', 'slug'],
+        'url' => '/zone/{slug}',
+        'list' => ['name' => 'Zonă', 'type' => 'Tip', 'county_name' => 'Județ', 'published' => 'Status'],
+        'seo' => true,
+        'fields' => [
+            ['name' => 'name', 'label' => 'Nume (județ sau localitate)', 'type' => 'text', 'required' => true],
+            ['name' => 'slug', 'label' => 'Adresă (slug)', 'type' => 'slug', 'from' => 'name', 'prefix' => '/zone/'],
+            ['name' => 'intro', 'label' => 'Introducere (unică pentru fiecare zonă!)', 'type' => 'textarea', 'hint' => 'Scrie ceva specific localității – Google penalizează paginile identice.'],
+            ['name' => 'body', 'label' => 'Conținut suplimentar', 'type' => 'richtext'],
+            ['name' => 'faq', 'label' => 'Întrebări frecvente (dacă e gol, se generează automat)', 'type' => 'repeater', 'fields' => $faqFields],
+            ['name' => 'published', 'label' => 'Publicat', 'type' => 'checkbox', 'col' => 'side', 'default' => 1],
+            ['name' => 'type', 'label' => 'Tip', 'type' => 'select', 'options' => ['judet' => 'Județ', 'oras' => 'Oraș / localitate'], 'col' => 'side'],
+            ['name' => 'parent_id', 'label' => 'Județul (pentru localități)', 'type' => 'select', 'options' => fn() => ['' => '—'] + array_column(DB::all("SELECT id, name FROM locations WHERE type = 'judet' ORDER BY sort, name"), 'name', 'id'), 'col' => 'side'],
+            ['name' => 'lat', 'label' => 'Latitudine', 'type' => 'text', 'col' => 'side'],
+            ['name' => 'lng', 'label' => 'Longitudine', 'type' => 'text', 'col' => 'side'],
+            ['name' => 'sort', 'label' => 'Ordine', 'type' => 'number', 'col' => 'side'],
+        ],
+    ],
+    'articole' => [
+        'table' => 'posts',
+        'label' => 'Articole blog',
+        'singular' => 'articol',
+        'order' => 'COALESCE(published_at, created_at) DESC',
+        'search' => ['title', 'slug', 'tags'],
+        'url' => '/blog/{slug}',
+        'list' => ['title' => 'Titlu', 'category' => 'Categorie', 'status' => 'Status', 'published_at' => 'Publicare'],
+        'filters' => ['status' => ['published' => 'Publicat', 'draft' => 'Ciornă']],
+        'seo' => true,
+        'fields' => [
+            ['name' => 'title', 'label' => 'Titlu', 'type' => 'text', 'required' => true],
+            ['name' => 'slug', 'label' => 'Adresă (slug)', 'type' => 'slug', 'from' => 'title', 'prefix' => '/blog/'],
+            ['name' => 'excerpt', 'label' => 'Rezumat', 'type' => 'textarea', 'hint' => '1–2 fraze. Apare în listă, în Google și la distribuire.'],
+            ['name' => 'body', 'label' => 'Conținut', 'type' => 'richtext'],
+            ['name' => 'faq', 'label' => 'Întrebări frecvente (opțional)', 'type' => 'repeater', 'fields' => $faqFields],
+            ['name' => 'status', 'label' => 'Status', 'type' => 'select', 'options' => ['draft' => 'Ciornă', 'published' => 'Publicat'], 'col' => 'side'],
+            ['name' => 'published_at', 'label' => 'Data publicării', 'type' => 'datetime', 'col' => 'side', 'hint' => 'O dată în viitor = articol programat.'],
+            ['name' => 'cover', 'label' => 'Imagine principală', 'type' => 'image', 'col' => 'side'],
+            ['name' => 'category', 'label' => 'Categorie', 'type' => 'text', 'col' => 'side', 'hint' => 'Ex: Securitate, AI, SEO'],
+            ['name' => 'tags', 'label' => 'Etichete', 'type' => 'text', 'col' => 'side', 'hint' => 'Separate prin virgulă'],
+            ['name' => 'author_id', 'label' => 'Autor', 'type' => 'select', 'options' => fn() => array_column(DB::all('SELECT id, name FROM users ORDER BY name'), 'name', 'id'), 'col' => 'side'],
+        ],
+    ],
+    'pagini' => [
+        'table' => 'pages',
+        'label' => 'Pagini',
+        'singular' => 'pagină',
+        'order' => 'sort, title',
+        'search' => ['title', 'slug'],
+        'url' => '/{slug}',
+        'list' => ['title' => 'Titlu', 'slug' => 'Adresă', 'in_footer' => 'În subsol', 'published' => 'Status'],
+        'protected' => ['contact', 'despre-noi', 'politica-de-confidentialitate', 'politica-cookies'],
+        'seo' => true,
+        'fields' => [
+            ['name' => 'title', 'label' => 'Titlu', 'type' => 'text', 'required' => true],
+            ['name' => 'slug', 'label' => 'Adresă (slug)', 'type' => 'slug', 'from' => 'title', 'prefix' => '/'],
+            ['name' => 'subtitle', 'label' => 'Subtitlu', 'type' => 'text'],
+            ['name' => 'body', 'label' => 'Conținut', 'type' => 'richtext', 'hint' => 'Poți folosi {{firma}}, {{cui}}, {{reg_com}}, {{adresa}}, {{email}}, {{telefon}}, {{site}} – se completează automat.'],
+            ['name' => 'published', 'label' => 'Publicat', 'type' => 'checkbox', 'col' => 'side', 'default' => 1],
+            ['name' => 'in_footer', 'label' => 'Link în subsolul site-ului', 'type' => 'checkbox', 'col' => 'side'],
+            ['name' => 'template', 'label' => 'Șablon', 'type' => 'select', 'options' => ['default' => 'Standard', 'cta' => 'Standard + formular de contact', 'about' => 'Despre noi (doar pagina despre-noi)', 'contact' => 'Contact (doar pagina contact)'], 'col' => 'side'],
+            ['name' => 'sort', 'label' => 'Ordine', 'type' => 'number', 'col' => 'side'],
+        ],
+    ],
+    'proiecte' => [
+        'table' => 'projects',
+        'label' => 'Proiecte / studii de caz',
+        'singular' => 'proiect',
+        'order' => 'sort, id DESC',
+        'search' => ['title', 'client'],
+        'url' => '/proiecte/{slug}',
+        'list' => ['title' => 'Proiect', 'client' => 'Client', 'published' => 'Status'],
+        'seo' => true,
+        'fields' => [
+            ['name' => 'title', 'label' => 'Titlu', 'type' => 'text', 'required' => true],
+            ['name' => 'slug', 'label' => 'Adresă (slug)', 'type' => 'slug', 'from' => 'title', 'prefix' => '/proiecte/'],
+            ['name' => 'summary', 'label' => 'Rezumat (problemă → rezultat)', 'type' => 'textarea'],
+            ['name' => 'results', 'label' => 'Rezultate în cifre', 'type' => 'repeater', 'fields' => [['key' => 'value', 'label' => 'Valoare (ex: -40%)'], ['key' => 'label', 'label' => 'Descriere (ex: cost per lead)']]],
+            ['name' => 'body', 'label' => 'Studiul complet', 'type' => 'richtext'],
+            ['name' => 'published', 'label' => 'Publicat', 'type' => 'checkbox', 'col' => 'side', 'default' => 1],
+            ['name' => 'client', 'label' => 'Client (sau „Firmă de producție, Mureș”)', 'type' => 'text', 'col' => 'side'],
+            ['name' => 'service_id', 'label' => 'Serviciu', 'type' => 'select', 'options' => fn() => ['' => '—'] + array_column(DB::all('SELECT id, title FROM services ORDER BY sort'), 'title', 'id'), 'col' => 'side'],
+            ['name' => 'cover', 'label' => 'Imagine', 'type' => 'image', 'col' => 'side'],
+            ['name' => 'sort', 'label' => 'Ordine', 'type' => 'number', 'col' => 'side'],
+        ],
+    ],
+    'testimoniale' => [
+        'table' => 'testimonials',
+        'label' => 'Testimoniale',
+        'singular' => 'testimonial',
+        'order' => 'sort, id DESC',
+        'search' => ['name', 'company', 'text'],
+        'url' => null,
+        'list' => ['name' => 'Nume', 'company' => 'Firmă', 'rating' => 'Stele', 'published' => 'Status'],
+        'seo' => false,
+        'note' => 'Folosește doar păreri reale, cu acordul clientului. Recenziile inventate sunt interzise de lege și de Google.',
+        'fields' => [
+            ['name' => 'name', 'label' => 'Nume client', 'type' => 'text', 'required' => true],
+            ['name' => 'text', 'label' => 'Testimonial', 'type' => 'textarea', 'required' => true],
+            ['name' => 'role', 'label' => 'Funcție', 'type' => 'text'],
+            ['name' => 'company', 'label' => 'Firmă', 'type' => 'text'],
+            ['name' => 'published', 'label' => 'Publicat', 'type' => 'checkbox', 'col' => 'side', 'default' => 1],
+            ['name' => 'rating', 'label' => 'Stele (0 = fără)', 'type' => 'select', 'options' => ['5' => '5', '4' => '4', '3' => '3', '0' => 'Fără stele'], 'col' => 'side'],
+            ['name' => 'service_id', 'label' => 'Afișează la serviciul', 'type' => 'select', 'options' => fn() => ['' => 'Toate paginile'] + array_column(DB::all('SELECT id, title FROM services ORDER BY sort'), 'title', 'id'), 'col' => 'side'],
+            ['name' => 'sort', 'label' => 'Ordine', 'type' => 'number', 'col' => 'side'],
+        ],
+    ],
+];

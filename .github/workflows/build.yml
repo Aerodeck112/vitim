@@ -1,0 +1,31 @@
+name: Verificare și arhivă cPanel
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo_sqlite, mbstring, gd, zip, intl, sodium
+      - name: Verificare sintaxă PHP 8.1
+        run: find app install index.php tools -name '*.php' -not -path 'app/vendor/*' -print0 | xargs -0 -n1 php -l
+      - name: Arhivă de instalare / actualizare
+        run: php tools/build.php
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vitim-cpanel-zip
+          path: dist/*.zip
+      - name: Release (doar pentru tag-uri v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
