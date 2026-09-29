@@ -37,6 +37,7 @@ Tabloul de bord îți arată o listă de configurare. Pe scurt:
 - **Setări SEO**: codul de verificare Google Search Console. Apoi trimite `https://vitim.ro/sitemap.xml` în Search Console.
 - **Setări → Aspect**: încarcă logo-ul.
 - **Testimoniale**: adaugă păreri reale ale clienților.
+- **Setări → Asistent AI** (opțional): pune cheia API de la console.anthropic.com → *API Keys*, bifează „Activat” și apasă „Testează conexiunea” din Panou → Asistent AI.
 
 ---
 
@@ -64,6 +65,7 @@ Dacă ceva nu merge, apasă **Restaurează** la backup-ul de cod din aceeași pa
 | **SEO** | Date structurate schema.org, sitemap cu imagini, robots.txt, llms.txt, IndexNow, imagini OG automate, canonical, cache de pagini, WebP, redirecționări, audit, jurnal 404 |
 | **CRM** | Pipeline Kanban, contacte, istoric activități, sarcini, email din fișa clientului, surse lead-uri (Google Ads / Meta / organic / AI), import/export CSV, ștergere GDPR |
 | **Email marketing** | Newsletter (double opt-in) și notificări către clienți, segmentare (status, județ, etichete), programare, trimitere în loturi, rapoarte de deschideri și click-uri, dezabonare cu un click |
+| **Asistent AI** | Chat pe site care răspunde din conținutul site-ului, colectează cereri de ofertă în CRM (cu acord), istoric conversații în panou, limite anti-abuz, ștergere automată după 12 luni |
 | **Securitate** | 2FA, roluri (admin / editor / vânzări), CSRF, rate limiting, anti-spam fără captcha (opțional Cloudflare Turnstile), parole SMTP criptate, headere de securitate |
 | **Sistem** | Actualizare din .zip, backup-uri, cron, jurnal erori |
 
@@ -96,5 +98,6 @@ storage/             cache, jurnale, backup-uri, SQLite (nu se suprascriu)
   - notează schimbările în `CHANGELOG.md`
   - rulează `php tools/build.php`
   - fișierele eliminate se listează în `REMOVED.txt`, ca să fie șterse la actualizare.
+- **Asistentul în teste**: `php -S 127.0.0.1:8090 tests/mock-anthropic.php` imită API-ul; adaugă `'ai_base_url' => 'http://127.0.0.1:8090'` în `app/config.php` al instalării de test.
 - **Teste end-to-end** (Playwright): pornește serverul local, instalează, apoi rulează `node tests/e2e.cjs http://127.0.0.1:8080 admin@exemplu.ro 'parola'`. Testele acoperă paginile publice, formularul, newsletterul, toate paginile panoului, CRM-ul, editorul de conținut, media, setările, campaniile, auditul SEO și backup-ul.
 - **Compatibilitate**: PHP 8.1+, MySQL 5.7+ / MariaDB 10.3+ sau SQLite 3.

@@ -4,7 +4,7 @@ use App\Core\View;
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['Blog', '/blog']],
     'eyebrow' => icon('pen') . ' Ghiduri practice',
-    'title' => 'Blog: IT, securitate, marketing și <span class="grad">AI pentru firme</span>',
+    'title' => 'Blog: IT, securitate, marketing și AI pentru firme',
     'lead' => 'Explicații clare, fără jargon, pentru antreprenori care vor să ia decizii bune în tehnologie.',
 ]);
 ?>

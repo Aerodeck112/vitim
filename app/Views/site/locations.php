@@ -4,7 +4,7 @@ use App\Core\View;
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['Zone', '/zone']],
     'eyebrow' => icon('map') . ' Remote în toată țara · on-site în 3 județe',
-    'title' => 'Servicii IT la sediu în <span class="grad">Mureș, Bistrița-Năsăud și Alba</span>',
+    'title' => 'Servicii IT la sediu în Mureș, Bistrița-Năsăud și Alba',
     'lead' => 'Venim la tine pentru instalări, reparații, rețelistică și mentenanță. Restul – suport, marketing, SEO, automatizări și AI – îl livrăm remote, oriunde ai fi.',
     'actions' => '<a class="btn btn-primary btn-lg" href="' . e(url('/contact')) . '">Programează o intervenție ' . icon('arrow-right', 'ico ico-move') . '</a>',
 ]);

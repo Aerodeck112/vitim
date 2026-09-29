@@ -185,7 +185,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
 
 <?php if (setting('cookie_banner') === '1'): ?>
 <div class="consent" id="consent" role="dialog" aria-live="polite" aria-label="Preferințe cookies">
-  <h3>Folosim cookies 🍪</h3>
+  <h3>Folosim cookies</h3>
   <p style="margin:0">Folosim cookies necesare pentru funcționarea site-ului și, cu acordul tău, cookies de analiză și marketing ca să îmbunătățim site-ul și reclamele. Detalii în <a href="<?= e(url('/politica-cookies')) ?>" style="text-decoration:underline">Politica de cookies</a>.</p>
   <div class="prefs">
     <label><input type="checkbox" checked disabled> <span><b>Necesare</b>Funcționarea de bază a site-ului. Mereu active.</span></label>
@@ -199,6 +199,27 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
     <button class="btn btn-ghost btn-sm" type="button" data-consent="prefs">Personalizează</button>
   </div>
 </div>
+<?php endif; ?>
+
+<?php if (\App\Core\Assistant::enabled()): $sugg = \App\Core\Settings::json('ai_suggestions'); ?>
+<div class="chat" id="chat" data-chat hidden>
+  <div class="chat-head">
+    <span class="chat-av"><?= Site::markSvg('mk') ?></span>
+    <div><strong><?= e(setting('ai_name')) ?></strong><small><span class="dot"></span> răspunde imediat, 24/7</small></div>
+    <button class="icon-btn" type="button" data-chat-close aria-label="Închide chatul"><?= icon('x') ?></button>
+  </div>
+  <div class="chat-body" data-chat-body aria-live="polite">
+    <div class="msg bot"><?= e(setting('ai_greeting')) ?></div>
+    <?php if ($sugg): ?><div class="chat-sugg" data-chat-sugg><?php foreach ($sugg as $q): ?><button type="button"><?= e($q) ?></button><?php endforeach; ?></div><?php endif; ?>
+  </div>
+  <form class="chat-form" data-chat-form>
+    <label class="sr-only" for="chat-in">Mesaj</label>
+    <textarea id="chat-in" rows="1" maxlength="1500" placeholder="Scrie întrebarea ta…" required></textarea>
+    <button class="btn btn-primary" type="submit" aria-label="Trimite"><?= icon('send') ?></button>
+  </form>
+  <p class="chat-note">Asistent virtual. Poate greși – pentru decizii importante vorbește cu un coleg. <a href="<?= e(url('/politica-de-confidentialitate')) ?>" target="_blank">Confidențialitate</a></p>
+</div>
+<button class="chat-fab" type="button" data-chat-open aria-controls="chat"><?= icon('message') ?><span>Întreabă-ne</span></button>
 <?php endif; ?>
 <script src="<?= e(asset('js/site.js')) ?>" defer></script>
 </body>

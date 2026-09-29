@@ -30,6 +30,8 @@ $router->get('/despre-noi', [PageController::class, 'about']);
 $router->get('/api/form-token', [FormController::class, 'token']);
 $router->post('/api/contact', [FormController::class, 'contact']);
 $router->post('/api/newsletter', [FormController::class, 'newsletter']);
+$router->post('/api/chat', [\App\Controllers\Site\ChatController::class, 'send']);
+$router->get('/api/chat/{token:[A-Za-z0-9_-]+}', [\App\Controllers\Site\ChatController::class, 'history']);
 $router->get('/multumim', [FormController::class, 'thanks']);
 $router->get('/newsletter/confirmare/{token:[A-Za-z0-9_-]+}', [FormController::class, 'confirm']);
 $router->any('/newsletter/dezabonare/{token:[A-Za-z0-9_-]+}', [FormController::class, 'unsubscribe']);
@@ -105,6 +107,12 @@ $router->post('/admin/email/{id:\d+}/sterge', [Admin\EmailController::class, 'de
 $router->post('/admin/email/audienta', [Admin\EmailController::class, 'audienceCount']);
 $router->get('/admin/abonati', [Admin\EmailController::class, 'subscribers']);
 $router->get('/admin/email/jurnal', [Admin\EmailController::class, 'log']);
+
+// Asistent AI
+$router->get('/admin/asistent', [Admin\AssistantController::class, 'index']);
+$router->get('/admin/asistent/{id:\d+}', [Admin\AssistantController::class, 'show']);
+$router->post('/admin/asistent/test', [Admin\AssistantController::class, 'test']);
+$router->post('/admin/asistent/{id:\d+}/sterge', [Admin\AssistantController::class, 'delete']);
 
 // SEO
 $router->get('/admin/seo', [Admin\SeoController::class, 'index']);

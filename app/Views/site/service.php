@@ -7,6 +7,7 @@ echo View::partial('site/partials/page_hero', [
     'crumbs' => [['Servicii', '/servicii'], [$s['title'], '/servicii/' . $s['slug']]],
     'eyebrow' => icon($s['icon'] ?: 'sparkles') . ' ' . e($cat['name']) . ($s['onsite'] ? ' · remote + la sediu' : ' · în toată România'),
     'title' => e($h1),
+    'image' => $s['image'] ?? '',
     'lead' => $s['excerpt'],
     'actions' => '<a class="btn btn-primary btn-lg" href="#oferta">Cere o ofertă gratuită ' . icon('arrow-right', 'ico ico-move') . '</a><a class="btn btn-ghost btn-lg" href="' . e(phone_href((string)setting('phone'))) . '" data-loc="service-hero">' . icon('phone') . ' ' . e(setting('phone')) . '</a>',
 ]);
@@ -72,7 +73,7 @@ echo View::partial('site/partials/page_hero', [
     <div class="section-head" data-reveal><span class="eyebrow">Servicii conexe</span><h2>Te-ar putea interesa și</h2></div>
     <div class="grid-3">
       <?php foreach ($related as $r): ?>
-      <article class="card" data-reveal><div class="icon-tile"><?= icon($r['icon'] ?: 'sparkles') ?></div><h3><?= e($r['title']) ?></h3><p><?= e($r['excerpt']) ?></p><span class="more">Detalii <?= icon('arrow-up-right') ?></span><a class="card-link" href="<?= e(url('/servicii/' . $r['slug'])) ?>" aria-label="<?= e($r['title']) ?>"></a></article>
+      <article class="card" data-reveal><?php if (!empty($r['image'])): ?><div class="card-img"><img src="<?= e(upload_url($r['image'])) ?>" srcset="<?= e(\App\Core\Uploader::srcset($r['image'])) ?>" sizes="400px" alt="" loading="lazy" width="960" height="540"></div><?php endif; ?><div class="icon-tile"><?= icon($r['icon'] ?: 'sparkles') ?></div><h3><?= e($r['title']) ?></h3><p><?= e($r['excerpt']) ?></p><span class="more">Detalii <?= icon('arrow-up-right') ?></span><a class="card-link" href="<?= e(url('/servicii/' . $r['slug'])) ?>" aria-label="<?= e($r['title']) ?>"></a></article>
       <?php endforeach; ?>
     </div>
   </div>

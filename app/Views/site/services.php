@@ -4,7 +4,7 @@ use App\Core\View;
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['Servicii', '/servicii']],
     'eyebrow' => icon('layers') . ' ' . count(\App\Core\Site::services()) . ' servicii, un singur partener',
-    'title' => 'Servicii IT, securitate, marketing și <span class="grad">AI pentru firme</span>',
+    'title' => 'Servicii IT, securitate, marketing și AI pentru firme',
     'lead' => 'Alege exact ce ai nevoie sau lasă-ne să construim un pachet complet: infrastructură IT fiabilă, date protejate, clienți din online și procese automatizate.',
     'actions' => '<a class="btn btn-primary btn-lg" href="' . e(url('/contact')) . '">Cere o ofertă ' . icon('arrow-right', 'ico ico-move') . '</a>',
 ]);
@@ -23,6 +23,7 @@ echo View::partial('site/partials/page_hero', [
       <div class="grid-3">
         <?php foreach ($g['items'] as $i => $s): ?>
         <article class="card" data-reveal data-delay="<?= ($i % 3) * 70 ?>">
+          <?php if (!empty($s['image'])): ?><div class="card-img"><img src="<?= e(upload_url($s['image'])) ?>" srcset="<?= e(\App\Core\Uploader::srcset($s['image'])) ?>" sizes="(max-width:720px) 100vw, 400px" alt="" loading="lazy" width="960" height="540"></div><?php endif; ?>
           <div class="icon-tile"><?= icon($s['icon'] ?: 'sparkles') ?></div>
           <h3><?= e($s['title']) ?></h3>
           <p><?= e($s['excerpt']) ?></p>

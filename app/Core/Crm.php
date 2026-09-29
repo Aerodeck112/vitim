@@ -280,6 +280,7 @@ final class Crm
             'referral' => 'Recomandare (link)',
             'direct' => 'Direct',
             'formular' => 'Formular site',
+            'asistent_ai' => 'Asistent AI (chat site)',
             'newsletter' => 'Newsletter',
             'import' => 'Import',
             'manual' => 'Adăugat manual',

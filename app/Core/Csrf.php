@@ -35,7 +35,7 @@ final class Csrf
     }
 
     /** Verifică tokenul public: semnat, emis cu 3 sec – 12 ore în urmă. */
-    public static function verifyFormToken(?string $token): bool
+    public static function verifyFormToken(?string $token, int $minAge = 3): bool
     {
         if (!$token || !str_contains($token, '.')) {
             return false;
@@ -45,7 +45,7 @@ final class Csrf
             return false;
         }
         $age = time() - (int)$t;
-        return $age >= 3 && $age <= 43200;
+        return $age >= $minAge && $age <= 43200;
     }
 
     public static function sameOrigin(): bool

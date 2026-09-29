@@ -11,7 +11,7 @@ final class Settings
     private static ?array $cache = null;
 
     /** Setări sensibile, criptate în baza de date cu cheia aplicației. */
-    private const SECRETS = ['smtp_pass', 'turnstile_secret'];
+    private const SECRETS = ['smtp_pass', 'turnstile_secret', 'ai_api_key'];
 
     public static function defaults(): array
     {

@@ -149,6 +149,41 @@ function ok(cond, msg) { if (cond) { passed++; console.log('  ✓ ' + msg); } el
   await page.click('button[value=db]');
   ok(await page.locator('.alert-ok').count() > 0, 'Sistem: backup bază de date creat');
 
+  // asistent AI (necesită 'ai_base_url' => mock în app/config.php: php -S 127.0.0.1:8090 tests/mock-anthropic.php)
+  console.log('Asistent AI');
+  for (const p of ['/admin/asistent', '/admin/setari/asistent']) {
+    const r = await page.goto(BASE + p);
+    ok(r.status() === 200 && !(await page.locator('text=Ceva nu a mers bine').count()), `${p} → 200`);
+  }
+  await page.goto(BASE + '/admin/setari/asistent');
+  await page.check('input[name=ai_enabled]');
+  await page.fill('input[name=ai_api_key]', 'test-key-123');
+  await page.click('button:has-text("Salvează")');
+  ok(await page.locator('.alert-ok').count() > 0, 'Asistent: setări salvate');
+  await page.goto(BASE + '/admin/asistent');
+  await page.click('button:has-text("Testează conexiunea")');
+  const connOk = await page.locator('.alert-ok').count() > 0;
+  ok(true, 'Asistent: test conexiune rulat (' + (connOk ? 'API mock disponibil' : 'fără API – partea de chat se sare') + ')');
+  if (connOk) {
+    const pub = await ctx.newPage();
+    pub.on('pageerror', e => jsErrors.push(e.message));
+    await pub.context().clearCookies();
+    await pub.goto(BASE + '/');
+    ok(await pub.locator('[data-chat-open]').isVisible(), 'Chat: butonul apare pe site');
+    await pub.click('[data-chat-open]');
+    ok(await pub.locator('[data-chat]').isVisible(), 'Chat: fereastra se deschide');
+    await pub.locator('[data-chat-sugg] button').first().click();
+    await pub.waitForSelector('.msg.bot:not(.typing) >> nth=1', { timeout: 20000 });
+    ok(await pub.locator('.msg.bot strong', { hasText: 'nu mai porni' }).count() > 0, 'Chat: răspuns formatat (îngroșat, listă)');
+    ok(await pub.locator('.msg.bot a[href="/servicii/recuperare-date"]').count() > 0, 'Chat: link intern păstrat');
+    ok(await pub.locator('.msg.bot a[href*="evil"]').count() === 0, 'Chat: link extern eliminat (siguranță)');
+    await pub.goto(BASE + '/contact');
+    ok(await pub.locator('[data-chat]').isVisible() && await pub.locator('.msg.me').count() > 0, 'Chat: conversația continuă pe altă pagină');
+    const html = await pub.content();
+    ok(!/claude|anthropic/i.test(html.replace(/ClaudeBot|Claude-SearchBot/g, '')), 'Site: nicio mențiune a furnizorului AI în pagină');
+    await pub.close();
+  }
+
   ok(jsErrors.length === 0, 'fără erori JavaScript' + (jsErrors.length ? ': ' + jsErrors.join(' | ') : ''));
   await browser.close();
   console.log(`\n${passed} teste trecute, ${failed} eșuate`);

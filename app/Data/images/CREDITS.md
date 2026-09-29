@@ -1,0 +1,21 @@
+# Surse imagini (licență gratuită pentru uz comercial, fără atribuire obligatorie)
+- hero-echipa-it-server.webp — Unsplash (unsplash.com/license) – photo-1573164713988-8665fc963095
+- mentenanta-it-firme.webp — Unsplash (unsplash.com/license) – photo-1558494949-ef010cbdcc31
+- suport-it-remote.webp — Unsplash (unsplash.com/license) – photo-1563986768609-322da13575f3
+- reparatii-calculatoare-servere.webp — Unsplash (unsplash.com/license) – photo-1518770660439-4636190af475
+- google-workspace-colaborare.webp — Unsplash (unsplash.com/license) – photo-1519389950473-47ba0277781c
+- securitate-cibernetica.webp — Unsplash (unsplash.com/license) – photo-1550751827-4bd374c3f58b
+- recuperare-date-hard-disk.webp — Unsplash (unsplash.com/license) – photo-1597852074816-d933c7d2b988
+- seo-analiza-trafic.webp — Unsplash (unsplash.com/license) – photo-1460925895917-afdab827c52f
+- marketing-tehnic-dashboard.webp — Unsplash (unsplash.com/license) – photo-1551288049-bebda4e38f71
+- campanii-google-ads.webp — Unsplash (unsplash.com/license) – photo-1591696205602-2f950c417cb9
+- campanii-meta-ads-social.webp — Pexels (pexels.com/license) – 1181244
+- creare-site-web-design.webp — Unsplash (unsplash.com/license) – photo-1558655146-d09347e92766
+- agenti-ai-software.webp — Pexels (pexels.com/license) – 8386440
+- integrare-agenti-ai.webp — Pexels (pexels.com/license) – 5380642
+- automatizari-procese.webp — Unsplash (unsplash.com/license) – photo-1504868584819-f8e8b4b6d7e3
+- instruire-ai-firme.webp — Unsplash (unsplash.com/license) – photo-1552664730-d307ca884978
+- blog-agenti-ai.webp — Unsplash (unsplash.com/license) – photo-1677442136019-21780ecad995
+- blog-securitate-retea.webp — Pexels (pexels.com/license) – 2881232
+- blog-seo-planificare.webp — Unsplash (unsplash.com/license) – photo-1432888498266-38ffec3eaf0a
+- sala-servere.webp — Pexels (pexels.com/license) – 4508751

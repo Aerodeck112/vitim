@@ -1,5 +1,14 @@
 # Istoric versiuni
 
+## 1.1.0 — asistent AI și fotografii
+
+- **Asistent virtual pe site**: răspunde vizitatorilor 24/7 din serviciile, zonele, întrebările frecvente și articolele site-ului. Când cineva vrea ofertă, cere acordul, salvează cererea în CRM (sursa „Asistent AI”) și trimite notificare pe email. Conversațiile se văd în Panou → Asistent AI.
+- Setări noi în Setări → Asistent AI: cheie API (salvată criptat), model, nume, mesaj de întâmpinare, întrebări sugerate, instrucțiuni suplimentare, limite anti-abuz.
+- 20 de fotografii profesionale (licență gratuită Unsplash/Pexels), optimizate WebP, pe prima pagină, pe servicii și pe articole. Se pot înlocui oricând din panou cu poze proprii.
+- Prima pagină are o fotografie reală în loc de consola animată; titlurile nu mai folosesc gradient peste tot, ca să arate mai sobru.
+- Setări → Aspect: fotografie pentru prima pagină și pentru pagina Despre noi.
+- Politica de confidențialitate are o secțiune despre asistentul virtual; conversațiile mai vechi de 12 luni se șterg automat (cron).
+
 ## 1.0.0 — prima versiune
 
 **Site public**

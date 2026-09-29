@@ -1,7 +1,7 @@
 <?php
 use App\Core\View;
 
-echo View::partial('site/partials/page_hero', ['crumbs' => [['Proiecte', '/proiecte']], 'eyebrow' => icon('award') . ' Studii de caz', 'title' => 'Proiecte și <span class="grad">rezultate reale</span>', 'lead' => 'Problema, soluția și ce s-a schimbat concret pentru clienții noștri.']);
+echo View::partial('site/partials/page_hero', ['crumbs' => [['Proiecte', '/proiecte']], 'eyebrow' => icon('award') . ' Studii de caz', 'title' => 'Proiecte și rezultate reale', 'lead' => 'Problema, soluția și ce s-a schimbat concret pentru clienții noștri.']);
 ?>
 <section class="section"><div class="container"><div class="grid-3">
 <?php foreach ($items as $i => $p): ?>

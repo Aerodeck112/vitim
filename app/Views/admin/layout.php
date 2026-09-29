@@ -34,6 +34,7 @@ $tasksDue = $u ? (int)DB::val("SELECT COUNT(*) FROM activities WHERE type = 'tas
       <a href="<?= e(url('/admin/crm')) ?>"<?= $on('/admin/crm', true) ?>><?= icon('kanban') ?> Oportunități <?php if ($newLeads): ?><span class="badge b-info"><?= $newLeads ?></span><?php endif; ?></a>
       <a href="<?= e(url('/admin/crm/contacte')) ?>"<?= $on('/admin/crm/contacte') ?>><?= icon('users') ?> Contacte</a>
       <a href="<?= e(url('/admin/crm/sarcini')) ?>"<?= $on('/admin/crm/sarcini') ?>><?= icon('check-circle') ?> Sarcini <?php if ($tasksDue): ?><span class="badge b-warn"><?= $tasksDue ?></span><?php endif; ?></a>
+      <a href="<?= e(url('/admin/asistent')) ?>"<?= $on('/admin/asistent') ?>><?= icon('bot') ?> Asistent AI</a>
       <a href="<?= e(url('/admin/formulare')) ?>"<?= $on('/admin/formulare') ?>><?= icon('inbox') ?> Formulare <?php if ($unread): ?><span class="badge b-err"><?= $unread ?></span><?php endif; ?></a>
       <?php endif; ?>
       <?php if (Auth::can('email')): ?>

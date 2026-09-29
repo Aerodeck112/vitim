@@ -4,7 +4,7 @@ use App\Core\View;
 echo View::partial('site/partials/page_hero', ['crumbs' => [['Proiecte', '/proiecte'], [$p['title'], '/proiecte/' . $p['slug']]], 'eyebrow' => icon('award') . ' ' . e($p['service_title'] ?: 'Studiu de caz') . ($p['client'] ? ' · ' . e($p['client']) : ''), 'title' => e($p['title']), 'lead' => $p['summary']]);
 ?>
 <?php if ($results): ?>
-<section class="section-sm"><div class="container"><div class="stats"><?php foreach ($results as $r): ?><div class="stat"><b class="grad"><?= e($r['value'] ?? '') ?></b><span><?= e($r['label'] ?? '') ?></span></div><?php endforeach; ?></div></div></section>
+<section class="section-sm"><div class="container"><div class="stats"><?php foreach ($results as $r): ?><div class="stat"><b><?= e($r['value'] ?? '') ?></b><span><?= e($r['label'] ?? '') ?></span></div><?php endforeach; ?></div></div></section>
 <?php endif; ?>
 <section class="section-sm"><div class="container" style="max-width:880px">
   <?php if ($p['cover']): ?><div class="article-cover"><img src="<?= e(upload_url($p['cover'])) ?>" alt="<?= e($p['title']) ?>"></div><?php endif; ?>

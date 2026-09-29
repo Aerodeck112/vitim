@@ -85,6 +85,8 @@ HTML,
 <li><strong>Securitatea site-ului, prevenirea fraudei și a spamului</strong> – interes legitim (art. 6 alin. 1 lit. f).</li>
 <li><strong>Statistici și măsurarea campaniilor</strong> – consimțământul exprimat prin bannerul de cookies.</li>
 </ul>
+<h2>Asistentul virtual de pe site</h2>
+<p>Pe site poți discuta cu un asistent virtual bazat pe inteligență artificială. Mesajele tale sunt transmise, în mod securizat, unui furnizor de servicii de inteligență artificială care le procesează ca să genereze răspunsul, în baza unui acord de prelucrare a datelor, fără a le folosi pentru antrenarea modelelor. Conversația este păstrată la noi cel mult 12 luni, ca să îți putem răspunde și pentru a îmbunătăți serviciul. Dacă îi dai asistentului datele tale de contact și accepți să fii contactat, cererea ta este salvată ca solicitare, la fel ca prin formularul de contact. Nu introduce în chat parole, date bancare sau alte informații sensibile.</p>
 <h2>4. Cât timp păstrăm datele</h2>
 <ul>
 <li>Solicitările care nu devin contracte: până la 24 de luni de la ultima interacțiune.</li>

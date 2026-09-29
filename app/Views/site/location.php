@@ -4,7 +4,7 @@ use App\Core\View;
 echo View::partial('site/partials/page_hero', [
     'crumbs' => $crumbs,
     'eyebrow' => icon('map') . ' ' . ($isCounty ? 'Județul ' . e($l['name']) : e($l['name']) . ', jud. ' . e($countyName)),
-    'title' => e($isCounty ? 'Servicii IT pentru firme în județul ' : 'Suport și service IT în ') . '<span class="grad">' . e($l['name']) . '</span>',
+    'title' => e($isCounty ? 'Servicii IT pentru firme în județul ' : 'Suport și service IT în ') . '' . e($l['name']) . '',
     'lead' => $l['intro'] ?: 'Mentenanță IT, intervenții la sediu, recuperări de date și securitate cibernetică pentru afacerile din ' . $display . '. Plus marketing online și soluții AI livrate remote.',
     'actions' => '<a class="btn btn-primary btn-lg" href="#oferta">Cere ofertă în ' . e($l['name']) . ' ' . icon('arrow-right', 'ico ico-move') . '</a><a class="btn btn-ghost btn-lg" href="' . e(phone_href((string)setting('phone'))) . '" data-loc="zone-hero">' . icon('phone') . ' ' . e(setting('phone')) . '</a>',
 ]);

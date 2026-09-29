@@ -10,6 +10,24 @@ final class Migrator
 {
     public static function run(): array
     {
+        // o singură rulare simultan (ex. actualizare din panou + vizitator pe site în același timp)
+        $lock = @fopen(STORAGE_PATH . '/migrate.lock', 'c');
+        if ($lock && !flock($lock, LOCK_EX | LOCK_NB)) {
+            fclose($lock);
+            return [];
+        }
+        try {
+            return self::runLocked();
+        } finally {
+            if ($lock) {
+                flock($lock, LOCK_UN);
+                fclose($lock);
+            }
+        }
+    }
+
+    private static function runLocked(): array
+    {
         DB::createTable('migrations', [
             'id' => 'id',
             'name' => 'string',

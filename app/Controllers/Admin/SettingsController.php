@@ -42,6 +42,8 @@ final class SettingsController extends AdminController
             'aspect' => ['label' => 'Aspect', 'fields' => [
                 ['logo', 'Logo (temă luminoasă / implicit)', 'image', 'PNG sau WebP cu fundal transparent, ~280×68 px.'], ['logo_dark', 'Logo pentru tema întunecată (opțional)', 'image'],
                 ['theme_default', 'Tema implicită a site-ului', 'select', '', ['dark' => 'Întunecată', 'light' => 'Luminoasă']],
+                ['home_hero_image', 'Fotografie mare pe prima pagină', 'image', 'Ideal o poză reală: echipa, o intervenție, sediul. Format lat, minim 1600 px.'],
+                ['about_image', 'Fotografie pagina Despre noi', 'image', 'Pune aici o poză cu echipa ta – crește mult încrederea.'],
                 ['announcement', 'Bară de anunț (sus)', 'text', 'Ex: „Nou: audit de securitate gratuit în octombrie”. Gol = ascunsă.'], ['announcement_link', 'Link anunț', 'text'],
             ]],
             'prima' => ['label' => 'Prima pagină', 'fields' => [
@@ -64,6 +66,16 @@ final class SettingsController extends AdminController
                 ['autoreply_enabled', 'Răspuns automat către client după formular', 'checkbox'], ['autoreply_subject', 'Subiect răspuns automat', 'text'], ['autoreply_body', 'Text răspuns automat', 'richtext', 'Variabile: {{prenume}}, {{nume}}, {{telefon}}'],
                 ['newsletter_double_optin', 'Confirmare prin email la abonare (double opt-in, recomandat GDPR)', 'checkbox'],
                 ['newsletter_hourly_limit', 'Limită emailuri campanie / oră', 'number', 'Verifică limita hostingului tău (de obicei 100–500/oră).'], ['newsletter_batch', 'Emailuri per lot', 'number'],
+            ]],
+            'asistent' => ['label' => 'Asistent AI', 'fields' => [
+                ['ai_enabled', 'Activat pe site', 'checkbox', 'Afișează butonul de chat pe toate paginile.'],
+                ['ai_api_key', 'Cheie API (Anthropic)', 'password', 'Din console.anthropic.com → API Keys. Se salvează criptat. Lasă gol ca să păstrezi cheia salvată.'],
+                ['ai_model', 'Model', 'select', 'Opus 5.5 dă cele mai bune răspunsuri. Sonnet și Haiku sunt mai ieftine.', ['claude-opus-5-5' => 'Claude Opus 5.5 (recomandat)', 'claude-sonnet-5-5' => 'Claude Sonnet 5.5', 'claude-haiku-4-5' => 'Claude Haiku 4.5 (cel mai ieftin)']],
+                ['ai_effort', 'Nivel de gândire', 'select', 'Scăzut = răspunsuri rapide și ieftine, potrivit pentru chat.', ['low' => 'Scăzut (recomandat pentru chat)', 'medium' => 'Mediu', 'high' => 'Ridicat']],
+                ['ai_name', 'Numele asistentului', 'text'], ['ai_greeting', 'Mesaj de întâmpinare', 'textarea'],
+                ['ai_suggestions', 'Întrebări sugerate (butoane rapide)', 'list'],
+                ['ai_instructions', 'Instrucțiuni suplimentare', 'textarea', 'Ex: promoții curente, ce să nu promită, informații noi. Asistentul știe deja automat serviciile, zonele, FAQ-ul și articolele de pe site.'],
+                ['ai_daily_limit', 'Limită mesaje pe zi (tot site-ul)', 'number', 'Protecție la costuri în caz de abuz.'], ['ai_max_turns', 'Mesaje maxime pe conversație', 'number'],
             ]],
             'integrari' => ['label' => 'Integrări & tracking', 'fields' => [
                 ['ga4_id', 'Google Analytics 4 – Measurement ID', 'text', 'Format G-XXXXXXX. Se încarcă doar după acordul pentru cookies.'],

@@ -78,9 +78,9 @@ final class ServiceController extends SiteController
         }
 
         [$body, $toc] = Sanitizer::withToc((string)$s['body']);
-        $related = DB::all('SELECT slug, title, icon, excerpt FROM services WHERE published = 1 AND category = ? AND id <> ? ORDER BY sort LIMIT 3', [$s['category'], $s['id']]);
+        $related = DB::all('SELECT slug, title, icon, excerpt, image FROM services WHERE published = 1 AND category = ? AND id <> ? ORDER BY sort LIMIT 3', [$s['category'], $s['id']]);
         if (count($related) < 3) {
-            $more = DB::all('SELECT slug, title, icon, excerpt FROM services WHERE published = 1 AND category <> ? AND id <> ? ORDER BY featured DESC, sort LIMIT ' . (3 - count($related)), [$s['category'], $s['id']]);
+            $more = DB::all('SELECT slug, title, icon, excerpt, image FROM services WHERE published = 1 AND category <> ? AND id <> ? ORDER BY featured DESC, sort LIMIT ' . (3 - count($related)), [$s['category'], $s['id']]);
             $related = array_merge($related, $more);
         }
         $testimonials = DB::all('SELECT * FROM testimonials WHERE published = 1 AND (service_id = ? OR service_id IS NULL) ORDER BY service_id DESC, sort LIMIT 3', [$s['id']]);

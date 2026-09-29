@@ -5,7 +5,7 @@ $addr = trim(implode(', ', array_filter([setting('company_address'), setting('co
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['Contact', '/contact']],
     'eyebrow' => icon('message') . ' Răspundem în aceeași zi lucrătoare',
-    'title' => 'Hai să <span class="grad">vorbim</span>',
+    'title' => 'Hai să vorbim',
     'lead' => $page['subtitle'] ?: 'Suport IT, o urgență, un proiect de marketing sau o idee de automatizare cu AI? Scrie-ne sau sună-ne – consultanța inițială este gratuită.',
 ]);
 ?>

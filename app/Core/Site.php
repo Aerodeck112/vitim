@@ -20,7 +20,7 @@ final class Site
     public static function services(): array
     {
         if (self::$services === null) {
-            self::$services = DB::all('SELECT id, slug, category, title, tagline, icon, excerpt, onsite, featured FROM services WHERE published = 1 ORDER BY sort, title');
+            self::$services = DB::all('SELECT id, slug, category, title, tagline, icon, excerpt, onsite, featured, image FROM services WHERE published = 1 ORDER BY sort, title');
         }
         return self::$services;
     }

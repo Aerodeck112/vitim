@@ -93,13 +93,27 @@ return [
     'home_cta_primary' => 'Cere o ofertă gratuită',
     'home_cta_secondary' => 'Vezi serviciile',
     'home_points' => '["Răspuns rapid, fără birocrație","Suport remote + intervenții la sediu","Prețuri clare, abonamente lunare"]',
-    'home_trust' => '["Microsoft 365","Google Workspace","Google Ads","Meta Ads","OpenAI","Claude","n8n","Make","Cloudflare","WordPress","Synology","Fortinet"]',
+    'home_trust' => '["Microsoft 365","Google Workspace","Google Ads","Meta Ads","OpenAI","n8n","Make","Cloudflare","WordPress","Synology","Fortinet"]',
     'home_why' => '[{"icon":"zap","title":"Reacție rapidă","text":"Majoritatea problemelor le rezolvăm remote în câteva minute. Când e nevoie de noi la fața locului, venim."},{"icon":"shield","title":"Securitate by default","text":"Backup verificat, parole și acces gestionate corect, echipamente actualizate. Prevenim, nu doar reparăm."},{"icon":"layers","title":"Un singur partener","text":"IT, site, marketing și AI la un singur furnizor: fără pasat mingea între firme, fără explicații repetate."},{"icon":"chart","title":"Rezultate măsurabile","text":"Rapoarte clare: tichete rezolvate, poziții în Google, lead-uri și cost pe client. Știi exact pe ce dai banii."},{"icon":"cpu","title":"AI pus la treabă","text":"Nu vorbim doar despre AI – îl integrăm în procesele tale ca să economisești ore în fiecare săptămână."},{"icon":"handshake","title":"Om, nu robot","text":"Ai un contact direct, care îți cunoaște firma și îți vorbește pe limba ta, fără jargon inutil."}]',
     'home_process' => '[{"title":"Discuție gratuită","text":"Ne spui ce te doare sau ce vrei să obții. 15–30 de minute, telefonic sau online."},{"title":"Audit & propunere","text":"Analizăm situația și îți trimitem o propunere clară: ce facem, în cât timp și cât costă."},{"title":"Implementare","text":"Lucrăm rapid și transparent, cu minim de întreruperi pentru echipa ta."},{"title":"Suport & optimizare","text":"Rămânem alături: monitorizăm, întreținem și îmbunătățim continuu."}]',
     'home_stats' => '[{"value":"3","label":"județe cu intervenții on-site"},{"value":"100%","label":"suport remote în toată România"},{"value":"4","label":"domenii: IT, securitate, marketing, AI"}]',
     'home_faq' => '[{"q":"Lucrați doar în Mureș?","a":"Intervențiile la sediu le facem în județele Mureș, Bistrița-Năsăud și Alba. Suportul remote, marketingul, SEO și proiectele AI le livrăm pentru clienți din toată România."},{"q":"Aveți abonamente lunare pentru mentenanță IT?","a":"Da. Abonamentul include monitorizare, actualizări, backup verificat, suport remote și un număr de ore de intervenție la sediu, cu timp de răspuns garantat. Prețul depinde de numărul de calculatoare și servere."},{"q":"Cât costă o ofertă sau un audit?","a":"Discuția inițială și oferta sunt gratuite. Pentru auditurile detaliate (securitate, SEO, infrastructură) primești un preț fix înainte de a începe."},{"q":"Puteți recupera datele de pe un hard disk sau SSD defect?","a":"În multe cazuri, da. Evaluăm gratuit suportul de stocare și îți spunem șansele de recuperare și costul înainte de orice intervenție. Important: nu mai porni dispozitivul după ce a cedat."},{"q":"Ce înseamnă concret un agent AI pentru firma mea?","a":"Un asistent software care preia sarcini repetitive: răspunde la întrebări din documentele firmei, califică lead-uri, completează CRM-ul, generează oferte sau rapoarte. Îl conectăm la sistemele pe care le folosești deja."},{"q":"Lucrați și cu firme mici?","a":"Da, cu drag. Majoritatea clienților noștri sunt IMM-uri, cabinete, magazine și firme de servicii care vor un partener IT de încredere fără să angajeze un departament intern."}]',
     'home_cta_title' => 'Hai să vorbim despre afacerea ta',
     'home_cta_text' => 'Spune-ne în câteva cuvinte ce ai nevoie. Revenim în aceeași zi lucrătoare cu pașii următori – fără obligații.',
+
+    // ---------- Asistent AI ----------
+    'ai_enabled' => '0',
+    'ai_api_key' => '',
+    'ai_model' => 'claude-opus-5-5',
+    'ai_effort' => 'low',
+    'ai_name' => 'Asistentul VITIM',
+    'ai_greeting' => 'Bună! Sunt asistentul virtual VITIM. Te pot ajuta cu informații despre servicii, prețuri orientative sau o problemă IT concretă. Cu ce te pot ajuta?',
+    'ai_suggestions' => '["Am nevoie de mentenanță IT pentru firmă","Mi s-a stricat hard diskul","Cât costă un site nou?","Ce poate face un agent AI pentru noi?"]',
+    'ai_instructions' => '',
+    'ai_daily_limit' => '300',
+    'ai_max_turns' => '24',
+    'home_hero_image' => '',
+    'about_image' => '',
 
     // ---------- Formular / CRM ----------
     'crm_stages' => '[{"key":"nou","label":"Nou","color":"#3b82f6"},{"key":"contactat","label":"Contactat","color":"#8b5cf6"},{"key":"oferta","label":"Ofertă trimisă","color":"#f59e0b"},{"key":"negociere","label":"Negociere","color":"#ec4899"},{"key":"castigat","label":"Câștigat","color":"#10b981"},{"key":"pierdut","label":"Pierdut","color":"#6b7280"}]',

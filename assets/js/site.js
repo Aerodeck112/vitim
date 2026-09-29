@@ -153,6 +153,78 @@
     });
   });
 
+
+  /* Chat cu asistentul */
+  var chat = $('[data-chat]');
+  if (chat) {
+    var body = $('[data-chat-body]', chat), cform = $('[data-chat-form]', chat), cin = $('textarea', cform), fab = $('[data-chat-open]');
+    var ctoken = ''; try { ctoken = localStorage.getItem('chat_token') || ''; } catch (e) {}
+    var busy = false, loaded = false;
+    function esc(t) { return t.replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    // markdown minimal și sigur: **bold**, liste, linkuri doar către site sau tel/mailto
+    function md(t) {
+      var lines = esc(t).split(/\n/), html = '', inList = false;
+      lines.forEach(function (l) {
+        l = l.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, txt, href) {
+            var ok = /^\/(?!\/)/.test(href) || /^(tel:|mailto:)/.test(href) || href.indexOf(location.origin + '/') === 0;
+            return ok ? '<a href="' + href + '">' + txt + '</a>' : txt;
+          });
+        var li = l.match(/^\s*(?:[-•*]|\d+\.)\s+(.*)$/);
+        if (li) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + li[1] + '</li>'; return; }
+        if (inList) { html += '</ul>'; inList = false; }
+        if (l.trim() !== '') html += '<p>' + l + '</p>';
+      });
+      if (inList) html += '</ul>';
+      return html;
+    }
+    function add(role, text, cls) {
+      var d = document.createElement('div'); d.className = 'msg ' + (role === 'user' ? 'me' : 'bot') + (cls ? ' ' + cls : '');
+      if (role === 'user') d.textContent = text; else d.innerHTML = md(text);
+      body.appendChild(d); body.scrollTop = body.scrollHeight; return d;
+    }
+    function openChat() {
+      chat.hidden = false; fab.classList.add('hide'); setTimeout(function () { cin.focus(); }, 50);
+      track('chat_open', {});
+      getToken();
+      if (!loaded && ctoken) {
+        loaded = true;
+        fetch(cfg.base + '/api/chat/' + encodeURIComponent(ctoken), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+          if (j.ok && j.messages && j.messages.length) { var s = $('[data-chat-sugg]', chat); if (s) s.remove(); j.messages.forEach(function (m) { add(m.role, m.text); }); }
+        }).catch(function () {});
+      }
+    }
+    function closeChat() { chat.hidden = true; fab.classList.remove('hide'); }
+    fab.addEventListener('click', openChat);
+    $('[data-chat-close]', chat).addEventListener('click', closeChat);
+    try { if (sessionStorage.getItem('chat_open') === '1') openChat(); } catch (e) {}
+    function send(text) {
+      text = text.trim(); if (!text || busy) return;
+      busy = true; var s = $('[data-chat-sugg]', chat); if (s) s.remove();
+      add('user', text); cin.value = ''; cin.style.height = '';
+      var typing = add('bot', '', 'typing'); typing.innerHTML = '<i></i><i></i><i></i>';
+      try { sessionStorage.setItem('chat_open', '1'); } catch (e) {}
+      getToken().then(function (tok) {
+        var fd = new FormData(); fd.append('message', text); fd.append('token', ctoken); fd.append('page', location.pathname); fd.append('_t', tok || '');
+        return fetch(cfg.base + '/api/chat', { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        typing.remove(); busy = false;
+        if (j.token) { ctoken = j.token; try { localStorage.setItem('chat_token', ctoken); } catch (e) {} }
+        add('bot', j.reply || j.message || 'A apărut o eroare. Încearcă din nou.', j.lead ? 'ok' : '');
+        if (j.lead) track('generate_lead', { form: 'asistent-ai' });
+        tokenPromise = null;
+      }).catch(function () {
+        typing.remove(); busy = false;
+        add('bot', 'Nu am putut trimite mesajul. Verifică conexiunea sau sună-ne direct.');
+      });
+    }
+    cform.addEventListener('submit', function (e) { e.preventDefault(); send(cin.value); });
+    cin.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(cin.value); } });
+    cin.addEventListener('input', function () { cin.style.height = 'auto'; cin.style.height = Math.min(cin.scrollHeight, 120) + 'px'; });
+    chat.addEventListener('click', function (e) { var b = e.target.closest('[data-chat-sugg] button'); if (b) send(b.textContent); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !chat.hidden) closeChat(); });
+  }
+
   /* Click-uri telefon / WhatsApp / email → evenimente de conversie */
   d.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href]'); if (!a) return;

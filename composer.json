@@ -5,7 +5,9 @@
     "license": "proprietary",
     "require": {
         "php": ">=8.1",
-        "phpmailer/phpmailer": "^6.9"
+        "phpmailer/phpmailer": "^6.9",
+        "anthropic-ai/sdk": "^0.52",
+        "guzzlehttp/guzzle": "^7"
     },
     "config": {
         "vendor-dir": "app/vendor",
