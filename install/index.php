@@ -19,6 +19,42 @@ $installed = is_installed();
 $errors = [];
 $done = false;
 
+// Site instalat, dar fără niciun administrator activ (ex. baza de date a fost refăcută de la zero):
+// se poate crea un cont nou, confirmând parola bazei de date din app/config.php (dovada că ai acces la server).
+$needAdmin = false;
+$adminCreated = false;
+if ($installed && DB::connected()) {
+    try {
+        $needAdmin = DB::tableExists('users') && !DB::val("SELECT COUNT(*) FROM users WHERE role = 'admin' AND active = 1");
+    } catch (Throwable $e) {
+        log_error($e);
+    }
+}
+if ($needAdmin && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $name = trim((string)($_POST['admin_name'] ?? ''));
+    $email = mb_strtolower(trim((string)($_POST['admin_email'] ?? '')));
+    $pass = (string)($_POST['admin_pass'] ?? '');
+    if (config('db.driver') === 'mysql' && !hash_equals((string)config('db.pass', ''), (string)($_POST['db_pass'] ?? ''))) {
+        $errors[] = 'Parola bazei de date nu corespunde celei din app/config.php.';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Emailul nu este valid.';
+    }
+    if (strlen($pass) < 10) {
+        $errors[] = 'Parola trebuie să aibă minimum 10 caractere.';
+    }
+    if (!$errors) {
+        $hash = password_hash($pass, PASSWORD_DEFAULT);
+        if ($id = DB::val('SELECT id FROM users WHERE email = ?', [$email])) {
+            DB::update('users', ['password_hash' => $hash, 'role' => 'admin', 'active' => 1], 'id = :id', ['id' => $id]);
+        } else {
+            DB::insert('users', ['name' => $name ?: 'Administrator', 'email' => $email, 'password_hash' => $hash, 'role' => 'admin', 'active' => 1, 'created_at' => DB::now()]);
+        }
+        log_error('Instalator: cont de administrator creat pentru ' . $email);
+        $adminCreated = true;
+    }
+}
+
 // Cerințe
 $checks = [
     ['PHP 8.1+', PHP_VERSION_ID >= 80100, 'Versiune curentă: ' . PHP_VERSION],
@@ -138,7 +174,27 @@ small{color:#7a8398}code{background:rgba(255,255,255,.08);padding:2px 6px;border
   <h1>Instalare VITIM</h1>
   <p class="muted">Site + panou de control + CRM + email marketing. Durează aproximativ un minut.</p>
 
-<?php if ($installed && !$done): ?>
+<?php if ($adminCreated): ?>
+  <div class="card okbox"><h2 style="margin-top:0">✅ Cont de administrator creat</h2><p>Te poți autentifica acum cu emailul și parola alese.</p><a class="btn" href="<?= e(base_path()) ?>/admin/login">Intră în panoul de control</a></div>
+<?php elseif ($needAdmin): ?>
+  <?php foreach ($errors as $err): ?><div class="err"><?= e($err) ?></div><?php endforeach; ?>
+  <form method="post" class="card" autocomplete="off">
+    <h2 style="margin-top:0">Creează contul de administrator</h2>
+    <p class="muted">Site-ul este instalat, dar baza de date nu are niciun administrator (de exemplu, a fost refăcută de la zero). Creează acum contul cu care intri în panou.</p>
+    <?php if (config('db.driver') === 'mysql'): ?>
+    <label>Parola bazei de date (cea din <code>app/config.php</code>, linia 'pass')</label>
+    <input type="password" name="db_pass" required>
+    <small>Confirmă că ai acces la server. Nu este parola contului de admin.</small>
+    <?php endif; ?>
+    <label>Numele tău</label>
+    <input name="admin_name" value="<?= e($_POST['admin_name'] ?? '') ?>">
+    <label>Email (cu el te autentifici)</label>
+    <input type="email" name="admin_email" value="<?= e($_POST['admin_email'] ?? '') ?>" required>
+    <label>Parolă nouă (minimum 10 caractere)</label>
+    <input type="password" name="admin_pass" minlength="10" required>
+    <button type="submit">Creează contul</button>
+  </form>
+<?php elseif ($installed && !$done): ?>
   <div class="card"><h2 style="margin-top:0">Site-ul este deja instalat</h2><p class="muted">Din motive de securitate, instalatorul este dezactivat. Poți șterge directorul <code>install/</code> de pe server.</p><a class="btn" href="<?= e(base_path()) ?>/admin">Mergi la panoul de control</a></div>
 <?php elseif ($done): ?>
   <div class="card okbox">
