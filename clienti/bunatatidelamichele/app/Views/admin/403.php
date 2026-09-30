@@ -1,0 +1,1 @@
+<div class="card empty"><h1>Acces interzis</h1><p>Contul tău nu are drepturi pentru această secțiune. Cere acces unui administrator.</p><a class="btn" href="<?= e(url('/admin/dashboard')) ?>">Înapoi la tablou</a></div>

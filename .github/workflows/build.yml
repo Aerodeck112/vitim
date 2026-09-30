@@ -24,6 +24,14 @@ jobs:
         with:
           name: vitim-cpanel-zip
           path: dist/*.zip
+      - name: Magazin Bunătăți de la Michele – verificare sintaxă
+        run: find clienti/bunatatidelamichele/app clienti/bunatatidelamichele/install clienti/bunatatidelamichele/index.php clienti/bunatatidelamichele/tools -name '*.php' -not -path '*/app/vendor/*' -print0 | xargs -0 -n1 php -l
+      - name: Magazin Bunătăți de la Michele – arhivă cPanel
+        run: php clienti/bunatatidelamichele/tools/build.php
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bunatatidelamichele-cpanel-zip
+          path: clienti/bunatatidelamichele/dist/*.zip
       - name: Release (doar pentru tag-uri v*)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2

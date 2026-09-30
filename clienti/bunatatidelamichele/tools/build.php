@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Construiește arhiva de instalare / actualizare: dist/vitim-<versiune>.zip
+ * Construiește arhiva de instalare / actualizare: dist/bunatatidelamichele-<versiune>.zip
  *
  *   php tools/build.php
  *
@@ -17,11 +17,11 @@ if ($version === '') {
     exit(1);
 }
 @mkdir($root . '/dist', 0755, true);
-$out = $root . '/dist/vitim-' . $version . '.zip';
+$out = $root . '/dist/bunatatidelamichele-' . $version . '.zip';
 @unlink($out);
 
 $exclude = [
-    '#(^|/)\.git(/|$)#', '#(^|/)\.github/#', '#^dist/#', '#^clienti/#', '#^tests/#', '#^node_modules/#', '#^\.claude/#', '#^\.gitignore$#',
+    '#(^|/)\.git(/|$)#', '#(^|/)\.github/#', '#^dist/#', '#^tests/#', '#^node_modules/#', '#^\.claude/#', '#^\.gitignore$#',
     '#^app/config\.php$#', '#^storage/(?!\.htaccess$|cache/\.gitkeep$|logs/\.gitkeep$|backups/\.gitkeep$|tmp/\.gitkeep$)#',
     '#^uploads/(?!\.htaccess$|\.gitkeep$)#', '#^tools/dev-router\.php$#', '#^composer\.(json|lock)$#', '#\.DS_Store$#',
 ];
