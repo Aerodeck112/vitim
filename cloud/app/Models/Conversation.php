@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use App\Enums\Channel;
+use App\Enums\ConversationStatus;
+use App\Tenancy\BelongsToOrganization;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+/** Fundația VITIM Inbox: aceeași structură pentru web chat, email, WhatsApp și SMS. */
+#[Fillable(['contact_id', 'site_id', 'agent_id', 'channel', 'status', 'mode', 'assigned_to', 'subject', 'last_message_at', 'closed_at'])]
+class Conversation extends Model
+{
+    use BelongsToOrganization;
+
+    protected function casts(): array
+    {
+        return [
+            'channel' => Channel::class,
+            'status' => ConversationStatus::class,
+            'last_message_at' => 'datetime',
+            'closed_at' => 'datetime',
+        ];
+    }
+
+    /** @return BelongsTo<Contact, $this> */
+    public function contact(): BelongsTo
+    {
+        return $this->belongsTo(Contact::class);
+    }
+
+    /** @return HasMany<Message, $this> */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+}

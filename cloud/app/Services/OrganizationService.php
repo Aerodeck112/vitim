@@ -22,18 +22,28 @@ final class OrganizationService
         private readonly AuditLogger $audit,
     ) {}
 
-    /** Firmă nouă, cu abonament de probă și (opțional) proprietar. */
-    public function create(string $name, string $plan = 'start', ?User $owner = null): Organization
+    public const PROFILE_FIELDS = ['name', 'company_name', 'vat_id', 'country', 'timezone', 'default_language', 'status'];
+
+    /**
+     * Firmă nouă, cu abonament de probă și (opțional) proprietar.
+     *
+     * @param  array<string, mixed>  $profile  câmpuri din PROFILE_FIELDS (țară, fus orar, limbă, date firmă)
+     */
+    public function create(string $name, string $plan = 'start', ?User $owner = null, array $profile = []): Organization
     {
         $limits = config("plans.plans.{$plan}");
         if (! is_array($limits)) {
             throw new InvalidArgumentException("Plan necunoscut: {$plan}");
         }
 
-        return DB::transaction(function () use ($name, $plan, $limits, $owner): Organization {
-            $organization = Organization::create([
+        return DB::transaction(function () use ($name, $plan, $limits, $owner, $profile): Organization {
+            $organization = Organization::create(array_intersect_key($profile, array_flip(self::PROFILE_FIELDS)) + [
                 'name' => $name,
                 'slug' => $this->uniqueSlug($name),
+                'country' => 'RO',
+                'timezone' => 'Europe/Bucharest',
+                'default_language' => 'ro',
+                'status' => 'active',
             ]);
 
             $this->context->runAs($organization, function () use ($organization, $plan, $limits, $owner): void {
@@ -51,6 +61,19 @@ final class OrganizationService
 
             return $organization;
         });
+    }
+
+    /** @param array<string, mixed> $profile */
+    public function update(Organization $organization, array $profile): Organization
+    {
+        $organization->fill(array_intersect_key($profile, array_flip(self::PROFILE_FIELDS)));
+        $changed = array_keys($organization->getDirty());
+        $organization->save();
+        if ($changed) {
+            $this->context->runAs($organization, fn () => $this->audit->record('organization.updated', $organization, ['fields' => implode(',', $changed)]));
+        }
+
+        return $organization;
     }
 
     private function uniqueSlug(string $name): string

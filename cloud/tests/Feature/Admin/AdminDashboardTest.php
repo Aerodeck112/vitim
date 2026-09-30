@@ -57,16 +57,16 @@ final class AdminDashboardTest extends TestCase
         $this->get("/admin/clienti/{$org->slug}")->assertOk()->assertDontSee($secret);
     }
 
-    public function test_support_can_view_but_not_modify(): void
+    public function test_vitim_admin_manages_clients(): void
     {
-        $support = $this->staff(PlatformRole::Support);
+        $vitimAdmin = $this->staff(PlatformRole::VitimAdmin);
         $org = $this->makeOrganization('Firma A');
         [$site] = $this->makeSite($org, 'firma-a.ro');
 
-        $this->actingAs($support)->get('/admin')->assertOk();
-        $this->get("/admin/clienti/{$org->slug}")->assertOk()->assertDontSee('Schimbă cheile');
-        $this->get('/admin/clienti/nou')->assertNotFound();
-        $this->post("/admin/clienti/{$org->slug}/site-uri/{$site->id}/chei")->assertNotFound();
+        $this->actingAs($vitimAdmin)->get('/admin')->assertOk();
+        $this->get("/admin/clienti/{$org->slug}")->assertOk()->assertSee('Schimbă cheile');
+        $this->get('/admin/clienti/nou')->assertOk();
+        $this->post("/admin/clienti/{$org->slug}/site-uri/{$site->id}/chei")->assertRedirect();
     }
 
     public function test_cannot_rotate_site_of_another_client_through_url(): void

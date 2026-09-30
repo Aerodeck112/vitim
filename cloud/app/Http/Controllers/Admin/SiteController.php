@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SitePlatform;
 use App\Http\Controllers\Controller;
 use App\Models\Site;
 use App\Services\IssuedSiteKey;
@@ -21,9 +22,9 @@ final class SiteController extends Controller
     {
         $data = $request->validate([
             'domain' => ['required', 'string', 'max:253'],
-            'platform' => ['required', Rule::in(['wordpress', 'generic'])],
+            'platform' => ['required', Rule::enum(SitePlatform::class)],
         ]);
-        [, $issued] = $sites->create($data['domain'], $data['platform']);
+        [, $issued] = $sites->create($data['domain'], SitePlatform::from($data['platform']));
 
         return $this->withIssuedKey($context, $issued, 'Site adăugat.');
     }

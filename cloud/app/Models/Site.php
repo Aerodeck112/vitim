@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\SitePlatform;
 use App\Tenancy\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['organization_id', 'domain', 'allowed_origins', 'platform', 'connector_version', 'last_seen_at', 'status'])]
+#[Fillable(['name', 'domain', 'allowed_origins', 'platform', 'status', 'widget_config'])]
 class Site extends Model
 {
     use BelongsToOrganization;
@@ -18,7 +19,10 @@ class Site extends Model
     {
         return [
             'allowed_origins' => 'array',
+            'platform' => SitePlatform::class,
+            'widget_config' => 'array',
             'last_seen_at' => 'datetime',
+            'last_sync_at' => 'datetime',
         ];
     }
 

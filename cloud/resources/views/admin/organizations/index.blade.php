@@ -3,9 +3,7 @@
 @section('content')
 <div class="head">
   <div><h1>Clienți</h1><p>Firmele care folosesc VITIM AI.</p></div>
-  @if (auth()->user()->platform_role === \App\Enums\PlatformRole::Admin)
-    <a class="btn btn-p" href="{{ route('admin.organizations.create') }}">Client nou</a>
-  @endif
+  <a class="btn btn-p" href="{{ route('admin.organizations.create') }}">Client nou</a>
 </div>
 <div class="grid" style="margin-bottom:18px">
   @foreach ($kpi as $label => $value)

@@ -53,7 +53,7 @@ final class AuthenticationTest extends TestCase
     public function test_platform_staff_must_enable_two_factor(): void
     {
         $user = User::factory()->create();
-        $user->forceFill(['platform_role' => PlatformRole::Admin])->save();
+        $user->forceFill(['platform_role' => PlatformRole::SuperAdmin])->save();
 
         $this->actingAs($user)->get('/admin')->assertRedirect(route('2fa.setup'));
         $this->get('/2fa/activare')->assertOk()->assertSee('obligatorie');
@@ -116,7 +116,7 @@ final class AuthenticationTest extends TestCase
         config(['vitim.setup_token' => 'token-lung-de-instalare-123']);
         $this->post('/setup', ['token' => 'gresit'] + $payload)->assertSessionHasErrors('token');
         $this->post('/setup', $payload)->assertRedirect(route('2fa.setup'));
-        $this->assertSame(PlatformRole::Admin, User::where('email', 'admin@vitim.ro')->first()->platform_role);
+        $this->assertSame(PlatformRole::SuperAdmin, User::where('email', 'admin@vitim.ro')->first()->platform_role);
 
         auth()->logout();
         $this->get('/setup')->assertNotFound(); // există deja utilizatori

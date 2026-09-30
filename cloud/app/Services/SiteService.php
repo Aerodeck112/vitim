@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\SitePlatform;
 use App\Models\Site;
 use App\Tenancy\TenantContext;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ final class SiteService
      * @param  list<string>  $extraHosts
      * @return array{0: Site, 1: IssuedSiteKey}
      */
-    public function create(string $domain, string $platform = 'generic', array $extraHosts = []): array
+    public function create(string $domain, SitePlatform $platform = SitePlatform::Custom, array $extraHosts = [], ?string $name = null): array
     {
         $domain = self::normalizeHost($domain);
         if ($domain === null) {
@@ -38,16 +39,38 @@ final class SiteService
         }
         $hosts = array_values(array_filter(array_map(self::normalizeHost(...), $extraHosts)));
 
-        return DB::transaction(function () use ($domain, $platform, $hosts): array {
+        return DB::transaction(function () use ($domain, $platform, $hosts, $name): array {
             $site = Site::create([
+                'name' => $name ?: $domain,
                 'domain' => $domain,
                 'allowed_origins' => $hosts,
-                'platform' => in_array($platform, ['wordpress', 'generic'], true) ? $platform : 'generic',
+                'platform' => $platform,
             ]);
             $this->audit->record('site.created', $site, ['domain' => $domain]);
 
             return [$site, $this->keys->issue($site)];
         });
+    }
+
+    /**
+     * Nume, platformă, gazde suplimentare, status. Domeniul nu se schimbă (e legat de chei și de verificare):
+     * pentru alt domeniu se creează alt site.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function update(Site $site, array $data): Site
+    {
+        if (array_key_exists('allowed_origins', $data)) {
+            $data['allowed_origins'] = array_values(array_filter(array_map(self::normalizeHost(...), (array) $data['allowed_origins'])));
+        }
+        $site->fill(array_intersect_key($data, array_flip(['name', 'platform', 'allowed_origins', 'status'])));
+        $changed = array_keys($site->getDirty());
+        $site->save();
+        if ($changed) {
+            $this->audit->record('site.updated', $site, ['fields' => implode(',', $changed)]);
+        }
+
+        return $site;
     }
 
     /** „https://www.Firma.ro/pagina” → „firma.ro”; null pentru orice nu arată ca un domeniu public. */

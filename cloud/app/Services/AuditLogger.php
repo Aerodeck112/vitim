@@ -32,8 +32,8 @@ final class AuditLogger
                 default => 'user',
             },
             'action' => $action,
-            'target_type' => $target ? class_basename($target) : null,
-            'target_id' => $target?->getKey(),
+            'entity_type' => $target ? class_basename($target) : null,
+            'entity_id' => $target?->getKey(),
             'ip' => app()->runningInConsole() ? null : request()->ip(),
             'meta' => $meta ?: null,
         ]);

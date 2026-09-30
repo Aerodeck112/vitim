@@ -41,7 +41,7 @@ final class SetupController extends Controller
             throw ValidationException::withMessages(['token' => 'Token greșit.']);
         }
         $user = User::create(['name' => $data['name'], 'email' => strtolower($data['email']), 'password' => $data['password']]);
-        $user->forceFill(['platform_role' => PlatformRole::Admin])->save();
+        $user->forceFill(['platform_role' => PlatformRole::SuperAdmin])->save();
         Auth::login($user);
         $request->session()->regenerate();
         $audit->record('platform.first_admin_created', $user, [], 'platform');

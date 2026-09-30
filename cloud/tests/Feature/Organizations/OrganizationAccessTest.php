@@ -43,7 +43,7 @@ final class OrganizationAccessTest extends TestCase
             $this->assertTrue($org->subscription->isServiceable());
             $this->assertSame(1, $org->subscription->limit('sites'));
         });
-        $this->assertSame('owner', $owner->roleIn($org)?->value);
+        $this->assertSame('org_owner', $owner->roleIn($org)?->value);
         $this->assertSame('auto-demo-srl-2', $this->makeOrganization('Auto Demo SRL')->slug);
     }
 
@@ -80,7 +80,7 @@ final class OrganizationAccessTest extends TestCase
     public function test_platform_staff_access_is_audited_once_per_session(): void
     {
         $staff = User::factory()->create();
-        $staff->forceFill(['platform_role' => PlatformRole::Support])->save();
+        $staff->forceFill(['platform_role' => PlatformRole::VitimAdmin])->save();
         $org = $this->makeOrganization('Firma A');
 
         $this->actingAs($staff)->get("/app/{$org->slug}/probe")->assertOk();

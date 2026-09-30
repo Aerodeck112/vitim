@@ -37,16 +37,12 @@ Route::middleware(['auth', '2fa'])->group(function () {
     // echipa VITIM
     Route::prefix('admin')->name('admin.')->middleware('platform')->group(function () {
         Route::get('/', [OrganizationController::class, 'index'])->name('organizations.index');
-        Route::middleware('platform:admin')->group(function () {
-            Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
-            Route::post('/clienti', [OrganizationController::class, 'store'])->name('organizations.store');
-        });
+        Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
+        Route::post('/clienti', [OrganizationController::class, 'store'])->name('organizations.store');
         Route::prefix('clienti/{organization}')->middleware('org')->group(function () {
             Route::get('/', [OrganizationController::class, 'show'])->name('organizations.show');
-            Route::middleware('platform:admin')->group(function () {
-                Route::post('/site-uri', [SiteController::class, 'store'])->name('sites.store');
-                Route::post('/site-uri/{site}/chei', [SiteController::class, 'rotate'])->whereNumber('site')->name('sites.rotate');
-            });
+            Route::post('/site-uri', [SiteController::class, 'store'])->name('sites.store');
+            Route::post('/site-uri/{site}/chei', [SiteController::class, 'rotate'])->whereNumber('site')->name('sites.rotate');
         });
     });
 

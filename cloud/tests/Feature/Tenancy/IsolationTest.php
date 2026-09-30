@@ -67,12 +67,17 @@ final class IsolationTest extends TestCase
         $a = $this->makeOrganization('Firma A');
         $b = $this->makeOrganization('Firma B');
 
+        // prin atribuire în masă organization_id e ignorat (nu e fillable) → rândul ajunge în firma curentă
+        $site = $this->tenant()->runAs($a, fn () => Site::create(['organization_id' => $b->id, 'domain' => 'masa.ro', 'allowed_origins' => []]));
+        $this->assertSame($a->id, $site->organization_id);
+
+        // setat explicit (forceFill), scrierea în altă firmă e oprită de model
         $this->expectException(TenancyViolation::class);
-        $this->tenant()->runAs($a, fn () => Site::create([
+        $this->tenant()->runAs($a, fn () => (new Site)->forceFill([
             'organization_id' => $b->id,
             'domain' => 'atac.ro',
             'allowed_origins' => [],
-        ]));
+        ])->save());
     }
 
     public function test_create_without_context_is_rejected(): void
@@ -87,8 +92,11 @@ final class IsolationTest extends TestCase
         $b = $this->makeOrganization('Firma B');
         [$site] = $this->makeSite($a, 'firma-a.ro');
 
+        $this->tenant()->runAs($a, fn () => $site->update(['organization_id' => $b->id])); // ignorat (nu e fillable)
+        $this->assertSame($a->id, Site::withoutTenancy()->find($site->id)->organization_id);
+
         $this->expectException(TenancyViolation::class);
-        $this->tenant()->runAs($a, fn () => $site->update(['organization_id' => $b->id]));
+        $this->tenant()->runAs($a, fn () => $site->forceFill(['organization_id' => $b->id])->save());
     }
 
     public function test_run_as_restores_previous_context(): void

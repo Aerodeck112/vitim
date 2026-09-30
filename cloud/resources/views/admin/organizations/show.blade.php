@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $organization->name)
 @section('content')
-@php($isAdmin = auth()->user()->platform_role === \App\Enums\PlatformRole::Admin)
+@php($isAdmin = true)
 <div class="head">
   <div><h1>{{ $organization->name }}</h1>
     <p>Plan {{ strtoupper($subscription?->plan ?? '—') }} · {{ $subscription?->status->value }}
@@ -21,7 +21,7 @@
   @foreach ($sites as $site)
     @php($active = $site->keys->firstWhere('revoked_at', null))
     <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
-      <div><strong>{{ $site->domain }}</strong> <span class="badge">{{ $site->platform }}</span>
+      <div><strong>{{ $site->domain }}</strong> <span class="badge">{{ $site->platform->label() }}</span>
         <div class="small muted mono">{{ $active?->public_key ?? 'fără cheie activă' }}
           · plugin: {{ $site->last_seen_at ? 'văzut '.$site->last_seen_at->diffForHumans() : 'neconectat' }}</div></div>
       @if ($isAdmin)
@@ -35,7 +35,7 @@
       @csrf
       <div class="fl"><label for="domain">Domeniu nou</label><input id="domain" type="text" name="domain" placeholder="firma.ro" required></div>
       <div class="fl"><label for="platform">Platformă</label>
-        <select id="platform" name="platform"><option value="wordpress">WordPress</option><option value="generic">Alt site (cod JavaScript)</option></select></div>
+        <select id="platform" name="platform">@foreach (\App\Enums\SitePlatform::cases() as $p)<option value="{{ $p->value }}">{{ $p->label() }}</option>@endforeach</select></div>
       <div><button class="btn btn-p" type="submit">Adaugă site</button></div>
     </form>
   @endif
@@ -47,7 +47,7 @@
     <thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Ultima autentificare</th></tr></thead>
     <tbody>
     @forelse ($members as $m)
-      <tr><td>{{ $m->user->name }}</td><td>{{ $m->user->email }}</td><td>{{ $m->role->value }}</td><td class="small muted">{{ $m->user->last_login_at?->format('d.m.Y H:i') ?? 'niciodată' }}</td></tr>
+      <tr><td>{{ $m->user->name }}</td><td>{{ $m->user->email }}</td><td>{{ $m->role->label() }}</td><td class="small muted">{{ $m->user->last_login_at?->format('d.m.Y H:i') ?? 'niciodată' }}</td></tr>
     @empty
       <tr><td colspan="4" class="muted">Niciun utilizator.</td></tr>
     @endforelse

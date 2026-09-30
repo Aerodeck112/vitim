@@ -19,7 +19,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 abstract class TestCase extends BaseTestCase
 {
     /** Utilizator al echipei VITIM, cu 2FA activ și deja verificat în sesiune. */
-    protected function staff(PlatformRole $role = PlatformRole::Admin): User
+    protected function staff(PlatformRole $role = PlatformRole::SuperAdmin): User
     {
         $user = User::factory()->create();
         $user->forceFill(['platform_role' => $role, 'totp_secret' => Totp::secret(), 'totp_confirmed_at' => now()])->save();

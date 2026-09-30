@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * Jurnal de audit. Rândurile fără organizație sunt evenimente ale platformei (ex. login al echipei VITIM).
  * Se scrie doar prin AuditLogger. Nu conține conținut de conversații sau date de lead-uri.
  */
-#[Fillable(['organization_id', 'actor_user_id', 'actor_type', 'action', 'target_type', 'target_id', 'ip', 'meta'])]
+#[Fillable(['organization_id', 'actor_user_id', 'actor_type', 'action', 'entity_type', 'entity_id', 'ip', 'meta'])]
 class AuditLog extends Model
 {
     use BelongsToOrganization;
