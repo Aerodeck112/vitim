@@ -6,6 +6,7 @@ namespace Tests\Feature\Admin;
 
 use App\Enums\ContactSource;
 use App\Enums\OrgRole;
+use App\Models\Agent;
 use App\Models\Contact;
 use App\Models\Lead;
 use App\Models\Membership;
@@ -61,6 +62,22 @@ final class PortalTest extends TestCase
 
         // operatorul nu poate șterge (doar proprietarul)
         $this->delete("{$base}/contacte/{$contact->id}")->assertForbidden();
+    }
+
+    public function test_agent_configuration_form_saves(): void
+    {
+        $org = $this->makeOrganization('Firma A');
+        $this->actingAs($this->member($org, OrgRole::Admin));
+        $base = "/app/{$org->slug}";
+        $this->post("{$base}/agent", ['name' => 'Asistent'])->assertRedirect();
+        $agent = $this->tenant()->runAs($org, fn () => Agent::query()->firstOrFail());
+
+        $this->put("{$base}/agent/{$agent->id}", ['name' => 'Asistent', 'status' => 'active', 'tone' => 'friendly', 'languages' => 'ro, en',
+            'fallback_behavior' => 'handoff', 'allowed_actions' => ['create_lead'], 'required_fields' => ['name', 'email'], 'handoff_on_request' => '1'])
+            ->assertRedirect()->assertSessionHasNoErrors();
+        $system = $agent->fresh()->system_configuration;
+        $this->assertSame(['friendly', ['ro', 'en'], 'handoff', ['create_lead'], true, false], [$system['tone'], $system['languages'],
+            $system['fallback_behavior'], $system['allowed_actions'], $system['handoff_rules']['on_request'], $system['handoff_rules']['on_complaint']]);
     }
 
     public function test_viewer_sees_but_cannot_change(): void

@@ -97,6 +97,19 @@ final class LeadsAgentsMembersTest extends TestCase
         });
     }
 
+    public function test_agent_configuration_can_be_updated_repeatedly(): void
+    {
+        $org = $this->makeOrganization('Firma A');
+        $this->tenant()->runAs($org, function (): void {
+            $agent = app(AgentService::class)->create(['name' => 'Asistent']);
+            // configurația salvată (inclusiv max_output_tokens) trebuie să treacă din nou validarea
+            app(AgentService::class)->update($agent, ['system_configuration' => array_replace($agent->system_configuration, ['tone' => 'formal'])]);
+            app(AgentService::class)->update($agent, ['model_configuration' => array_replace($agent->model_configuration, ['max_output_tokens' => 2000])]);
+            $this->assertSame('formal', $agent->fresh()->system_configuration['tone']);
+            $this->assertSame(2000, $agent->fresh()->model_configuration['max_output_tokens']);
+        });
+    }
+
     public function test_agent_site_must_belong_to_organization_and_plan_limit_applies(): void
     {
         $a = $this->makeOrganization('Firma A'); // start: 1 agent

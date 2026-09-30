@@ -3,19 +3,16 @@
 Backend-ul central al platformei VITIM AI: firme (tenanți), site-uri, agenți, knowledge, conversații, lead-uri.
 Arhitectura și roadmap-ul: [`../docs/VITIM-AI-ARCHITECTURE.md`](../docs/VITIM-AI-ARCHITECTURE.md).
 
-## Stare
+## Stare (0.2.0 — Phase 1)
 
-| Faza | Ce există | Stare |
-|---|---|---|
-| 1.1 | Proiect Laravel 13, Pint, teste, CI | gata (PHPStan: de adăugat, vezi mai jos) |
-| 1.3 | Izolare multi-tenant: `TenantContext`, `BelongsToOrganization`, scope fail-closed, teste de izolare + test de arhitectură | gata |
-| 1.4 | Roluri și permisiuni (Gate-uri), audit log, acces al echipei VITIM auditat | gata |
-| 1.5 | Site-uri, chei publice + secrete criptate, rotație, revocare, verificare Origin, semnături HMAC anti-replay, abonament de probă și limite de plan | gata |
-| 1.2 | Rulare pe cPanel: un cron la minut (`vitim:deploy` + scheduler), coadă în baza de date, backup zilnic pe email, arhivă zip de instalare/actualizare (`tools/build.php`), ghid [`INSTALL-CPANEL.md`](INSTALL-CPANEL.md) | gata |
-| 1.4b | Login, parolă prin link pe email, 2FA (obligatoriu pentru echipa VITIM), `/setup` pentru primul admin | gata |
-| 1.6 | Dashboard VITIM (clienți, client nou, site-uri, cod de instalare, schimbare chei, utilizatori, jurnal) + portal client minimal | gata |
+Fundația e gata și testată (84 de teste, SQLite + MariaDB, inclusiv criteriul de acceptanță Phase 1).
+Ce există și ce nu: [`../docs/VITIM-AI-ARCHITECTURE.md` §0](../docs/VITIM-AI-ARCHITECTURE.md),
+schema: [`VITIM-AI-DATABASE.md`](../docs/VITIM-AI-DATABASE.md), API: [`VITIM-AI-API.md`](../docs/VITIM-AI-API.md),
+securitate: [`VITIM-AI-SECURITY.md`](../docs/VITIM-AI-SECURITY.md). Instalare: [`INSTALL-CPANEL.md`](INSTALL-CPANEL.md).
 
-**Nu este încă un produs vândabil**: lipsesc agentul, knowledge-ul, widgetul și pluginul (Fazele 2–5).
+**Nu este încă un produs vândabil**: agentul nu răspunde încă vizitatorilor (Faza 2), lipsesc knowledge, widgetul și pluginul.
+
+Date demo (doar în afara producției): `php artisan db:seed` → organizația „VITIM Demo Auto”, parola proprietarului se afișează în consolă.
 Test de fum pe o instalare din arhivă: `tests/e2e/install-flow.cjs`.
 
 ## Rulare locală

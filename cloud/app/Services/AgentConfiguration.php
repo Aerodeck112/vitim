@@ -24,6 +24,9 @@ final class AgentConfiguration
 
     public const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
+    /** Chei proprii care conțin cuvinte „suspecte”, dar nu sunt secrete. */
+    private const NOT_SECRETS = ['max_output_tokens'];
+
     /**
      * @param  array<string, mixed>  $model
      * @param  array<string, mixed>  $system
@@ -70,7 +73,7 @@ final class AgentConfiguration
 
         $defaults = self::defaults();
         $model = array_replace($defaults[0], $m);
-        $system = array_replace_recursive($defaults[1], $s);
+        $system = self::merge($defaults[1], $s);
         // regula GDPR nu se poate dezactiva: lead-ul se salvează doar cu acordul explicit al vizitatorului
         $system['lead_rules']['require_consent'] = true;
         $system['allowed_actions'] = array_values(array_unique($system['allowed_actions']));
@@ -99,12 +102,32 @@ final class AgentConfiguration
         ];
     }
 
+    /**
+     * Completează valorile lipsă din implicite. Obiectele se combină pe chei; listele (limbi, acțiuni,
+     * câmpuri) se ÎNLOCUIESC, altfel o opțiune debifată ar rămâne activă din valorile implicite.
+     *
+     * @param  array<string, mixed>  $defaults
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
+    private static function merge(array $defaults, array $input): array
+    {
+        foreach ($input as $key => $value) {
+            $isObject = fn ($v) => is_array($v) && $v !== [] && ! array_is_list($v);
+            $defaults[$key] = $isObject($value) && isset($defaults[$key]) && $isObject($defaults[$key])
+                ? self::merge($defaults[$key], $value)
+                : $value;
+        }
+
+        return $defaults;
+    }
+
     /** @param array<string, mixed> $input */
     private static function rejectSecrets(array $input, string $path = ''): void
     {
         foreach ($input as $key => $value) {
             $full = ltrim($path.'.'.$key, '.');
-            if (is_string($key) && preg_match('/secret|password|passwd|api[_-]?key|token|credential/i', $key)) {
+            if (is_string($key) && ! in_array($key, self::NOT_SECRETS, true) && preg_match('/secret|password|passwd|api[_-]?key|token|credential/i', $key)) {
                 throw ValidationException::withMessages([$full => 'Configurația agentului nu poate conține secrete.']);
             }
             if (is_array($value)) {

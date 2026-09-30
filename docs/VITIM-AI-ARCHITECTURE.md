@@ -7,6 +7,35 @@
 
 ---
 
+## 0. Stare și direcție (actualizat la Phase 1 — VITIM AI Cloud 0.2.0)
+
+**Direcția: VITIM AI Business Platform.** Nu doar un agent pe site, ci sistemul central al unei firme:
+agent AI, contacte, lead-uri, CRM light, inbox unificat (web, email, WhatsApp, SMS), campanii, automatizări,
+programări, analytics și integrări. Fluxul urmărit:
+vizitator → agent AI → contact → lead → conversație → email / WhatsApp / SMS → follow-up → vânzare / programare → retenție → reactivare.
+
+**Ce există în cod (Phase 1, detalii în [DATABASE](VITIM-AI-DATABASE.md), [API](VITIM-AI-API.md), [SECURITY](VITIM-AI-SECURITY.md)):**
+
+| Zonă | Implementat |
+|---|---|
+| Multi-tenancy | `TenantContext` + `BelongsToOrganization` (scope fail-closed, scrieri doar în firma curentă, test de arhitectură) |
+| Roluri | Platformă: `super_admin`, `vitim_admin`. Firmă: `org_owner`, `org_admin`, `agent`, `viewer`. Matricea de permisiuni e într-un singur loc, cu Gate-uri per permisiune |
+| Entități | Organizații (profil + câmpuri de facturare și branding pregătite), site-uri, chei de site, agenți (configurație validată), utilizatori și invitații, **contacte cu identități** (email / telefon / WhatsApp / ID extern, E.164, deduplicare), **consimțământ ca istoric**, **liste de suprimare** (HMAC), lead-uri, conversații și mesaje (schemă), consum, audit |
+| Evenimente | Outbox `domain_events`, scris în aceeași tranzacție cu modificarea și procesat din cron (`vitim:events`) de consumatori înregistrați (`DomainEventListener`). E fundația pentru Automation Engine, fără Kafka sau RabbitMQ |
+| Mesagerie | `MessagingService` → `SendPolicy` (fail-safe: marketing doar cu consimțământ explicit) → `ProviderRegistry` → adaptor (`EmailProvider` / `SmsProvider` / `WhatsAppProvider`). Statusuri interne standard, fără furnizori reali în Phase 1 |
+| API | `/api/v1` intern (sesiune + CSRF), erori uniforme, paginare, permisiuni pe rută, log per cerere |
+| Interfață | Dashboard VITIM (cifre reale) și dashboardul firmei (prezentare, agent AI, contacte, lead-uri, setări). Inbox, campanii, automatizări, analytics și integrări apar marcate „în dezvoltare” |
+| Operare | cPanel: un cron la minut (deploy, coadă, evenimente, backup zilnic pe email) |
+
+**Ce NU există încă:** agentul care răspunde (Faza 2), knowledge / RAG, widgetul și pluginul, furnizorii reali de email / SMS / WhatsApp, segmente, campanii, automatizări, programări, facturare. Schema lor e proiectată în [DATABASE](VITIM-AI-DATABASE.md#proiectat-neimplementat-fazele-următoare), ca să se lege de fundație fără restructurări.
+
+**Reguli de produs fixate în cod:**
+- AI-ul nu poate trimite campanii în masă. Campaniile vor avea DRAFT → PREVIEW → APPROVAL → SEND, iar trimiterea trece obligatoriu prin `MessagingService`.
+- Lead-ul se salvează doar cu acordul vizitatorului (`require_consent`, care nu se poate dezactiva).
+- Accesul la datele altei firme întoarce 404.
+
+---
+
 ## 1. Current State
 
 ### 1.1 Stack și structură
@@ -589,7 +618,7 @@ Legendă risc: **S** (scăzut) / **M** (mediu) / **R** (ridicat).
 | 0.1 | Aprobarea deciziilor D1–D6 | — | — | S | Decizii notate în document |
 | 0.2 | Backup automat zilnic offsite pentru vitim.ro (separat de platformă) | `app/Core/Backup.php`, cron | — | S | Dump zilnic primit în afara serverului + restaurare testată |
 
-### PHASE 1 — Foundation
+### PHASE 1 — Foundation ✅ (0.2.0: vezi §0; acceptanța §34 acoperită de `tests/Feature/AcceptanceTest.php`)
 | # | Scop | Fișiere/componente | Dependențe | Risc | Acceptare |
 |---|---|---|---|---|---|
 | 1.1 | Proiect nou `vitim-ai-cloud` (Laravel), CI cu teste + PHPStan + lint | repo nou | D1 | S | CI verde pe un commit gol |

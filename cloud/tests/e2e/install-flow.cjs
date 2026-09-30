@@ -41,8 +41,14 @@ const ok = (c, m) => { console.log((c ? '✓ ' : '✗ ') + m); if (!c) process.e
   await p.goto(m[0].replace(/&amp;/g, '&')); await p.fill('#password', 'parola-client-sigura-1'); await p.fill('#password_confirmation', 'parola-client-sigura-1');
   await p.click('button[type=submit]'); ok(p.url().endsWith('/login'), 'parolă setată');
   await p.fill('#email', 'ion@demoauto.ro'); await p.fill('#password', 'parola-client-sigura-1'); await p.click('button[type=submit]');
-  ok(p.url().endsWith('/app/demo-auto-srl'), 'proprietar → portal');
-  ok((await p.content()).includes('data-site=&quot;pk_') || (await p.content()).includes('data-site="pk_'), 'portal: cod de instalare');
+  ok(p.url().endsWith('/app/demo-auto-srl'), 'proprietar → dashboardul firmei');
+  await p.goto(B + '/app/demo-auto-srl/setari');
+  ok((await p.content()).includes('data-site=&quot;pk_') || (await p.content()).includes('data-site="pk_'), 'setări: cod de instalare');
+  // contact + lead din interfață
+  await p.goto(B + '/app/demo-auto-srl/contacte/nou'); await p.fill('#first_name', 'Andrei'); await p.fill('#email', 'andrei@example.test'); await p.fill('#phone', '0700 000 001');
+  await p.click('main button[type=submit]'); ok(/\/contacte\/\d+$/.test(p.url()), 'contact creat');
+  await p.fill('#summary', 'Schimb distribuție'); await p.click('text=Adaugă lead'); ok((await p.content()).includes('Schimb distribuție'), 'lead creat');
+  await p.goto(B + '/app/demo-auto-srl/in-curand/campanii'); ok((await p.content()).includes('În dezvoltare'), 'secțiune viitoare marcată');
   await p.screenshot({ path: require('os').tmpdir() + '/vitim-ai-' + Date.now() + '.png', fullPage: true });
   const r = await p.goto(B + '/admin'); ok(r.status() === 404, 'client nu vede /admin');
   await p.setViewportSize({ width: 390, height: 844 }); await p.goto(B + '/app/demo-auto-srl'); await p.screenshot({ path: require('os').tmpdir() + '/vitim-ai-' + Date.now() + '.png', fullPage: true });
