@@ -19,3 +19,5 @@
 - blog-securitate-retea.webp — Pexels (pexels.com/license) – 2881232
 - blog-seo-planificare.webp — Unsplash (unsplash.com/license) – photo-1432888498266-38ffec3eaf0a
 - sala-servere.webp — Pexels (pexels.com/license) – 4508751
+- reparatii-placi-de-baza.webp — Pexels (pexels.com/license) – 3825581
+- reparatii-telefoane-tablete.webp — Pexels (pexels.com/license) – 1476321

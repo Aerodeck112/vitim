@@ -1,5 +1,13 @@
 # Istoric versiuni
 
+## 1.2.0 — telefoane, tablete, plăci de bază și site mai rezistent
+
+- **Serviciu nou: Reparații plăci de bază (nivel componentă)**: microsoldering, scurtcircuite, lichid vărsat, cipuri/BGA, pentru laptopuri, PC-uri, telefoane, tablete și console. Apare pe prima pagină ca serviciu evidențiat.
+- **Serviciu nou: Reparații telefoane și tablete**: ecran, baterie, încărcare, apă, placă de bază, software.
+- Fotografii noi pentru cele două servicii; „Reparații IT” are legături către ele; descrierea SEO, llms.txt și întrebările sugerate de asistent includ noile servicii.
+- **Dacă baza de date nu răspunde** (server MySQL oprit, parolă schimbată, limită de conexiuni la hosting), site-ul nu mai afișează „Ceva nu a mers bine”: vizitatorii primesc ultima versiune salvată a paginii sau o pagină cu butoane Sună / WhatsApp / Email (cod 503, fără penalizare în Google).
+- Paginile de eroare afișează un cod scurt, găsit și în `storage/logs/app.log`, ca problema să fie identificată rapid.
+
 ## 1.1.1
 
 - Animația „agentului” (consola cu activitatea unei zile) revine pe prima pagină ca variantă implicită.

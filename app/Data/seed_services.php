@@ -127,7 +127,7 @@ HTML,
         'icon' => 'wrench',
         'onsite' => 1,
         'featured' => 0,
-        'excerpt' => 'Diagnoză și reparații pentru calculatoare, laptopuri, servere, imprimante și echipamente de rețea. Upgrade SSD și RAM, reinstalări, înlocuiri de componente – la sediu sau în atelier.',
+        'excerpt' => 'Diagnoză și reparații pentru calculatoare, laptopuri, servere, imprimante și echipamente de rețea, plus telefoane și tablete. Upgrade SSD și RAM, reinstalări, reparații pe placa de bază – la sediu sau în atelier.',
         'meta_title' => 'Reparații calculatoare și laptopuri pentru firme | Mureș, Alba, Bistrița',
         'meta_description' => 'Service IT: reparații PC, laptopuri, servere și imprimante, upgrade SSD/RAM, reinstalare Windows, curățare. Intervenții la sediu în Mureș, Bistrița-Năsăud și Alba.',
         'keywords' => 'reparatii calculatoare, reparatii laptop, service it, service calculatoare targu mures, upgrade ssd, reparatii servere',
@@ -156,7 +156,11 @@ HTML,
 <li><strong>Servere și NAS</strong>: discuri defecte, RAID degradat, surse, migrare pe hardware nou.</li>
 <li><strong>Imprimante și multifuncționale</strong> de birou.</li>
 <li><strong>Echipamente de rețea</strong>: routere, switch-uri, Wi-Fi, cablare structurată.</li>
+<li><strong>Telefoane și tablete</strong>: vezi <a href="/servicii/reparatii-telefoane-tablete">reparații telefoane și tablete</a>.</li>
 </ul>
+
+<h2>Reparații pe placa de bază</h2>
+<p>Când defectul e pe placă (nu pornește, scurtcircuit, lichid vărsat), nu schimbăm placa întreagă: o <a href="/servicii/reparatii-placi-de-baza">reparăm la nivel de componentă</a>, cu microscop și stație de lipit profesională. Costă mai puțin și îți păstrezi aparatul.</p>
 
 <h2>Upgrade-uri care chiar se simt</h2>
 <p>Cel mai eficient upgrade pentru un calculator mai vechi este înlocuirea hard-diskului clasic cu un <strong>SSD</strong>, plus memorie RAM suplimentară. Diferența de viteză e de multe ori spectaculoasă, la o fracțiune din prețul unui echipament nou.</p>
@@ -165,6 +169,121 @@ HTML,
 <p>La sediul tău în <strong>județele Mureș, Bistrița-Năsăud și Alba</strong>, sau în atelier pentru reparațiile care necesită mai mult timp. Pentru firmele cu abonament de mentenanță, reparațiile au prioritate.</p>
 
 <div class="callout">Calculatorul a căzut sau ai vărsat lichid pe el? <strong>Oprește-l imediat</strong> și nu încerca să-l pornești din nou – crești șansele de reparație și de salvare a datelor.</div>
+HTML,
+    ],
+    [
+        'slug' => 'reparatii-placi-de-baza',
+        'category' => 'it',
+        'title' => 'Reparații plăci de bază (nivel componentă)',
+        'h1' => 'Reparații plăci de bază la nivel de componentă: laptop, PC, telefon, tabletă',
+        'tagline' => 'Microsoldering, BGA, diagnoză electronică',
+        'icon' => 'chip',
+        'onsite' => 0,
+        'featured' => 1,
+        'excerpt' => 'Reparăm plăcile de bază pe care alte service-uri le declară „irecuperabile”: scurtcircuite, lipsă alimentare, urme de lichid, cipuri defecte. Diagnoză electronică și microsoldering pentru laptopuri, calculatoare, telefoane, tablete și console.',
+        'meta_title' => 'Reparații plăci de bază laptop, telefon, PC – microsoldering | Târgu Mureș',
+        'meta_description' => 'Reparații plăci de bază la nivel de componentă: laptopuri, telefoane, tablete, PC-uri, console. Scurtcircuite, lipsă alimentare, oxidare, BGA, înlocuire cipuri. Diagnoză înainte de orice cost.',
+        'keywords' => 'reparatii placa de baza, reparatii placa de baza laptop, reparatii placa de baza telefon, microsoldering, reballing bga, laptop nu porneste, telefon nu porneste, reparatii placi de baza targu mures, service placi de baza',
+        'features' => [
+            ['icon' => 'microscope', 'title' => 'Microsoldering sub microscop', 'text' => 'Lucrăm pe componente de dimensiunea unui fir de nisip: condensatoare, bobine, conectori, circuite integrate.'],
+            ['icon' => 'zap', 'title' => 'Scurtcircuite și lipsă alimentare', 'text' => 'Găsim componenta care a cedat, nu schimbăm placa întreagă „ca să fie sigur”.'],
+            ['icon' => 'droplet', 'title' => 'Urme de lichid și oxidare', 'text' => 'Curățare, tratarea coroziunii și refacerea traseelor afectate de apă, cafea sau alte lichide.'],
+            ['icon' => 'chip', 'title' => 'Cipuri și BGA', 'text' => 'Înlocuire de circuite de încărcare și alimentare, controlere, cipuri grafice; reballing BGA unde se justifică.'],
+            ['icon' => 'smartphone', 'title' => 'Orice tip de aparat', 'text' => 'Laptopuri, calculatoare, telefoane, tablete, console, plăci de la echipamente de birou.'],
+            ['icon' => 'hard-drive', 'title' => 'Salvarea datelor', 'text' => 'Uneori placa trebuie readusă la viață doar cât să recuperăm datele. Și asta facem.'],
+        ],
+        'faq' => [
+            ['q' => 'Alt service mi-a spus că placa de bază nu se mai poate repara. Mai are rost să vin?', 'a' => 'Da, merită o evaluare. Multe service-uri doar schimbă placa întreagă sau declară aparatul irecuperabil, pentru că nu lucrează la nivel de componentă. Noi căutăm exact piesa care a cedat și o înlocuim.'],
+            ['q' => 'Cât costă reparația unei plăci de bază?', 'a' => 'Depinde de defect: o componentă simplă de pe traseul de alimentare costă mult mai puțin decât o intervenție BGA. După diagnoză îți spunem prețul exact și decizi tu dacă mergem mai departe.'],
+            ['q' => 'Laptopul sau telefonul a luat apă. Ce fac?', 'a' => 'Oprește-l imediat, nu-l pune la încărcat și nu-l usca cu foehnul sau în orez. Adu-l cât mai repede: oxidarea avansează în fiecare zi, iar șansele de reparare scad.'],
+            ['q' => 'Datele mele rămân pe aparat?', 'a' => 'Reparația pe placă nu afectează datele în mod normal. Dacă aparatul pornește măcar parțial, facem o copie de siguranță înainte de intervențiile riscante.'],
+            ['q' => 'Cât durează?', 'a' => 'Diagnoza se face de regulă în 1–2 zile lucrătoare. Reparația depinde de defect și de disponibilitatea componentelor; îți comunicăm termenul odată cu prețul.'],
+        ],
+        'body' => <<<'HTML'
+<h2>Reparăm placa, nu o aruncăm</h2>
+<p>Când un laptop, un telefon sau o tabletă nu mai pornește, cele mai multe service-uri îți propun <strong>înlocuirea plăcii de bază</strong> – de multe ori la un preț apropiat de al unui aparat nou – sau îți spun direct că nu se mai poate face nimic. Noi lucrăm <strong>la nivel de componentă</strong>: identificăm piesa care a cedat și o reparăm sau o înlocuim. Rezultatul: cost mai mic, aparatul tău (cu datele tale) înapoi în funcțiune.</p>
+
+<h2>Defecte pe care le reparăm frecvent</h2>
+<ul>
+<li><strong>Nu pornește deloc</strong> sau pornește și se oprește imediat.</li>
+<li><strong>Nu se încarcă</strong>: circuit de încărcare, mufă, controler USB-C, protecții arse.</li>
+<li><strong>Scurtcircuit</strong> pe linia de alimentare după o încărcare cu un încărcător neoriginal sau un șoc electric.</li>
+<li><strong>Lichid vărsat</strong>: apă, cafea, suc – oxidare și trasee întrerupte.</li>
+<li><strong>Fără imagine</strong>: probleme la cipul grafic, la alimentarea ecranului sau la conectori.</li>
+<li><strong>Conectori și porturi rupte</strong>: USB, HDMI, alimentare, conectori de display sau baterie.</li>
+<li>Defecte apărute după o <strong>reparație nereușită</strong> în alt service.</li>
+</ul>
+
+<h2>Cum lucrăm</h2>
+<p>Folosim echipamente profesionale de diagnoză și lucru: <strong>microscop, stație de lipit și de aer cald, sursă de laborator, multimetru și scheme electronice</strong> ale plăcilor. Măsurăm, nu ghicim. Astfel găsim defectul chiar și când el nu se vede cu ochiul liber.</p>
+<ol>
+<li><strong>Diagnoză</strong> – îți spunem ce s-a defectat și cât costă reparația.</li>
+<li><strong>Acordul tău</strong> – nu facem nimic fără confirmare.</li>
+<li><strong>Reparație și testare</strong> – aparatul este testat complet înainte să ți-l predăm.</li>
+</ol>
+
+<h2>Pentru ce aparate</h2>
+<p>Laptopuri și calculatoare (inclusiv MacBook), <a href="/servicii/reparatii-telefoane-tablete">telefoane și tablete</a>, console de jocuri și plăci electronice de la echipamente de birou. Dacă placa nu mai poate fi reparată, încercăm să o readucem la viață doar cât să <a href="/servicii/recuperare-date">recuperăm datele</a>.</p>
+
+<h2>De unde preluăm</h2>
+<p>Aduci aparatul la noi sau îl preluăm de la sediul firmei tale în <strong>Mureș, Bistrița-Năsăud și Alba</strong>. Pentru restul țării, ne suni înainte și stabilim cum ne trimiți aparatul.</p>
+
+<div class="callout">Aparatul a luat apă? <strong>Nu-l porni și nu-l pune la încărcat.</strong> Fiecare oră contează – sună-ne și îți spunem ce să faci până ajunge la noi.</div>
+HTML,
+    ],
+    [
+        'slug' => 'reparatii-telefoane-tablete',
+        'category' => 'it',
+        'title' => 'Reparații telefoane și tablete',
+        'h1' => 'Reparații telefoane și tablete: ecran, baterie, încărcare, placă de bază',
+        'tagline' => 'iPhone, Samsung, Xiaomi, iPad și alte mărci',
+        'icon' => 'smartphone',
+        'onsite' => 0,
+        'featured' => 0,
+        'excerpt' => 'Reparații pentru telefoane și tablete: ecrane sparte, baterii, mufe de încărcare, camere, aparate care au luat apă și defecte pe placa de bază, pe care alții nu le repară. Diagnoză și preț clar înainte de reparație.',
+        'meta_title' => 'Reparații telefoane și tablete – ecran, baterie, placă de bază | Târgu Mureș',
+        'meta_description' => 'Service telefoane și tablete: înlocuire ecran și baterie, mufă de încărcare, telefon căzut în apă, nu pornește, reparații placă de bază. iPhone, Samsung, Xiaomi, iPad. Preț clar după diagnoză.',
+        'keywords' => 'reparatii telefoane, service telefoane targu mures, reparatii tablete, inlocuire ecran telefon, schimbare baterie telefon, telefon cazut in apa, telefon nu se incarca, reparatii iphone, reparatii samsung, reparatii ipad',
+        'features' => [
+            ['icon' => 'smartphone', 'title' => 'Ecrane și sticlă', 'text' => 'Înlocuim ecrane sparte, cu dungi, pete sau touch care nu mai răspunde.'],
+            ['icon' => 'battery', 'title' => 'Baterii', 'text' => 'Baterie umflată, care ține puțin sau telefon care se închide singur la 20%.'],
+            ['icon' => 'plug', 'title' => 'Încărcare', 'text' => 'Mufă de încărcare uzată sau murdară, circuit de încărcare defect, încărcare lentă.'],
+            ['icon' => 'droplet', 'title' => 'Căzut în apă', 'text' => 'Curățare și tratare a oxidării; cu cât ajunge mai repede la noi, cu atât mai bine.'],
+            ['icon' => 'chip', 'title' => 'Placă de bază', 'text' => 'Nu pornește, nu are semnal, nu se încarcă deloc – reparăm la nivel de componentă.'],
+            ['icon' => 'tablet', 'title' => 'Tablete', 'text' => 'iPad, Samsung Galaxy Tab, Lenovo și altele: ecran, baterie, încărcare, placă.'],
+        ],
+        'faq' => [
+            ['q' => 'Ce mărci reparați?', 'a' => 'Lucrăm cu telefoanele și tabletele uzuale: iPhone și iPad, Samsung, Xiaomi, Huawei, Motorola, Oppo, Lenovo și altele. Pentru modelele mai rare verificăm disponibilitatea pieselor înainte să îți dăm un preț.'],
+            ['q' => 'Cât durează schimbarea ecranului sau a bateriei?', 'a' => 'Când piesa este pe stoc, de regulă în aceeași zi. Dacă piesa trebuie comandată, îți spunem termenul de la început.'],
+            ['q' => 'Telefonul meu nu mai pornește deloc. Se poate repara?', 'a' => 'De cele mai multe ori da. Un telefon care nu pornește are adesea un defect pe placa de bază – un domeniu în care suntem specializați. Facem diagnoza și îți spunem sincer dacă merită.'],
+            ['q' => 'Îmi pierd datele?', 'a' => 'Schimbarea ecranului, bateriei sau a mufei nu afectează datele. Pentru reparațiile pe placă îți spunem dinainte dacă există vreun risc. Îți recomandăm totuși o copie de siguranță când aparatul încă pornește.'],
+            ['q' => 'Reparați și telefoanele angajaților unei firme?', 'a' => 'Da. Pentru firmele cu care colaborăm preluăm și predăm aparatele la sediu în Mureș, Bistrița-Năsăud și Alba și putem configura telefonul nou sau reparat cu emailul și aplicațiile firmei.'],
+        ],
+        'body' => <<<'HTML'
+<h2>Service de telefoane și tablete, cu specialiști pe placa de bază</h2>
+<p>Un ecran spart sau o baterie obosită se schimbă în multe locuri. Diferența apare atunci când telefonul <strong>nu mai pornește, nu se mai încarcă sau a luat apă</strong>. Acolo majoritatea service-urilor se opresc, pentru că defectul este pe placa de bază. Noi suntem <a href="/servicii/reparatii-placi-de-baza">specializați în reparații pe plăci de bază</a>, la nivel de componentă, așa că ducem reparația până la capăt.</p>
+
+<h2>Ce reparăm</h2>
+<ul>
+<li><strong>Ecrane</strong> sparte, cu dungi, pete negre sau touch care nu mai răspunde.</li>
+<li><strong>Baterii</strong> umflate sau care nu mai țin.</li>
+<li><strong>Mufe de încărcare</strong>, microfon, difuzor, butoane.</li>
+<li><strong>Camere</strong> și sticla camerei.</li>
+<li><strong>Aparate căzute în apă</strong> sau în alte lichide.</li>
+<li><strong>Defecte pe placa de bază</strong>: nu pornește, bootloop, fără semnal, fără Wi-Fi, nu se încarcă deloc.</li>
+<li><strong>Probleme software</strong>: aparat blocat, actualizări eșuate, resetare, transfer de date pe un telefon nou.</li>
+</ul>
+
+<h2>Telefoane și tablete</h2>
+<p>Lucrăm cu <strong>iPhone, Samsung, Xiaomi, Huawei, Motorola, Oppo</strong> și alte mărci, precum și cu tablete <strong>iPad, Samsung Galaxy Tab, Lenovo</strong> și altele. Înainte de orice reparație primești diagnoza și prețul; lucrăm doar după ce ești de acord.</p>
+
+<h2>Și pentru firme</h2>
+<p>Dacă firma ta folosește telefoane și tablete de serviciu, le putem include în <a href="/servicii/mentenanta-it">abonamentul de mentenanță IT</a>: reparații cu prioritate, configurare email și aplicații, protecție și ștergere de la distanță pentru aparatele pierdute.</p>
+
+<h2>Datele de pe telefon</h2>
+<p>Dacă telefonul nu mai poate fi reparat economic, încercăm să îl readucem la viață cât să <a href="/servicii/recuperare-date">recuperăm pozele, contactele și conversațiile</a>.</p>
+
+<div class="callout">Telefonul a căzut în apă? <strong>Oprește-l, nu-l încărca și nu-l pune în orez.</strong> Adu-l la noi cât mai repede – oxidarea avansează cu fiecare oră.</div>
 HTML,
     ],
     [

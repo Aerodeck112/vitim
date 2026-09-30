@@ -56,6 +56,8 @@ final class App
             return;
         }
 
+        self::snapshotContact();
+
         $router = new Router();
         require APP_PATH . '/routes.php';
 
@@ -79,6 +81,76 @@ final class App
             }
             echo $out;
         }
+    }
+
+    /** Datele de contact salvate pe disc, ca să poată fi afișate și când baza de date nu răspunde. */
+    private static function snapshotContact(): void
+    {
+        $f = STORAGE_PATH . '/cache/contact.json';
+        if (is_file($f) && filemtime($f) > time() - 3600) {
+            return;
+        }
+        @file_put_contents($f, json_encode([
+            'brand' => Settings::get('brand_name', 'VITIM'),
+            'phone' => Settings::get('phone', ''),
+            'email' => Settings::get('email', ''),
+            'whatsapp' => Settings::get('whatsapp', ''),
+        ], JSON_UNESCAPED_UNICODE), LOCK_EX);
+    }
+
+    /**
+     * Baza de date nu e disponibilă: servim pagina din cache (chiar dacă e mai veche) sau o pagină
+     * „revenim imediat” cu telefon și email, cu cod 503 (Google nu penalizează o indisponibilitate scurtă).
+     */
+    public static function offline(\Throwable $e): never
+    {
+        $ref = substr(sha1(uniqid('', true)), 0, 8);
+        log_error('#' . $ref . ' Baza de date nu răspunde – ' . get_class($e) . ': ' . $e->getMessage());
+
+        $uri = '/' . ltrim(rawurldecode(strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/'), '/');
+        $bp = base_path();
+        if ($bp !== '' && str_starts_with($uri, $bp)) {
+            $uri = '/' . ltrim(substr($uri, strlen($bp)), '/');
+        }
+        $uri = $uri !== '/' ? rtrim($uri, '/') : $uri;
+        if (request_method() === 'GET' && !str_starts_with($uri, '/admin') && ($key = Cache::key($uri))) {
+            $f = Cache::file($key);
+            $meta = json_decode((string)@file_get_contents($f . '.meta'), true) ?: [];
+            if (is_file($f) && (int)($meta['code'] ?? 200) === 200) {
+                header('Content-Type: text/html; charset=utf-8');
+                header('X-Cache: STALE');
+                header('Cache-Control: no-store');
+                readfile($f);
+                exit;
+            }
+        }
+
+        $c = json_decode((string)@file_get_contents(STORAGE_PATH . '/cache/contact.json'), true) ?: [];
+        $c += ['brand' => 'VITIM', 'phone' => '', 'email' => '', 'whatsapp' => ''];
+        if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') || str_starts_with($uri, '/api/')) {
+            http_response_code(503);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Retry-After: 300');
+            echo json_encode(['ok' => false, 'error' => 'Site-ul este temporar indisponibil. Te rugăm să ne suni' . ($c['phone'] ? ' la ' . $c['phone'] : '') . ' sau să ne scrii' . ($c['email'] ? ' la ' . $c['email'] : '') . '.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        http_response_code(503);
+        header('Retry-After: 300');
+        header('Content-Type: text/html; charset=utf-8');
+        header('Cache-Control: no-store');
+        $tel = preg_replace('/[^0-9+]/', '', (string)$c['phone']);
+
+        $btn = 'display:block;margin:10px auto;max-width:280px;padding:14px 18px;border-radius:12px;text-decoration:none;font-weight:600;';
+        echo '<!doctype html><html lang="ro"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>' . e($c['brand']) . ' – revenim imediat</title>'
+            . '<body style="font-family:system-ui,sans-serif;background:#0a0d14;color:#e6e9f2;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;box-sizing:border-box"><div style="text-align:center;max-width:460px">'
+            . '<p style="font-weight:800;letter-spacing:.08em;opacity:.8">' . e($c['brand']) . '</p>'
+            . '<h1 style="font-size:26px;margin:.2em 0 .5em">Revenim în câteva minute</h1>'
+            . '<p style="opacity:.8;line-height:1.5">Site-ul este temporar indisponibil. Între timp ne poți contacta direct – îți răspundem imediat.</p>'
+            . ($tel ? '<a style="' . $btn . 'background:#3b82f6;color:#fff" href="tel:' . e($tel) . '">Sună: ' . e($c['phone']) . '</a>' : '')
+            . ($c['whatsapp'] ? '<a style="' . $btn . 'background:#16a34a;color:#fff" href="' . e(whatsapp_href((string)$c['whatsapp'])) . '">Scrie-ne pe WhatsApp</a>' : '')
+            . ($c['email'] ? '<a style="' . $btn . 'border:1px solid #334;color:#e6e9f2" href="mailto:' . e($c['email']) . '">' . e($c['email']) . '</a>' : '')
+            . '<p style="opacity:.4;font-size:12px;margin-top:24px">Cod: ' . $ref . '</p></div></body></html>';
+        exit;
     }
 
     public static function notFound(string $uri, bool $isAdmin = false): void

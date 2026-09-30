@@ -50,7 +50,9 @@ ini_set('log_errors', '1');
 ini_set('error_log', STORAGE_PATH . '/logs/php-error.log');
 
 set_exception_handler(function (\Throwable $e) use ($debug): void {
-    log_error($e);
+    // cod scurt afișat vizitatorului și scris în storage/logs/app.log, ca eroarea să poată fi găsită ușor
+    $ref = substr(sha1(uniqid('', true)), 0, 8);
+    log_error('#' . $ref . ' ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
     if (PHP_SAPI === 'cli') {
         fwrite(STDERR, (string)$e . PHP_EOL);
         exit(1);
@@ -62,10 +64,19 @@ set_exception_handler(function (\Throwable $e) use ($debug): void {
     if ($debug) {
         echo '<pre style="white-space:pre-wrap;font:13px monospace;padding:20px">' . e((string)$e) . '</pre>';
     } else {
-        echo '<!doctype html><meta charset="utf-8"><title>Eroare</title><body style="font-family:system-ui;background:#0a0d14;color:#e6e9f2;display:grid;place-items:center;min-height:100vh;margin:0"><div style="text-align:center"><h1>Ceva nu a mers bine</h1><p>Te rugăm să încerci din nou în câteva momente.</p><p><a style="color:#6ea8ff" href="/">Înapoi la prima pagină</a></p></div>';
+        echo '<!doctype html><meta charset="utf-8"><title>Eroare</title><body style="font-family:system-ui;background:#0a0d14;color:#e6e9f2;display:grid;place-items:center;min-height:100vh;margin:0"><div style="text-align:center"><h1>Ceva nu a mers bine</h1><p>Te rugăm să încerci din nou în câteva momente.</p><p><a style="color:#6ea8ff" href="/">Înapoi la prima pagină</a></p><p style="opacity:.45;font-size:12px">Cod: ' . $ref . '</p></div>';
     }
 });
 
 if ($GLOBALS['__config']) {
-    \App\Core\DB::connect($GLOBALS['__config']['db']);
+    try {
+        \App\Core\DB::connect($GLOBALS['__config']['db']);
+    } catch (\Throwable $e) {
+        if (PHP_SAPI === 'cli') {
+            throw $e;
+        }
+        // baza de date nu răspunde (server MySQL oprit, parolă schimbată, limită de conexiuni):
+        // vizitatorii primesc ultima versiune salvată a paginii sau o pagină cu datele de contact
+        \App\Core\App::offline($e);
+    }
 }
