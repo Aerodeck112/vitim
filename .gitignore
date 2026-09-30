@@ -20,3 +20,4 @@
 /node_modules/
 /tests/tmp/
 /*.png
+/dist/vitim-ai-*.zip

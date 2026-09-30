@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\AuditLog;
+use App\Models\User;
 use App\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,12 @@ final class AuditLogger
         return AuditLog::create([
             'organization_id' => $this->context->has() ? $this->context->id() : null,
             'actor_user_id' => $user?->getAuthIdentifier(),
-            'actor_type' => $user === null && $actorType === 'user' ? 'system' : $actorType,
+            'actor_type' => match (true) {
+                $actorType !== 'user' => $actorType,
+                $user === null => 'system',
+                $user instanceof User && $user->isPlatformStaff() => 'platform',
+                default => 'user',
+            },
             'action' => $action,
             'target_type' => $target ? class_basename($target) : null,
             'target_id' => $target?->getKey(),

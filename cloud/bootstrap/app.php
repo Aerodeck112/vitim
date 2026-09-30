@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsurePlatformStaff;
+use App\Http\Middleware\EnsureTwoFactor;
 use App\Http\Middleware\SetOrganizationFromRoute;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,7 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'org' => SetOrganizationFromRoute::class,
+            '2fa' => EnsureTwoFactor::class,
+            'platform' => EnsurePlatformStaff::class,
         ]);
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('home'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -422,17 +422,22 @@ Site-urile non-WordPress folosesc **același** snippet: `<script src=".../loader
 
 ## 16. Deployment
 
-**[DECIZIE D2] VITIM AI Cloud nu se instalează pe cPanel.** Motive:
-- are nevoie de workeri permanenți (coadă) și scheduler;
-- joburile de crawl rulează minute întregi;
-- cere backup automat verificabil (cPanel tocmai a pierdut toate bazele de date);
-- izolarea și monitorizarea sunt slabe pe shared hosting;
-- limitele de timp PHP afectează apelurile AI lungi.
+**[DECIZIE D2 — actualizată 30.09.2026] VITIM AI Cloud rulează pe cPanel-ul VITIM** (decizia proprietarului). Aplicația e construită să funcționeze pe hosting partajat, cu limitările asumate:
 
-Recomandare:
-- **MVP**: un VPS în UE (4 vCPU / 8 GB), cu Nginx + PHP-FPM 8.3, MySQL 8, Redis (coadă + rate limit) și supervisor pentru workeri. Domeniu dedicat [DECIZIE D3], de exemplu `ai.vitim.ro`. Deploy din git cu migrări automate, zero-downtime (symlink de release).
-- **Scalare**, peste ~100 de clienți activi [ESTIMARE]: aplicație și workeri separați, MySQL gestionat cu replică, Redis gestionat, CDN pentru `loader.js`.
-- **Mediile**: `local` → `staging` (date fictive) → `production`. Secretele stau în variabile de mediu, niciodată în git.
+| Nevoie | Pe cPanel |
+|---|---|
+| Aplicația | Subdomeniu `ai.vitim.ro` cu document root pe `vitim-ai/public`. Codul stă în afara `public_html` |
+| PHP | PHP 8.3+ din „Select PHP Version” / MultiPHP |
+| Bază de date | MySQL/MariaDB din cPanel, utilizator dedicat, doar pentru platformă |
+| Coadă și sarcini programate | Un singur cron la minut în cPanel: `php artisan schedule:run`. Acesta pornește workerul de coadă (`queue:work --stop-when-empty --max-time=50`, coada în baza de date), backup-ul și curățenia. Fără procese permanente |
+| Actualizări | Arhivă zip (`cloud/tools/build.php`) urcată prin File Manager. Cron-ul detectează versiunea nouă și rulează singur migrările (`vitim:deploy`). Prima rulare generează și `APP_KEY`, dacă lipsește |
+| Cache și rate limit | Driver `database` (fără Redis) |
+| Backup | `vitim:backup` zilnic: dump al bazei de date trimis pe email, în afara serverului, plus copii locale. **Obligatoriu**, după incidentul din 30.09.2026 |
+
+Limitări de urmărit (motive de mutare pe VPS mai târziu, fără schimbări de cod):
+- Joburile lungi (crawl) se împart în bucăți sub 50 de secunde.
+- Latența apelurilor AI depinde de limitele PHP-FPM ale hostingului.
+- La peste ~30–50 de clienți activi, sau la depășiri repetate de CPU pe hosting, mutăm pe VPS [ESTIMARE]. Codul nu depinde de cPanel.
 
 ---
 
@@ -660,7 +665,7 @@ Legendă risc: **S** (scăzut) / **M** (mediu) / **R** (ridicat).
 | # | Decizie | Recomandare (adoptată) |
 |---|---|---|
 | D1 | Stack pentru cloud | Laravel (PHP 8.3), aplicație separată de vitim.ro |
-| D2 | Hosting | VPS UE (nu cPanel) + backup offsite |
+| D2 | Hosting | **cPanel VITIM** (decizia proprietarului), cu cron la minut, backup zilnic pe email; VPS doar la nevoie |
 | D3 | Domeniu | `ai.vitim.ro` (sau un brand separat) |
 | D4 | Modelul AI per plan | `claude-opus-5-5` implicit; alt model doar după evaluare pe date reale |
 | D5 | Recuperare în MVP | Core facts cache-uite + FULLTEXT + „context complet” pentru knowledge mic; embeddings mai târziu |
