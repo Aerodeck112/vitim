@@ -47,6 +47,7 @@ $stars = function (float $v): string {
         <?php if ($p['price_note']): ?><span class="pnote" style="font-size:14.5px"><?= e($p['price_note']) ?></span><?php endif; ?>
       </div>
       <?php if (trim(strip_tags((string)$p['short_description'])) !== ''): ?><div class="short"><?= $p['short_description'] ?></div><?php endif; ?>
+      <?php if (Shop::isExclusive($p)): ?><div class="excl-note"><span class="ring"><?= icon('award') ?></span><div><strong><?= e(setting('exclusive_label', 'Import exclusiv')) ?> în România</strong>Cafeaua <?= e($p['brand']) ?> este adusă direct din Italia de Bunătăți de la Michele, unicul importator din țară.</div></div><?php endif; ?>
       <div class="stock <?= e($stCls) ?>"><?= e($stLabel) ?></div>
 
       <form method="post" action="<?= e(url('/cos/adauga')) ?>" data-add data-buy-form>

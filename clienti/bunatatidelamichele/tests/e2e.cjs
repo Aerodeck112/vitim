@@ -43,7 +43,7 @@ async function fillCheckout(page, o = {}) {
   console.log('Site public');
   await step('prima pagină + 7 produse în catalog', async () => {
     await page.goto(BASE + '/');
-    assert(await page.locator('h1').first().textContent().then(t => t.includes('Cafea premium')), 'H1 lipsă');
+    assert(await page.locator('h1').first().textContent().then(t => t.includes('Cafea italiană')), 'H1 lipsă');
     await page.goto(BASE + '/produse');
     const n = await page.locator('.pcard').count();
     assert(n === 7, 'produse găsite: ' + n);

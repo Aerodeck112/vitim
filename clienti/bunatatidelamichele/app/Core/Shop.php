@@ -50,6 +50,17 @@ final class Shop
         return self::onSale($p) ? (int)round((1 - (float)$p['sale_price'] / max(0.01, (float)$p['price'])) * 100) : 0;
     }
 
+    /** Produs dintr-un brand importat exclusiv (Setări → Magazin → Branduri importate exclusiv). */
+    public static function isExclusive(array $p): bool
+    {
+        $brand = mb_strtolower(trim((string)($p['brand'] ?? '')));
+        if ($brand === '') {
+            return false;
+        }
+        $list = array_filter(array_map(fn($b) => mb_strtolower(trim($b)), explode(',', (string)Settings::get('exclusive_brands'))));
+        return in_array($brand, $list, true);
+    }
+
     public static function images(array $p): array
     {
         return array_values(array_filter(json_list($p['images'] ?? '[]'), 'is_string'));

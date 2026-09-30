@@ -100,7 +100,7 @@ final class SeoController extends SiteController
 <xsl:output method="html" encoding="UTF-8"/>
 <xsl:template match="/">
 <html><head><meta charset="utf-8"/><meta name="robots" content="noindex"/><title>Sitemap</title>
-<style>body{font-family:system-ui,sans-serif;background:#f6efe6;color:#2b1a12;margin:0;padding:40px}h1{font-size:28px}p{color:#6b5a4a}table{border-collapse:collapse;width:100%;max-width:1100px;font-size:14px}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(43,26,18,.1)}th{color:#8a7663;font-weight:500}a{color:#b5602c;text-decoration:none}</style></head>
+<style>body{font-family:system-ui,sans-serif;background:#f6efe6;color:#2b1a12;margin:0;padding:40px}h1{font-size:28px}p{color:#6b5a4a}table{border-collapse:collapse;width:100%;max-width:1100px;font-size:14px}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(43,26,18,.1)}th{color:#8a7663;font-weight:500}a{color:#a8823f;text-decoration:none}</style></head>
 <body><h1>Sitemap XML</h1><p>Acest fișier ajută Google și alte motoare de căutare să descopere paginile site-ului.</p>
 <xsl:if test="count(s:sitemapindex/s:sitemap) &gt; 0"><table><tr><th>Sitemap</th><th>Ultima modificare</th></tr>
 <xsl:for-each select="s:sitemapindex/s:sitemap"><tr><td><a href="{s:loc}"><xsl:value-of select="s:loc"/></a></td><td><xsl:value-of select="substring(s:lastmod,0,11)"/></td></tr></xsl:for-each></table></xsl:if>

@@ -323,7 +323,7 @@ final class Orders
             . self::paymentInstructions($o)
             . self::itemsTable($o)
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.6"><tr><td valign="top" style="padding-right:10px"><strong>Livrare</strong><br>' . e($o['shipping_method'] === 'ridicare' ? (string)Settings::get('pickup_label') : (string)Settings::get('shipping_label')) . '<br>' . self::addressHtml($o) . '</td><td valign="top"><strong>Facturare</strong><br>' . self::addressHtml($o, false) . '</td></tr></table>'
-            . '<p style="margin:26px 0"><a href="' . e($url) . '" style="background:#b5602c;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:600">Vezi comanda</a></p>'
+            . '<p style="margin:26px 0"><a href="' . e($url) . '" style="background:#15100c;color:#e3c98d;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:600">Vezi comanda</a></p>'
             . '<p style="color:#8a7663;font-size:14px">' . e((string)Settings::get('email_order_footer')) . '</p>';
         [$ok] = Mailer::send($o['email'], 'Comanda ' . $o['number'] . ' a fost înregistrată – ' . Settings::get('brand_name'), Mailer::layout($body, ['preheader' => 'Comanda ' . $o['number'] . ': ' . Shop::money($o['total'])]), ['kind' => 'comanda', 'to_name' => self::customerName($o)]);
         self::event((int)$o['id'], 'email', ($ok ? 'Email de confirmare trimis clientului.' : 'Emailul de confirmare NU a putut fi trimis – verifică Setări → Email.'));
@@ -362,7 +362,7 @@ final class Orders
         if ($note !== '') {
             $body .= '<p>' . nl2br(e($note)) . '</p>';
         }
-        $body .= '<p style="margin:24px 0"><a href="' . e($url) . '" style="background:#b5602c;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:600">Vezi comanda</a></p>';
+        $body .= '<p style="margin:24px 0"><a href="' . e($url) . '" style="background:#15100c;color:#e3c98d;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:600">Vezi comanda</a></p>';
         [$ok] = Mailer::send($o['email'], 'Comanda ' . $o['number'] . ' – ' . $st[0], Mailer::layout($body), ['kind' => 'comanda', 'to_name' => self::customerName($o)]);
         self::event((int)$o['id'], 'email', $ok ? 'Clientul a fost anunțat pe email (' . $st[0] . ').' : 'Emailul către client nu a putut fi trimis.');
     }

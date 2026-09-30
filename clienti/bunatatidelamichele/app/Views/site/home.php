@@ -2,11 +2,9 @@
 use App\Core\Site;
 use App\Core\View;
 
-$catCards = [
-    ['title' => 'Cafea Boabe', 'text' => 'Boabe prăjite artizanal, ideale pentru orice metodă de preparare.', 'icon' => $catIcons['cafea-boabe'] ?? '', 'link' => '/categorie/cafea-boabe'],
-    ['title' => 'Cialde', 'text' => 'Cialde compatibile cu majoritatea espressoarelor, pentru o cafea rapidă și gustoasă.', 'icon' => $catIcons['cialde'] ?? '', 'link' => '/categorie/pastile-de-cafea'],
-    ['title' => 'Monodoze', 'text' => 'Porții individuale, perfecte pentru un espresso savuros în orice moment al zilei.', 'icon' => $catIcons['monodoze'] ?? '', 'link' => '/categorie/pastile-de-cafea'],
-];
+$stepIcons = ['bean', 'flame', 'coffee', 'package'];
+$excl = \App\Core\Settings::json('home_excl');
+$brands = \App\Core\Settings::json('home_brands');
 ?>
 <section class="hero" aria-label="Prezentare">
   <div class="container">
@@ -21,8 +19,9 @@ $catCards = [
             <a class="btn" href="<?= e(url($s['link'] ?: '/produse')) ?>"><?= e($s['button'] ?: 'Vezi produsele') ?> <?= icon('arrow-right') ?></a>
             <a class="btn btn-ghost" href="<?= e(url('/despre-noi')) ?>">Povestea noastră</a>
           </div>
+          <?php if ($i === 0): ?><div class="hero-seal"><span class="ring"><?= icon('award') ?></span><span>Unicul importator Saka &amp; Pareo în România<br>Prăjită la foc de lemn · Direct din Italia</span></div><?php endif; ?>
         </div>
-        <div class="art"><?= Site::img($s['image'] ?? '', (string)($s['title'] . ' ' . ($s['accent'] ?? '')), '(max-width:960px) 90vw, 560px', '', $i > 0) ?></div>
+        <div class="art"><?= Site::img($s['image'] ?? '', trim((string)($s['title'] . ' ' . ($s['accent'] ?? ''))), '(max-width:960px) 90vw, 600px', '', $i > 0) ?></div>
       </div>
       <?php endforeach; ?>
     </div>
@@ -32,27 +31,38 @@ $catCards = [
 
 <?= View::partial('site/partials/perks') ?>
 
+<?php if ($excl): ?>
 <section class="section">
   <div class="container">
+    <div class="section-head reveal"><span class="kicker"><?= e(setting('home_excl_kicker')) ?></span><h2><?= e(setting('home_excl_title')) ?></h2></div>
+    <div class="excl reveal">
+      <?php foreach ($excl as $i => $x): ?><div><div class="n"><?= str_pad((string)($i + 1), 2, '0', STR_PAD_LEFT) ?></div><h3><?= e($x['title']) ?></h3><p><?= e($x['text']) ?></p></div><?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<section class="section bg-paper" style="padding-top:clamp(56px,6vw,90px)">
+  <div class="container">
     <div class="section-head reveal">
-      <span class="kicker">Prăjită cu pasiune</span>
+      <span class="kicker">Colecția</span>
       <h2><?= e(setting('home_intro_title')) ?></h2>
       <p><?= e(setting('home_intro_text')) ?></p>
     </div>
     <div class="cats">
-      <?php foreach ($catCards as $c): ?>
-      <a class="cat reveal" href="<?= e(url($c['link'])) ?>">
-        <?= Site::img($c['icon'], $c['title'], '150px') ?>
-        <h3><?= e($c['title']) ?></h3>
-        <p><?= e($c['text']) ?></p>
-        <span class="link-arrow">Află mai multe <?= icon('arrow-right') ?></span>
+      <?php foreach ($categories as $c): ?>
+      <a class="cat reveal" href="<?= e(url('/categorie/' . $c['slug'])) ?>">
+        <?= Site::img($c['icon'] ?: $c['image'], (string)$c['name'], '220px') ?>
+        <h3><?= e($c['name']) ?></h3>
+        <p><?= e(excerpt((string)$c['intro'], 110)) ?></p>
+        <span class="link-arrow">Descoperă <?= icon('arrow-right') ?></span>
       </a>
       <?php endforeach; ?>
     </div>
   </div>
 </section>
 
-<section class="section bg-paper" id="recomandate">
+<section class="section" id="recomandate">
   <div class="container">
     <div class="section-head reveal">
       <span class="kicker"><?= e(setting('home_featured_kicker')) ?></span>
@@ -62,7 +72,45 @@ $catCards = [
     <div class="grid-products">
       <?php foreach ($featured as $p): ?><?= View::partial('site/partials/product_card', ['p' => $p]) ?><?php endforeach; ?>
     </div>
-    <p class="center" style="margin:40px 0 0"><a class="btn btn-dark" href="<?= e(url('/produse')) ?>">Vezi toate produsele <?= icon('arrow-right') ?></a></p>
+    <p class="center" style="margin:46px 0 0"><a class="btn btn-dark" href="<?= e(url('/produse')) ?>">Toată colecția <?= icon('arrow-right') ?></a></p>
+  </div>
+</section>
+
+<?php if ($brands): ?>
+<section class="section dark">
+  <div class="container">
+    <div class="section-head reveal"><span class="kicker"><?= e(setting('home_brands_kicker')) ?></span><h2><?= e(setting('home_brands_title')) ?></h2></div>
+    <div class="brands">
+      <?php foreach ($brands as $b): ?>
+      <a class="brand-card reveal" href="<?= e(url($b['link'] ?: '/produse')) ?>">
+        <div><span class="bn"><?= e($b['name']) ?></span><span class="bt"><?= e($b['tag']) ?></span><p><?= e($b['text']) ?></p><span class="link-arrow">Vezi produsele <?= icon('arrow-right') ?></span></div>
+        <?= Site::img($b['image'] ?? '', 'Cafea ' . $b['name'], '(max-width:720px) 70vw, 280px') ?>
+      </a>
+      <?php endforeach; ?>
+    </div>
+    <?php if ($q = setting('home_quote')): ?>
+    <div class="quote-band reveal" style="margin-top:80px"><blockquote>„<?= e($q) ?>”</blockquote><cite><?= e(setting('home_quote_cite')) ?></cite></div>
+    <?php endif; ?>
+  </div>
+</section>
+<?php endif; ?>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker"><?= e(setting('home_process_kicker')) ?></span>
+      <h2><?= e(setting('home_process_title')) ?></h2>
+      <p><?= e(setting('home_process_text')) ?></p>
+    </div>
+    <div class="steps">
+      <?php foreach ($process as $i => $s): ?>
+      <div class="step reveal">
+        <div class="im"><?= icon($stepIcons[$i % 4]) ?></div>
+        <h3><?= e($s['title']) ?></h3>
+        <p><?= e($s['text']) ?></p>
+      </div>
+      <?php endforeach; ?>
+    </div>
   </div>
 </section>
 
@@ -77,25 +125,6 @@ $catCards = [
       </div>
     </div>
     <div class="stats-art reveal"><?= Site::img((string)setting('home_intro_image'), 'Ceașcă de espresso cu scorțișoară', '(max-width:960px) 90vw, 520px') ?></div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="kicker"><?= e(setting('home_process_kicker')) ?></span>
-      <h2><?= e(setting('home_process_title')) ?></h2>
-      <p><?= e(setting('home_process_text')) ?></p>
-    </div>
-    <div class="steps">
-      <?php foreach ($process as $s): ?>
-      <div class="step reveal">
-        <div class="im"><?= Site::img($s['image'] ?? '', (string)$s['title'], '120px') ?></div>
-        <h3><?= e($s['title']) ?></h3>
-        <p><?= e($s['text']) ?></p>
-      </div>
-      <?php endforeach; ?>
-    </div>
   </div>
 </section>
 
@@ -131,8 +160,8 @@ $catCards = [
 <section class="section-sm" style="padding-bottom:90px">
   <div class="container">
     <div class="cta-box reveal">
-      <div><h2>Ai nevoie de cafea pentru birou sau cafenea?</h2><p>Scrie-ne și îți recomandăm sortimentul potrivit și cantitatea de care ai nevoie.</p></div>
-      <div class="btns"><a class="btn btn-light" href="<?= e(url('/contact')) ?>">Contactează-ne</a><a class="btn" href="<?= e(url('/produse')) ?>">Comandă online</a></div>
+      <div><span class="kicker" style="color:var(--gold)">Pentru birou, cafenea sau cadou</span><h2>Vrei cafea italiană pe care n-o are nimeni altcineva?</h2><p>Scrie-ne și îți recomandăm sortimentul potrivit și cantitatea de care ai nevoie.</p></div>
+      <div class="btns"><a class="btn" href="<?= e(url('/produse')) ?>">Comandă online</a><a class="btn btn-ghost" href="<?= e(url('/contact')) ?>">Contactează-ne</a></div>
     </div>
   </div>
 </section>

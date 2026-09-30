@@ -13,7 +13,7 @@ $addr = trim(implode(', ', array_filter([(string)Settings::get('company_name'), 
 <title><?= $brand ?></title>
 <style>
 body{margin:0;padding:0;background:#f4ede4;-webkit-text-size-adjust:100%}
-a{color:#b5602c}
+a{color:#a8823f}
 .content p{margin:0 0 16px}
 .content h2{font-size:22px;line-height:1.3;margin:0 0 14px;color:#2b1a12}
 .content h3{font-size:18px;margin:22px 0 10px;color:#2b1a12}

@@ -71,7 +71,7 @@ final class Site
     {
         $brand = e((string)Settings::get('brand_name', 'Bunătăți de la Michele'));
         $logo = (string)Settings::get($light ? 'logo_light' : 'logo');
-        $src = $logo !== '' ? upload_url($logo) : url('/assets/img/' . ($light ? 'logo-light.png' : 'logo.png'));
+        $src = $logo !== '' ? upload_url($logo) : url('/assets/img/' . ($light ? 'logo-gold.png' : 'logo.png'));
         return '<img src="' . e($src) . '" alt="' . $brand . '" width="120" height="106" decoding="async">';
     }
 

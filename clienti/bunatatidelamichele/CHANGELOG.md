@@ -1,5 +1,15 @@
 # Istoric versiuni
 
+## 1.1.0 — design premium
+
+- Identitate nouă: negru-espresso, auriu și ivoire, titluri serif elegante (Cormorant Garamond), antet și subsol închise, logo auriu.
+- Fotografiile produselor sunt decupate (fundal transparent, fără sigla imprimată în colț) și apar în vitrine întunecate, cu lumină caldă.
+- Prima pagină nouă: erou „Cafea italiană pe care nu o găsești oriunde – Saka & Pareo” cu vitrina produselor, secțiunea „Cafea rară, adusă special pentru tine”, colecția pe categorii, „Selecția casei”, carduri dedicate brandurilor Saka și Pareo, citat, procesul „De la boabă la ceașcă” cu iconițe aurii.
+- Eticheta „Import exclusiv” pe produsele Saka și Pareo și mesajul „unicul importator din țară” pe pagina produsului (brandurile se aleg din Setări → Magazin).
+- Toate secțiunile noi se editează din Panou → Prima pagină.
+- Emailurile folosesc noile culori.
+- Corectură: după încărcarea unei versiuni noi prin FTP, migrările rulează și cache-ul se golește înainte de afișarea primei pagini.
+
 ## 1.0.0 — magazinul nou
 
 - Magazin online propriu în locul WordPress/WooCommerce: cele 7 produse preluate identic (nume, prețuri, imagini, adrese `/produs/...`), 3 categorii, textele site-ului vechi.

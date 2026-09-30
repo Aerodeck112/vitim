@@ -54,7 +54,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
 <header class="site-header" id="top">
   <div class="container nav">
     <button class="icon-btn burger" type="button" data-mnav aria-label="Deschide meniul" aria-controls="mnav" aria-expanded="false"><?= icon('menu') ?></button>
-    <a class="logo" href="<?= e(url('/')) ?>" aria-label="<?= e(setting('brand_name')) ?> – prima pagină"><?= Site::logoHtml() ?></a>
+    <a class="logo" href="<?= e(url('/')) ?>" aria-label="<?= e(setting('brand_name')) ?> – prima pagină"><?= Site::logoHtml(true) ?></a>
     <nav aria-label="Meniu principal">
       <ul class="menu">
         <li><a href="<?= e(url('/')) ?>"<?= $path === '/' ? ' aria-current="page"' : '' ?>>Acasă</a></li>
@@ -90,7 +90,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
 <div class="mnav" id="mnav" aria-hidden="true">
   <div class="shade" data-mnav-close></div>
   <div class="panel" role="dialog" aria-label="Meniu">
-    <div class="top"><a href="<?= e(url('/')) ?>"><?= Site::logoHtml() ?></a><button class="icon-btn" type="button" data-mnav-close aria-label="Închide meniul"><?= icon('x') ?></button></div>
+    <div class="top"><a href="<?= e(url('/')) ?>"><?= Site::logoHtml(true) ?></a><button class="icon-btn" type="button" data-mnav-close aria-label="Închide meniul"><?= icon('x') ?></button></div>
     <a class="m" href="<?= e(url('/')) ?>">Acasă</a>
     <a class="m" href="<?= e(url('/produse')) ?>">Toate produsele <?= icon('chevron-right') ?></a>
     <div class="sub"><?php foreach ($cats as $c): ?><a href="<?= e(url('/categorie/' . $c['slug'])) ?>"><?php if ($c['icon']): ?><img src="<?= e(upload_url($c['icon'])) ?>" alt="" width="34" height="34" loading="lazy"><?php endif; ?><?= e($c['name']) ?></a><?php endforeach; ?></div>

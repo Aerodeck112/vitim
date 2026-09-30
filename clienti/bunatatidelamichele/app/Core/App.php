@@ -36,20 +36,21 @@ final class App
 
         self::securityHeaders($isAdmin);
 
-        if ($isAdmin) {
-            Auth::startSession();
-        } elseif (Cache::serve($uri)) {
-            return;
-        }
-
-        // actualizare în curs → migrările rulează automat
+        // versiune nouă urcată (din panou sau prin FTP) → migrările rulează automat, înainte de cache
         if (!$isAdmin && Settings::get('db_version', '') !== APP_VERSION) {
             try {
                 Migrator::run();
                 Settings::set('db_version', APP_VERSION);
+                Cache::clear();
             } catch (\Throwable $e) {
                 log_error($e);
             }
+        }
+
+        if ($isAdmin) {
+            Auth::startSession();
+        } elseif (Cache::serve($uri)) {
+            return;
         }
 
         if (!$isAdmin && Settings::get('maintenance_mode') === '1' && !isset($_COOKIE['bdm_admin']) && !str_starts_with($uri, '/plata/')) {
@@ -152,7 +153,7 @@ final class App
             . '<p style="font-weight:700;letter-spacing:.06em;opacity:.8">' . e($c['brand']) . '</p>'
             . '<h1 style="font-size:26px;margin:.2em 0 .5em">Revenim în câteva minute</h1>'
             . '<p style="opacity:.8;line-height:1.5">Magazinul este temporar indisponibil. Comenzile tale sunt în siguranță. Între timp ne poți contacta direct.</p>'
-            . ($tel ? '<a style="' . $btn . 'background:#b5602c;color:#fff" href="tel:' . e($tel) . '">Sună: ' . e($c['phone']) . '</a>' : '')
+            . ($tel ? '<a style="' . $btn . 'background:#15100c;color:#e3c98d" href="tel:' . e($tel) . '">Sună: ' . e($c['phone']) . '</a>' : '')
             . ($c['email'] ? '<a style="' . $btn . 'border:1px solid #d9c8b4;color:#2b1a12" href="mailto:' . e($c['email']) . '">' . e($c['email']) . '</a>' : '')
             . '<p style="opacity:.4;font-size:12px;margin-top:24px">Cod: ' . $ref . '</p></div></body></html>';
         exit;

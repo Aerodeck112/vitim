@@ -14,7 +14,7 @@
 <section class="section">
   <div class="container">
     <div class="section-head"><span class="kicker"><?= e(setting('home_process_kicker')) ?></span><h2><?= e(setting('home_process_title')) ?></h2><p><?= e(setting('home_process_text')) ?></p></div>
-    <div class="steps"><?php foreach ($process as $s): ?><div class="step reveal"><div class="im"><?= Site::img($s['image'] ?? '', (string)$s['title'], '120px') ?></div><h3><?= e($s['title']) ?></h3><p><?= e($s['text']) ?></p></div><?php endforeach; ?></div>
+    <div class="steps"><?php foreach ($process as $i => $s): ?><div class="step reveal"><div class="im"><?= icon(['bean', 'flame', 'coffee', 'package'][$i % 4]) ?></div><h3><?= e($s['title']) ?></h3><p><?= e($s['text']) ?></p></div><?php endforeach; ?></div>
   </div>
 </section>
 <?php if ($featured): ?>

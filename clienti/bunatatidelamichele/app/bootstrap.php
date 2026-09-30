@@ -64,7 +64,7 @@ set_exception_handler(function (\Throwable $e) use ($debug): void {
     if ($debug) {
         echo '<pre style="white-space:pre-wrap;font:13px monospace;padding:20px">' . e((string)$e) . '</pre>';
     } else {
-        echo '<!doctype html><meta charset="utf-8"><title>Eroare</title><body style="font-family:system-ui;background:#f6efe6;color:#2b1a12;display:grid;place-items:center;min-height:100vh;margin:0"><div style="text-align:center"><h1>Ceva nu a mers bine</h1><p>Te rugăm să încerci din nou în câteva momente.</p><p><a style="color:#b5602c" href="/">Înapoi la prima pagină</a></p><p style="opacity:.45;font-size:12px">Cod: ' . $ref . '</p></div>';
+        echo '<!doctype html><meta charset="utf-8"><title>Eroare</title><body style="font-family:system-ui;background:#f6efe6;color:#2b1a12;display:grid;place-items:center;min-height:100vh;margin:0"><div style="text-align:center"><h1>Ceva nu a mers bine</h1><p>Te rugăm să încerci din nou în câteva momente.</p><p><a style="color:#a8823f" href="/">Înapoi la prima pagină</a></p><p style="opacity:.45;font-size:12px">Cod: ' . $ref . '</p></div>';
     }
 });
 

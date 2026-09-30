@@ -2,6 +2,8 @@
 
 Magazinul online **bunatatidelamichele.ro** (SC Gelateria da Michele SRL), refăcut pe o platformă proprie, fără WordPress: site public, coș, finalizare comandă, plăți **BT iPay** și ramburs, panou de control și SEO complet. Rulează pe orice hosting cu cPanel (PHP 8.1+ și MySQL), fără Node.js, Composer sau compilare.
 
+Design premium (v1.1): negru-espresso, auriu și ivoire, titluri serif, produse decupate în vitrine întunecate, accent pe exclusivitate (unicul importator Saka & Pareo în România).
+
 Construit pe nucleul platformei VITIM (actualizări din .zip, backup, 2FA, cache de pagini, redirecționări).
 
 ---
@@ -85,5 +87,5 @@ assets/              CSS, JS, fonturi (Jost, Cookie – licență OFL)
 
 - Local: `php -S 127.0.0.1:8080 tools/dev-router.php`, apoi `/install/` (poți alege SQLite).
 - Simulator BT iPay: `php -S 127.0.0.1:8091 tests/mock-btipay.php`, apoi setează `bt_url_test = http://127.0.0.1:8091`, utilizator `test_api`, parolă `test_pass` (direct în baza de date – panoul acceptă doar https).
-- Teste end-to-end: `node tests/e2e.cjs http://127.0.0.1:8080 admin@exemplu.ro 'parola'` (comandă cu card aprobat, refuzat → ramburs, ramburs, urmărire, contact, rambursare parțială, AWB, prețuri, cupoane).
+- Teste end-to-end (pe o instalare curată; între rulări repetate șterge `storage/ratelimit/`, altfel limita de 12 comenzi/oră de pe același IP blochează testele): `node tests/e2e.cjs http://127.0.0.1:8080 admin@exemplu.ro 'parola'` (comandă cu card aprobat, refuzat → ramburs, ramburs, urmărire, contact, rambursare parțială, AWB, prețuri, cupoane).
 - Arhiva pentru cPanel: `php tools/build.php` → `dist/bunatatidelamichele-<versiune>.zip` (bună și pentru instalare, și pentru actualizare din panou).

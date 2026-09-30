@@ -1,0 +1,2 @@
+assets/fonts/cookie-latin.woff2
+assets/fonts/LICENSE-Cookie.txt
