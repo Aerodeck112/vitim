@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Tenancy\OrganizationScope;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -42,6 +43,16 @@ class Organization extends Model
     public function memberships(): HasMany
     {
         return $this->hasMany(Membership::class);
+    }
+
+    /**
+     * Abonamentul citit din cod de platformă (liste de clienți), fără organizație curentă.
+     *
+     * @return HasOne<Subscription, $this>
+     */
+    public function subscriptionWithoutTenancy(): HasOne
+    {
+        return $this->hasOne(Subscription::class)->withoutGlobalScope(OrganizationScope::class);
     }
 
     /** @return HasOne<Subscription, $this> */

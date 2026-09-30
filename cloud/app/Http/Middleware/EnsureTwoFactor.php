@@ -23,10 +23,10 @@ final class EnsureTwoFactor
             return $next($request);
         }
         if ($user->hasTwoFactor() && ! $request->session()->get(self::SESSION_KEY)) {
-            return redirect()->route('2fa.challenge');
+            return $request->is('api/*') ? abort(403, 'Codul de autentificare în doi pași nu a fost introdus.') : redirect()->route('2fa.challenge');
         }
         if (! $user->hasTwoFactor() && $user->requiresTwoFactor()) {
-            return redirect()->route('2fa.setup');
+            return $request->is('api/*') ? abort(403, 'Activează autentificarea în doi pași.') : redirect()->route('2fa.setup');
         }
 
         return $next($request);

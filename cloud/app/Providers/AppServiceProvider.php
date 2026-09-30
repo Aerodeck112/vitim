@@ -9,8 +9,11 @@ use App\Models\User;
 use App\Services\Authorizer;
 use App\Tenancy\TenantContext;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,6 +34,8 @@ class AppServiceProvider extends ServiceProvider
             ->action('Setează parola', route('password.reset', ['token' => $token, 'email' => $user->email]))
             ->line('Linkul expiră în '.config('auth.passwords.users.expire').' de minute. Dacă nu ai cerut acest email, îl poți ignora.')
             ->salutation('Echipa VITIM'));
+
+        RateLimiter::for('api-v1', fn (Request $request) => Limit::perMinute(120)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
 
         foreach (Permission::cases() as $permission) {
             Gate::define($permission->value, fn (User $user): bool => app(Authorizer::class)->allows($user, $permission));
