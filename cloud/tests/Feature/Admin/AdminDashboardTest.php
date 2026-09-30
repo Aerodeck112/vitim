@@ -33,7 +33,7 @@ final class AdminDashboardTest extends TestCase
         $admin = $this->staff();
 
         $this->actingAs($admin)->get('/admin/clienti/nou')->assertOk();
-        $this->post('/admin/clienti', ['name' => 'Demo Auto SRL', 'plan' => 'pro', 'owner_name' => 'Ion Pop', 'owner_email' => 'Ion@DemoAuto.ro'])
+        $this->post('/admin/clienti', ['name' => 'Demo Auto SRL', 'plan' => 'pro', 'owner_name' => 'Ion Pop', 'owner_email' => 'Ion@DemoAuto.ro', 'country' => 'RO', 'default_language' => 'ro'])
             ->assertRedirect('/admin/clienti/demo-auto-srl');
 
         $org = Organization::where('slug', 'demo-auto-srl')->firstOrFail();
@@ -88,8 +88,8 @@ final class AdminDashboardTest extends TestCase
         $this->tenant()->runAs($org, fn () => Membership::create(['user_id' => $viewer->id, 'role' => OrgRole::Viewer]));
 
         $this->actingAs($owner)->get('/')->assertRedirect("/app/{$org->slug}");
-        $this->get("/app/{$org->slug}")->assertOk()->assertSee($key->publicKey)->assertDontSee($key->secret);
-        $this->actingAs($viewer)->get("/app/{$org->slug}")->assertOk()->assertDontSee($key->publicKey);
+        $this->get("/app/{$org->slug}/setari")->assertOk()->assertSee($key->publicKey)->assertDontSee($key->secret);
+        $this->actingAs($viewer)->get("/app/{$org->slug}/setari")->assertOk()->assertDontSee($key->publicKey);
 
         $stranger = User::factory()->create();
         $this->actingAs($stranger)->withSession([EnsureTwoFactor::SESSION_KEY => true])->get("/app/{$org->slug}")->assertNotFound();

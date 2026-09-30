@@ -6,6 +6,7 @@
   <div><h1>{{ $organization->name }}</h1>
     <p>Plan {{ strtoupper($subscription?->plan ?? '—') }} · {{ $subscription?->status->value }}
       @if ($subscription?->trial_ends_at) · probă până la {{ $subscription->trial_ends_at->format('d.m.Y') }}@endif</p></div>
+  <a class="btn" href="{{ route('portal.home', $organization->slug) }}">Deschide dashboardul firmei</a>
 </div>
 
 @if (session('issued'))
@@ -42,7 +43,17 @@
 </div>
 
 <div class="card">
-  <h2>Utilizatori</h2>
+  <h2>Agenți AI</h2>
+  @forelse ($agents as $agent)
+    <p style="margin:6px 0"><a href="{{ route('portal.agents.edit', [$organization->slug, $agent->id]) }}"><strong>{{ $agent->name }}</strong></a>
+      <span class="badge">{{ $agent->status->value }}</span> <span class="small muted">{{ $agent->site?->domain }}</span></p>
+  @empty
+    <p class="muted">Niciun agent. <a href="{{ route('portal.agents.index', $organization->slug) }}">Creează agentul</a></p>
+  @endforelse
+</div>
+
+<div class="card">
+  <h2>Utilizatori <a class="btn btn-s" style="float:right" href="{{ route('portal.settings', $organization->slug) }}">Invită / administrează</a></h2>
   <div class="table-wrap"><table>
     <thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Ultima autentificare</th></tr></thead>
     <tbody>

@@ -10,6 +10,7 @@ use App\Enums\ConsentStatus;
 use App\Enums\ContactSource;
 use App\Http\Resources\ConsentResource;
 use App\Http\Resources\ContactResource;
+use App\Http\Validation\ContactRules;
 use App\Models\Contact;
 use App\Models\ContactConsent;
 use App\Services\ConsentService;
@@ -18,7 +19,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Validation\Rule;
 
 /** /api/v1/orgs/{org}/contacts (+ /consents) */
 final class ContactController extends ApiController
@@ -40,7 +40,7 @@ final class ContactController extends ApiController
 
     public function store(Request $request, ContactService $contacts): JsonResponse
     {
-        $data = $request->validate($this->rules(true));
+        $data = $request->validate(ContactRules::contact(true));
         $contact = $contacts->create($data, ContactSource::from($data['source'] ?? ContactSource::Api->value));
 
         return (new ContactResource($contact->load('identities')))->response()->setStatusCode(201);
@@ -55,7 +55,7 @@ final class ContactController extends ApiController
 
     public function update(Request $request, ContactService $contacts, int $contact): ContactResource
     {
-        $model = $contacts->update(Contact::query()->findOrFail($contact), $request->validate($this->rules(false)));
+        $model = $contacts->update(Contact::query()->findOrFail($contact), $request->validate(ContactRules::contact(false)));
 
         return new ContactResource($model->load('identities'));
     }
@@ -77,15 +77,7 @@ final class ContactController extends ApiController
     public function recordConsent(Request $request, ConsentService $consents, int $contact): JsonResponse
     {
         $model = Contact::query()->findOrFail($contact);
-        $data = $request->validate([
-            'channel' => ['required', Rule::in(array_map(fn ($c) => $c->value, Channel::consentChannels()))],
-            'purpose' => ['required', Rule::enum(ConsentPurpose::class)],
-            'status' => ['required', Rule::enum(ConsentStatus::class)],
-            'source' => ['required', 'string', 'max:40'],
-            'occurred_at' => ['sometimes', 'date', 'before_or_equal:now'],
-            'metadata' => ['sometimes', 'array', 'max:20'],
-            'metadata.*' => ['nullable', 'scalar'],
-        ]);
+        $data = $request->validate(ContactRules::consent());
         $consent = $consents->record(
             $model, Channel::from($data['channel']), ConsentPurpose::from($data['purpose']), ConsentStatus::from($data['status']),
             $data['source'], $data['metadata'] ?? [], $request->ip(), $request->userAgent(), $request->user(),
@@ -93,26 +85,5 @@ final class ContactController extends ApiController
         );
 
         return (new ConsentResource($consent))->response()->setStatusCode(201);
-    }
-
-    /** @return array<string, mixed> */
-    private function rules(bool $creating): array
-    {
-        return [
-            'first_name' => ['sometimes', 'nullable', 'string', 'max:120'],
-            'last_name' => ['sometimes', 'nullable', 'string', 'max:120'],
-            'email' => ['sometimes', 'nullable', 'string', 'max:190'],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:40'],
-            'whatsapp' => [$creating ? 'sometimes' : 'prohibited', 'nullable', 'string', 'max:40'],
-            'company' => ['sometimes', 'nullable', 'string', 'max:190'],
-            'language' => ['sometimes', 'nullable', 'string', 'size:2', 'alpha'],
-            'status' => ['sometimes', Rule::in(['active', 'archived'])],
-            'source' => [$creating ? 'sometimes' : 'prohibited', Rule::enum(ContactSource::class)],
-            'custom_fields' => ['sometimes', 'nullable', 'array', 'max:50'],
-            'custom_fields.*' => ['nullable', 'scalar'],
-            'external_ids' => [$creating ? 'sometimes' : 'prohibited', 'array', 'max:10'],
-            'external_ids.*.provider' => ['required', 'string', 'max:40', 'alpha_dash'],
-            'external_ids.*.id' => ['required', 'string', 'max:190'],
-        ];
     }
 }

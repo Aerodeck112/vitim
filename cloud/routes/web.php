@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Api\V1 as Api;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\SetupController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Portal;
 use App\Http\Middleware\LogApiRequest;
 use Illuminate\Support\Facades\Route;
 
@@ -82,7 +84,10 @@ Route::middleware(['auth', '2fa'])->group(function () {
 
     // echipa VITIM
     Route::prefix('admin')->name('admin.')->middleware('platform')->group(function () {
-        Route::get('/', [OrganizationController::class, 'index'])->name('organizations.index');
+        Route::get('/', [DashboardController::class, 'index'])->name('organizations.index');
+        Route::get('/site-uri', [DashboardController::class, 'sites'])->name('sites.index');
+        Route::get('/agenti', [DashboardController::class, 'agents'])->name('agents.index');
+        Route::get('/utilizatori', [DashboardController::class, 'users'])->name('users.index');
         Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
         Route::post('/clienti', [OrganizationController::class, 'store'])->name('organizations.store');
         Route::prefix('clienti/{organization}')->middleware('org')->group(function () {
@@ -92,8 +97,35 @@ Route::middleware(['auth', '2fa'])->group(function () {
         });
     });
 
-    // portalul clientului
+    // dashboardul firmei (permisiunile se verifică pe fiecare rută; butoanele din pagini doar le reflectă)
     Route::prefix('app/{organization}')->name('portal.')->middleware('org')->group(function () {
-        Route::get('/', [HomeController::class, 'portal'])->name('home');
+        $id = '[0-9]+';
+        Route::get('/', [Portal\OverviewController::class, 'show'])->middleware('can:view_reports')->name('home');
+        Route::get('/in-curand/{section}', [Portal\OverviewController::class, 'upcoming'])->middleware('can:view_reports')->name('upcoming');
+
+        Route::get('/agent', [Portal\AgentController::class, 'index'])->middleware('can:view_reports')->name('agents.index');
+        Route::post('/agent', [Portal\AgentController::class, 'store'])->middleware('can:manage_agents')->name('agents.store');
+        Route::get('/agent/{agent}', [Portal\AgentController::class, 'edit'])->middleware('can:view_reports')->where('agent', $id)->name('agents.edit');
+        Route::put('/agent/{agent}', [Portal\AgentController::class, 'update'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.update');
+
+        Route::get('/contacte', [Portal\ContactController::class, 'index'])->middleware('can:view_contacts')->name('contacts.index');
+        Route::get('/contacte/nou', [Portal\ContactController::class, 'create'])->middleware('can:manage_contacts')->name('contacts.create');
+        Route::post('/contacte', [Portal\ContactController::class, 'store'])->middleware('can:manage_contacts')->name('contacts.store');
+        Route::get('/contacte/{contact}', [Portal\ContactController::class, 'show'])->middleware('can:view_contacts')->where('contact', $id)->name('contacts.show');
+        Route::get('/contacte/{contact}/editare', [Portal\ContactController::class, 'edit'])->middleware('can:manage_contacts')->where('contact', $id)->name('contacts.edit');
+        Route::put('/contacte/{contact}', [Portal\ContactController::class, 'update'])->middleware('can:manage_contacts')->where('contact', $id)->name('contacts.update');
+        Route::delete('/contacte/{contact}', [Portal\ContactController::class, 'destroy'])->middleware('can:delete_data')->where('contact', $id)->name('contacts.destroy');
+        Route::post('/contacte/{contact}/consimtamant', [Portal\ContactController::class, 'consent'])->middleware('can:manage_consent')->where('contact', $id)->name('contacts.consent');
+
+        Route::get('/leaduri', [Portal\LeadController::class, 'index'])->middleware('can:view_leads')->name('leads.index');
+        Route::post('/leaduri', [Portal\LeadController::class, 'store'])->middleware('can:manage_leads')->name('leads.store');
+        Route::put('/leaduri/{lead}', [Portal\LeadController::class, 'update'])->middleware('can:manage_leads')->where('lead', $id)->name('leads.update');
+
+        Route::get('/setari', [Portal\SettingsController::class, 'show'])->middleware('can:view_reports')->name('settings');
+        Route::put('/setari/firma', [Portal\SettingsController::class, 'updateProfile'])->middleware('can:manage_organization')->name('settings.profile');
+        Route::post('/setari/utilizatori', [Portal\SettingsController::class, 'invite'])->middleware('can:manage_users')->name('settings.invite');
+        Route::put('/setari/utilizatori/{member}', [Portal\SettingsController::class, 'changeRole'])->middleware('can:manage_users')->where('member', $id)->name('settings.role');
+        Route::delete('/setari/utilizatori/{member}', [Portal\SettingsController::class, 'removeMember'])->middleware('can:manage_users')->where('member', $id)->name('settings.remove');
+        Route::post('/setari/site-uri', [Portal\SettingsController::class, 'storeSite'])->middleware('can:manage_sites')->name('settings.sites');
     });
 });

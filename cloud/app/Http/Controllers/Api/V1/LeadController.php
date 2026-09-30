@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\LeadIntent;
-use App\Enums\LeadStatus;
 use App\Http\Resources\LeadResource;
+use App\Http\Validation\LeadRules;
 use App\Models\Contact;
 use App\Models\Lead;
 use App\Services\LeadService;
@@ -14,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Validation\Rule;
 
 /** /api/v1/orgs/{org}/leads */
 final class LeadController extends ApiController
@@ -33,7 +31,7 @@ final class LeadController extends ApiController
 
     public function store(Request $request, LeadService $leads): JsonResponse
     {
-        $data = $request->validate(['contact_id' => ['required', 'integer']] + $this->rules());
+        $data = $request->validate(['contact_id' => ['required', 'integer']] + LeadRules::lead());
         $contact = Contact::query()->find($data['contact_id']);
         if ($contact === null) {
             // contact inexistent sau din altă firmă: aceeași eroare
@@ -50,7 +48,7 @@ final class LeadController extends ApiController
 
     public function update(Request $request, LeadService $leads, int $lead): LeadResource
     {
-        $data = $request->validate($this->rules() + ['contact_id' => ['prohibited']]);
+        $data = $request->validate(LeadRules::lead() + ['contact_id' => ['prohibited']]);
 
         return new LeadResource($leads->update(Lead::query()->findOrFail($lead), $data)->load('contact'));
     }
@@ -60,22 +58,5 @@ final class LeadController extends ApiController
         $leads->delete(Lead::query()->findOrFail($lead));
 
         return response()->noContent();
-    }
-
-    /** @return array<string, mixed> */
-    private function rules(): array
-    {
-        return [
-            'status' => ['sometimes', Rule::enum(LeadStatus::class)],
-            'intent' => ['sometimes', Rule::enum(LeadIntent::class)],
-            'source' => ['sometimes', 'string', 'max:24', 'alpha_dash'],
-            'score' => ['sometimes', 'nullable', 'integer', 'between:0,100'],
-            'assigned_to' => ['sometimes', 'nullable', 'integer'],
-            'summary' => ['sometimes', 'nullable', 'string', 'max:5000'],
-            'site_id' => ['sometimes', 'nullable', 'integer'],
-            'agent_id' => ['sometimes', 'nullable', 'integer'],
-            'value_amount' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:9999999999'],
-            'currency' => ['sometimes', 'nullable', 'string', 'size:3', 'alpha'],
-        ];
     }
 }
