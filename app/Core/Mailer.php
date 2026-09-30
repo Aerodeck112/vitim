@@ -11,7 +11,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 final class Mailer
 {
     /**
-     * @param array{text?:string, reply_to?:string, reply_name?:string, unsubscribe?:string, kind?:string, headers?:array} $opt
+     * @param array{text?:string, reply_to?:string, reply_name?:string, unsubscribe?:string, kind?:string, headers?:array, attachments?:array<string,string>} $opt
      * @return array{0: bool, 1: string}
      */
     public static function send(string $to, string $subject, string $html, array $opt = []): array
@@ -59,6 +59,9 @@ final class Mailer
             }
             foreach ($opt['headers'] ?? [] as $k => $v) {
                 $mail->addCustomHeader($k, $v);
+            }
+            foreach ($opt['attachments'] ?? [] as $path => $name) {
+                $mail->addAttachment($path, $name);
             }
             $mail->isHTML(true);
             $mail->Subject = $subject;

@@ -1,5 +1,10 @@
 # Istoric versiuni
 
+## 1.3.0
+
+- **Backup zilnic automat al bazei de date, trimis pe email.** O dată pe zi, arhiva bazei de date pleacă pe adresa din Setări → Avansat → „Email pentru backup” (implicit emailul pentru notificări). Așa există mereu o copie în afara serverului. Funcționează și fără cron: se declanșează după o vizită pe site, fără să încetinească pagina.
+- Arhivele mai mari de 15 MB nu se atașează; emailul anunță că trebuie descărcate din Panou → Sistem.
+
 ## 1.2.1
 
 - Recuperare acces: dacă baza de date nu are niciun administrator (de exemplu după ce a fost refăcută de la zero), pagina `/install/` permite crearea unui cont nou de administrator. Pentru siguranță, se cere parola bazei de date din `app/config.php`.

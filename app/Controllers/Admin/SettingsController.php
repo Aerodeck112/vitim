@@ -95,6 +95,8 @@ final class SettingsController extends AdminController
                 ['page_cache', 'Cache de pagini (site foarte rapid)', 'checkbox', 'Se golește automat la orice modificare din panou.'], ['page_cache_ttl', 'Durata cache (secunde)', 'number'],
                 ['cookie_banner', 'Banner de cookies (GDPR)', 'checkbox'],
                 ['maintenance_mode', 'Mod mentenanță (site ascuns pentru vizitatori)', 'checkbox', 'Tu, fiind autentificat, vezi site-ul normal.'],
+                ['backup_auto', 'Backup zilnic automat al bazei de date', 'checkbox', 'O dată pe zi, arhiva bazei de date e trimisă pe email, ca să existe o copie în afara serverului.'],
+                ['backup_email', 'Email pentru backup', 'email', 'Gol = emailul pentru notificări. Recomandat: o adresă Gmail/Outlook, nu una de pe același hosting.'],
             ]],
         ];
     }

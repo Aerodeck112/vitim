@@ -101,6 +101,73 @@ final class Backup
         }
     }
 
+    /**
+     * Backup-ul zilnic: arhiva bazei de date, trimisă pe email (copie în afara serverului).
+     * Rulează din cron sau, dacă cron-ul nu e configurat, după o vizită pe site (vezi dailyAfterResponse).
+     * @return string|null mesaj pentru jurnal; null dacă nu era cazul
+     */
+    public static function daily(bool $force = false): ?string
+    {
+        if (Settings::get('backup_auto', '1') !== '1') {
+            return null;
+        }
+        $last = strtotime((string)Settings::get('backup_auto_last', '')) ?: 0;
+        if (!$force && $last > time() - 20 * 3600) {
+            return null;
+        }
+        $lock = @fopen(STORAGE_PATH . '/backup.lock', 'c');
+        if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
+            return null;
+        }
+        try {
+            Settings::set('backup_auto_last', DB::now()); // înainte de lucru: o singură încercare pe zi, chiar dacă eșuează
+            $name = self::database('zilnic');
+            if (!$name) {
+                return 'Backup zilnic: arhiva nu a putut fi creată.';
+            }
+            $to = (string)(Settings::get('backup_email', '') ?: Settings::get('notify_email', ''));
+            if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                return "Backup zilnic: $name (fără email configurat, rămâne doar pe server).";
+            }
+            $path = self::dir() . '/' . $name;
+            $size = (int)filesize($path);
+            $site = parse_url(abs_url('/'), PHP_URL_HOST) ?: 'site';
+            $body = '<p>Backup-ul zilnic al bazei de date pentru <strong>' . e($site) . '</strong> (' . date('d.m.Y H:i') . ').</p>'
+                . '<p>Păstrează aceste emailuri: dacă baza de date se pierde, arhiva atașată se importă din cPanel → phpMyAdmin → Import.</p>';
+            // limita obișnuită a serverelor de email este ~20–25 MB
+            $attach = $size <= 15 * 1048576 ? [$path => $name] : [];
+            if (!$attach) {
+                $body .= '<p><strong>Arhiva are ' . round($size / 1048576, 1) . ' MB și e prea mare pentru email.</strong> Descarc-o din Panou → Sistem.</p>';
+            }
+            [$ok, $err] = Mailer::send($to, 'Backup zilnic ' . $site . ' – ' . date('d.m.Y'), Mailer::layout($body), ['kind' => 'backup', 'attachments' => $attach]);
+            return $ok ? "Backup zilnic: $name trimis la $to." : "Backup zilnic: $name creat, dar emailul a eșuat: $err";
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+    }
+
+    /** Fără cron configurat: backup-ul zilnic rulează după ce vizitatorul și-a primit deja pagina. */
+    public static function dailyAfterResponse(): void
+    {
+        if (Settings::get('backup_auto', '1') !== '1') {
+            return;
+        }
+        $last = strtotime((string)Settings::get('backup_auto_last', '')) ?: 0;
+        if ($last > time() - 20 * 3600 || !function_exists('fastcgi_finish_request')) {
+            return;
+        }
+        fastcgi_finish_request();
+        @set_time_limit(120);
+        try {
+            if ($msg = self::daily()) {
+                log_error($msg);
+            }
+        } catch (\Throwable $e) {
+            log_error($e);
+        }
+    }
+
     public static function uploads(): ?string
     {
         if (!class_exists(ZipArchive::class)) {

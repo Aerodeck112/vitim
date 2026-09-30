@@ -17,7 +17,7 @@ AddDefaultCharset UTF-8
     # RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 
     # Directoare interne – acces interzis
-    RewriteRule ^(app|storage|tools|dist)(/|$) - [F,L]
+    RewriteRule ^(app|storage|tools|dist|cloud|docs)(/|$) - [F,L]
     RewriteRule (^|/)\.(?!well-known) - [F,L]
     RewriteRule \.(sql|sqlite|log|bak|zip|md|lock|json)$ - [F,L,NC]
     RewriteRule ^(composer\.(json|lock)|VERSION|CHANGELOG\.md|README\.md)$ - [F,L,NC]

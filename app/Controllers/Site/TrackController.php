@@ -89,6 +89,14 @@ final class TrackController
         if ($old) {
             $log[] = "Conversații vechi șterse: $old.";
         }
+        try {
+            if ($msg = \App\Core\Backup::daily()) {
+                $log[] = $msg;
+            }
+        } catch (\Throwable $e) {
+            log_error($e);
+            $log[] = 'Backup zilnic: eroare – ' . $e->getMessage();
+        }
         Settings::set('cron_last_run', DB::now());
         echo "OK " . date('Y-m-d H:i:s') . "\n" . implode("\n", $log);
         exit;

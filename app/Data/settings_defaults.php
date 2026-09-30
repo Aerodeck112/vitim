@@ -76,6 +76,8 @@ return [
     'autoreply_subject' => 'Am primit mesajul tău – VITIM',
     'autoreply_body' => '<p>Salut {{prenume}},</p><p>Îți mulțumim că ne-ai scris! Am primit solicitarea ta și revenim cu un răspuns în cel mai scurt timp, de regulă în aceeași zi lucrătoare.</p><p>Dacă e ceva urgent, ne poți suna direct la <strong>{{telefon}}</strong>.</p><p>Cu drag,<br>Echipa VITIM</p>',
     'cron_key' => '',
+    'backup_auto' => '1',
+    'backup_email' => '',
 
     // ---------- Site ----------
     'page_cache' => '1',

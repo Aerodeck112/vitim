@@ -81,6 +81,9 @@ final class App
             }
             echo $out;
         }
+        if (!$isAdmin && $method === 'GET') {
+            Backup::dailyAfterResponse();
+        }
     }
 
     /** Datele de contact salvate pe disc, ca să poată fi afișate și când baza de date nu răspunde. */
