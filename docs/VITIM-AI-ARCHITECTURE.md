@@ -651,9 +651,13 @@ Legendă risc: **S** (scăzut) / **M** (mediu) / **R** (ridicat).
 
 ---
 
-## Decizii necesare înainte de implementare
+## Decizii
 
-| # | Decizie | Recomandare |
+> **Decise pe 30.09.2026** (proprietarul a delegat deciziile): toate recomandările de mai jos sunt adoptate.
+> În plus: **platformă comună + opțiunea „instanță dedicată”** (aceeași aplicație, server și bază de date proprii) pentru clienții ENTERPRISE
+> sau cu cerințe contractuale de izolare. Instalările separate, întreținute manual la fiecare client, sunt respinse.
+
+| # | Decizie | Recomandare (adoptată) |
 |---|---|---|
 | D1 | Stack pentru cloud | Laravel (PHP 8.3), aplicație separată de vitim.ro |
 | D2 | Hosting | VPS UE (nu cPanel) + backup offsite |
