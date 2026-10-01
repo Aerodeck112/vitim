@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\SiteController;
+use App\Http\Controllers\Admin\SiteHealthController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\WorkLogController;
 use App\Http\Controllers\Api\V1 as Api;
@@ -99,6 +100,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::get('/', [OrganizationController::class, 'show'])->name('organizations.show');
             Route::post('/site-uri', [SiteController::class, 'store'])->name('sites.store');
             Route::post('/site-uri/{site}/chei', [SiteController::class, 'rotate'])->whereNumber('site')->name('sites.rotate');
+            Route::get('/site-uri/{site}', [SiteHealthController::class, 'show'])->whereNumber('site')->name('sites.health');
+            Route::post('/site-uri/{site}/remediere', [SiteHealthController::class, 'command'])->whereNumber('site')->middleware('throttle:20,1')->name('sites.command');
             Route::get('/lucrari', [WorkLogController::class, 'index'])->name('worklogs.index');
             Route::post('/lucrari', [WorkLogController::class, 'store'])->name('worklogs.store');
             Route::get('/lucrari/{log}/editare', [WorkLogController::class, 'edit'])->whereNumber('log')->name('worklogs.edit');

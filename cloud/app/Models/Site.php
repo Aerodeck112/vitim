@@ -24,6 +24,7 @@ class Site extends Model
             'health' => 'array',
             'last_seen_at' => 'datetime',
             'last_sync_at' => 'datetime',
+            'last_scan_at' => 'datetime',
         ];
     }
 
@@ -61,5 +62,17 @@ class Site extends Model
     public function keys(): HasMany
     {
         return $this->hasMany(SiteKey::class);
+    }
+
+    /** @return HasMany<SiteIssue, $this> */
+    public function issues(): HasMany
+    {
+        return $this->hasMany(SiteIssue::class);
+    }
+
+    /** @return HasMany<SiteCommand, $this> */
+    public function commands(): HasMany
+    {
+        return $this->hasMany(SiteCommand::class)->latest('id');
     }
 }

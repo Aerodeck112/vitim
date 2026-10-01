@@ -1,6 +1,6 @@
 # VITIM AI — Securitate
 
-> Reflectă codul la versiunea **0.6.0**. Fiecare control are testul care îl verifică.
+> Reflectă codul la versiunea **0.7.0**. Fiecare control are testul care îl verifică.
 > „Neimplementat” înseamnă exact asta.
 
 ## Controale implementate
@@ -26,6 +26,7 @@
 | Agent: cost | Cost per răspuns din tokenii raportați; plafon lunar de cost și de conversații din plan. Peste plafon modelul nu e apelat, vizitatorul primește datele de contact ale firmei | `AgentRuntime`, `Cost`, `config/plans.php` | `AgentRuntimeTest::test_cost_cap_and_conversation_cap_stop_ai_calls` |
 | Agent: test din panou | Conversațiile de test nu creează contacte, lead-uri sau notificări (tool-urile rulează „dry run”); doar cine poate administra agentul poate testa (consumă din plafon) | `AgentTestController`, tool-uri | `AgentTestPageTest`, `AgentRuntimeTest::test_test_conversations_do_not_create_real_data` |
 | Conectorul site-urilor | HMAC-SHA256 cu secretul site-ului peste timestamp + nonce + corp, fereastră 5 minute, anti-replay, cheie revocată = refuz imediat. Firma vine doar din cheie; lucrările trimise intră doar la site-ul cheii. Pluginul doar trimite date, nu primește comenzi. Conectorul PHP rulează doar din CLI | `ConnectorController`, `SiteKeyService` | `ConnectorApiTest` |
+| Remedieri pe site-urile clienților | Listă închisă de acțiuni (aceeași în panou și în plugin), fără execuție de cod arbitrar; ținte validate (fără `..`, doar pluginuri / teme existente); cereri semnate HMAC, 5 minute, nonce unic; adresa pluginului doar pe domeniul site-ului (https); clientul le poate opri din WordPress; doar echipa VITIM (2FA) le poate porni; audit + jurnal de lucrări | `Remediation`, `SiteCommandService`, plugin `command()` | `SiteRemediationTest` |
 | Actualizare din panou | Doar super admin, parola reconfirmată, doar versiuni mai noi, backup al bazei înainte, căi din arhivă validate (fără `..`), `.env` / `storage` neatinse, audit | `SystemController`, `Updater` | `UpdaterTest` |
 | Afișarea răspunsurilor AI | Text escapat complet; se păstrează doar îngroșat și linkuri relative sau https (fără `javascript:`, `//`, `http:`), cu `rel="nofollow noopener noreferrer"` | `ChatText` | `ChatTextTest` |
 | Audit | Firmă / site / chei / agent creat, modificat, șters; user invitat, rol schimbat, user eliminat; contact și lead șterse; consimțământ schimbat; login; acces al echipei VITIM. Fără date personale în `meta` | `AuditLogger` | `AcceptanceTest`, `ContactsTest::test_delete_is_audited_without_personal_data` |

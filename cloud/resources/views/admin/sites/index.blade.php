@@ -6,7 +6,9 @@
   <thead><tr><th>Domeniu</th><th>Organizație</th><th>Platformă</th><th>Status</th><th>Verificare</th><th>Conector</th></tr></thead>
   <tbody>
   @forelse ($sites as $site)
-    <tr><td><strong>{{ $site->domain }}</strong><div class="small muted">{{ $site->name }}</div></td>
+    @php($issues = $openIssues[$site->id] ?? null)
+    <tr><td><a href="{{ route('admin.sites.health', [$site->organization->slug, $site->id]) }}"><strong>{{ $site->domain }}</strong></a><div class="small muted">{{ $site->name }}</div>
+      @if ($issues)<span class="badge {{ $issues->critical ? 'err' : 'warn' }}">{{ $issues->total }} {{ $issues->total == 1 ? 'problemă' : 'probleme' }}</span>@endif</td>
       <td><a href="{{ route('admin.organizations.show', $site->organization->slug) }}">{{ $site->organization->name }}</a></td>
       <td>{{ $site->platform->label() }}</td><td><span class="badge">{{ $site->status }}</span></td><td><span class="badge">{{ $site->verification_status }}</span></td>
       <td>@include('partials.site-health', ['site' => $site])</td></tr>

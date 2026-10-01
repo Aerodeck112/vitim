@@ -60,6 +60,8 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($connector
 }
 $plugin->close();
 copy($connectors.'/php/vitim-connector.php', $tmp.'/public/downloads/vitim-connector.php.txt');
+preg_match('/^\s*\*\s*Version:\s*(\S+)/m', (string) file_get_contents($connectors.'/wordpress/vitim-connector/vitim-connector.php'), $m);
+file_put_contents($tmp.'/public/downloads/vitim-connector.json', json_encode(['version' => $m[1] ?? '0.0.0']));
 copy($tmp.'/public/downloads/vitim-connector.zip', dirname($root).'/dist/vitim-connector-wordpress.zip');
 copy($connectors.'/php/vitim-connector.php', dirname($root).'/dist/vitim-connector.php');
 

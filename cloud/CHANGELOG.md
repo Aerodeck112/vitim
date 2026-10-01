@@ -1,5 +1,13 @@
 # VITIM AI Cloud — versiuni
 
+## 0.7.0 — scanarea și remedierea site-urilor WordPress (plugin 1.1.0)
+
+- **Scanare** (zilnic și la cerere, făcută de plugin, doar citire): actualizări WordPress / pluginuri / teme, PHP vechi, fără HTTPS, indexare blocată în Google, erori afișate vizitatorilor, debug.log public, readme.html, editorul de fișiere activ, XML-RPC, administrator „admin”, prea mulți administratori, pluginuri inactive, **fișiere WordPress modificate** (comparate cu cele oficiale de pe wordpress.org) și **fișiere PHP în uploads**.
+- **Pagina site-ului** (Admin → client → click pe domeniu): problemele pe gravitate (critic / atenție / info), cu buton de remediere unde se poate; „Scanează acum”, „Actualizează toate pluginurile”; istoricul remedierilor. Problemele dispar singure când nu mai apar la scanare. Lista de site-uri arată numărul de probleme.
+- **Remedieri din panou**: actualizare plugin / temă / toate pluginurile / WordPress, reinstalarea fișierelor WordPress (curăță fișierele modificate), ștergere debug.log / readme.html, dezactivare XML-RPC și editor de fișiere, blocarea PHP în uploads, permiterea indexării. Remedierile apar în jurnalul de lucrări al clientului.
+- **Siguranță**: pluginul acceptă doar acțiunile din lista fixă, cereri semnate cu secretul site-ului (5 minute, fără retrimitere), adresa trebuie să fie pe domeniul site-ului; clientul poate opri remedierile din WordPress (Setări → VITIM); doar echipa VITIM le poate porni; fiecare remediere e în audit.
+- **Pluginul se actualizează din WordPress**: versiunile noi publicate de platformă apar în Module → Actualizări (de la 1.1.0).
+
 ## 0.6.0 — conectarea site-urilor
 
 - **Cod de conectare**: la adăugarea unui site (sau după „Schimbă cheile”) panoul afișează o singură dată un cod `VITIM1-…` care conține adresa platformei, cheia și secretul.

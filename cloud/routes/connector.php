@@ -7,4 +7,6 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->middleware('throttle:connector')->group(function () {
     Route::post('heartbeat', [ConnectorController::class, 'heartbeat']);
     Route::post('worklog', [ConnectorController::class, 'worklog']);
+    Route::post('scan', [ConnectorController::class, 'scan']);
+    Route::get('plugin', [ConnectorController::class, 'plugin']);
 });

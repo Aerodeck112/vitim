@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       VITIM Connector
- * Description:       Conectează site-ul la panoul VITIM: starea site-ului (versiuni, actualizări în așteptare) și jurnalul automat al actualizărilor.
- * Version:           1.0.0
+ * Description:       Conectează site-ul la panoul VITIM: starea site-ului, scanarea problemelor, remedieri din panou și jurnalul automat al lucrărilor.
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            VITIM
@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('VITIM_CONNECTOR_VERSION', '1.0.0');
+define('VITIM_CONNECTOR_VERSION', '1.1.0');
 
 final class Vitim_Connector
 {
@@ -23,6 +23,14 @@ final class Vitim_Connector
     const QUEUE = 'vitim_connector_queue';
     const CRON = 'vitim_connector_heartbeat';
     const FLUSH = 'vitim_connector_flush';
+    const HARDENING = 'vitim_connector_hardening';
+
+    /** Reinstalarea nucleului e înregistrată de panou; hook-ul de actualizare nu o mai trece o dată în jurnal. */
+    private static $reinstalling = false;
+
+    /** Singurele acțiuni pe care panoul le poate cere (aceeași listă există în panou). */
+    const ACTIONS = ['scan', 'update_plugin', 'update_all_plugins', 'update_theme', 'update_core', 'reinstall_core',
+        'delete_debug_log', 'delete_readme', 'disable_xmlrpc', 'disable_file_edit', 'block_php_uploads', 'allow_indexing'];
 
     public static function boot()
     {
@@ -33,6 +41,10 @@ final class Vitim_Connector
         add_action(self::CRON, [__CLASS__, 'run']);
         add_action(self::FLUSH, [__CLASS__, 'flush']);
         add_action('upgrader_process_complete', [__CLASS__, 'onUpgrade'], 10, 2);
+        add_action('rest_api_init', [__CLASS__, 'routes']);
+        add_action('admin_post_vitim_connector_options', [__CLASS__, 'saveOptions']);
+        add_filter('pre_set_site_transient_update_plugins', [__CLASS__, 'selfUpdate']);
+        self::harden();
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), function ($links) {
             array_unshift($links, '<a href="'.esc_url(admin_url('options-general.php?page=vitim-connector')).'">Setări</a>');
 
@@ -104,6 +116,12 @@ final class Vitim_Connector
             $queue = get_option(self::QUEUE, []);
             printf('<tr><th>Lucrări în așteptare</th><td>%d</td></tr>', is_array($queue) ? count($queue) : 0);
             echo '</table>';
+            echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'" style="margin:12px 0">';
+            wp_nonce_field('vitim_connector_options');
+            echo '<input type="hidden" name="action" value="vitim_connector_options">';
+            printf('<label><input type="checkbox" name="remote_fixes" value="1" %s> Permite echipei VITIM să aplice remedieri din panou (actualizări, securizare). Scanarea rămâne activă oricum.</label> ', checked(self::remoteFixes(), true, false));
+            submit_button('Salvează', 'secondary', 'submit', false);
+            echo '</form>';
             echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'" style="display:inline-block;margin-right:8px">';
             wp_nonce_field('vitim_connector_send');
             echo '<input type="hidden" name="action" value="vitim_connector_send">';
@@ -144,6 +162,27 @@ final class Vitim_Connector
         $last = self::settings()['last'] ?? ['ok' => false];
         wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim='.($last['ok'] ? 'saved' : 'failed')));
         exit;
+    }
+
+    public static function saveOptions()
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die('Acces interzis.');
+        }
+        check_admin_referer('vitim_connector_options');
+        $s = self::settings();
+        $s['remote_fixes'] = ! empty($_POST['remote_fixes']);
+        update_option(self::OPTION, $s, false);
+        self::run();
+        wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim=sent'));
+        exit;
+    }
+
+    private static function remoteFixes()
+    {
+        $s = self::settings();
+
+        return ! isset($s['remote_fixes']) || (bool) $s['remote_fixes'];
     }
 
     public static function sendNow()
@@ -201,7 +240,23 @@ final class Vitim_Connector
         self::remember($result);
         if ($result['ok']) {
             self::flush();
+            $s = self::settings();
+            if (empty($s['last_scan']) || $s['last_scan'] < time() - DAY_IN_SECONDS) {
+                self::sendScan();
+            }
         }
+    }
+
+    private static function sendScan()
+    {
+        $result = self::post('scan', ['issues' => self::scan()]);
+        if ($result['ok']) {
+            $s = self::settings();
+            $s['last_scan'] = time();
+            update_option(self::OPTION, $s, false);
+        }
+
+        return $result;
     }
 
     public static function flush()
@@ -263,6 +318,8 @@ final class Vitim_Connector
             'plugin_updates' => array_slice($updates, 0, 200),
             'theme_updates' => is_object($themes) && ! empty($themes->response) ? count($themes->response) : 0,
             'https' => is_ssl() || strpos(home_url(), 'https://') === 0,
+            'command_url' => rest_url('vitim/v1/command'),
+            'remote_fixes' => self::remoteFixes(),
         ];
     }
 
@@ -311,7 +368,7 @@ final class Vitim_Connector
     /** Actualizările făcute din WordPress intră în jurnalul de lucrări VITIM. */
     public static function onUpgrade($upgrader, $extra)
     {
-        if (! self::connected() || empty($extra['action']) || $extra['action'] !== 'update' || empty($extra['type'])) {
+        if (self::$reinstalling || ! self::connected() || empty($extra['action']) || $extra['action'] !== 'update' || empty($extra['type'])) {
             return;
         }
         require_once ABSPATH.'wp-admin/includes/plugin.php';
@@ -352,11 +409,402 @@ final class Vitim_Connector
         }
     }
 
-    private static function entry($ref, $title)
+    private static function entry($ref, $title, $category = 'updates')
     {
-        return ['ref' => substr($ref, 0, 64), 'category' => 'updates', 'title' => substr($title, 0, 190), 'performed_at' => gmdate('c')];
+        return ['ref' => substr($ref, 0, 64), 'category' => $category, 'title' => substr($title, 0, 190), 'performed_at' => gmdate('c')];
+    }
+
+    // ---------- securizare (aplicată de plugin, la cererea panoului) ----------
+
+    private static function hardening()
+    {
+        $h = get_option(self::HARDENING, []);
+
+        return is_array($h) ? $h : [];
+    }
+
+    public static function harden()
+    {
+        $h = self::hardening();
+        if (! empty($h['xmlrpc'])) {
+            // „xmlrpc_enabled” oprește doar metodele autentificate; fără metode, xmlrpc.php nu mai face nimic
+            add_filter('xmlrpc_enabled', '__return_false');
+            add_filter('xmlrpc_methods', '__return_empty_array');
+            add_filter('wp_headers', function ($headers) {
+                unset($headers['X-Pingback']);
+
+                return $headers;
+            });
+        }
+        if (! empty($h['file_edit'])) {
+            add_filter('map_meta_cap', function ($caps, $cap) {
+                return in_array($cap, ['edit_plugins', 'edit_themes', 'edit_files'], true) ? ['do_not_allow'] : $caps;
+            }, 10, 2);
+        }
+    }
+
+    // ---------- scanare ----------
+
+    /** Problemele site-ului. Doar citire: scanarea nu schimbă nimic. @return array */
+    public static function scan()
+    {
+        require_once ABSPATH.'wp-admin/includes/plugin.php';
+        require_once ABSPATH.'wp-admin/includes/update.php';
+        global $wp_version;
+        $issues = [];
+        $add = function ($code, $severity, $title, $details = null, $fix = null) use (&$issues) {
+            $issues[] = ['code' => substr($code, 0, 120), 'severity' => $severity, 'title' => substr($title, 0, 255), 'details' => $details ? substr($details, 0, 4000) : null, 'fix' => $fix];
+        };
+
+        // actualizări
+        wp_version_check();
+        wp_update_plugins();
+        wp_update_themes();
+        $core = get_site_transient('update_core');
+        if (is_object($core) && ! empty($core->updates)) {
+            foreach ($core->updates as $u) {
+                if (isset($u->response) && $u->response === 'upgrade') {
+                    $add('core_update', 'warning', 'WordPress '.$u->current.' este disponibil (instalat: '.$wp_version.')', null, 'update_core');
+                    break;
+                }
+            }
+        }
+        $all = get_plugins();
+        $pluginUpdates = get_site_transient('update_plugins');
+        if (is_object($pluginUpdates) && ! empty($pluginUpdates->response)) {
+            foreach ($pluginUpdates->response as $file => $info) {
+                $name = isset($all[$file]['Name']) ? $all[$file]['Name'] : $file;
+                $from = isset($all[$file]['Version']) ? $all[$file]['Version'] : '?';
+                $add('plugin_update:'.$file, 'warning', 'Plugin de actualizat: '.$name.' '.$from.' → '.$info->new_version, null, 'update_plugin:'.$file);
+            }
+        }
+        $themeUpdates = get_site_transient('update_themes');
+        if (is_object($themeUpdates) && ! empty($themeUpdates->response)) {
+            foreach ($themeUpdates->response as $slug => $info) {
+                $theme = wp_get_theme($slug);
+                $add('theme_update:'.$slug, 'warning', 'Temă de actualizat: '.$theme->get('Name').' '.$theme->get('Version').' → '.$info['new_version'], null, 'update_theme:'.$slug);
+            }
+        }
+
+        // server și configurare
+        if (version_compare(PHP_VERSION, '7.4', '<')) {
+            $add('php_old', 'critical', 'PHP '.PHP_VERSION.' nu mai primește actualizări de securitate', 'Se schimbă din cPanel → Select PHP Version (recomandat 8.2 sau mai nou).');
+        } elseif (version_compare(PHP_VERSION, '8.1', '<')) {
+            $add('php_old', 'warning', 'PHP '.PHP_VERSION.' e vechi', 'Se schimbă din cPanel → Select PHP Version (recomandat 8.2 sau mai nou).');
+        }
+        if (strpos(home_url(), 'https://') !== 0) {
+            $add('no_https', 'critical', 'Site-ul nu folosește HTTPS', 'Adresa site-ului din Setări → General începe cu http://. Necesită certificat SSL (AutoSSL în cPanel) și schimbarea adresei.');
+        }
+        if (! get_option('blog_public')) {
+            $add('noindex', 'critical', 'Site-ul cere motoarelor de căutare să nu-l indexeze', 'Setări → Citire → „Descurajează motoarele de căutare” este bifat. Site-ul nu apare în Google.', 'allow_indexing');
+        }
+        if (defined('WP_DEBUG') && WP_DEBUG && (! defined('WP_DEBUG_DISPLAY') || WP_DEBUG_DISPLAY)) {
+            $add('debug_display', 'warning', 'Erorile PHP sunt afișate vizitatorilor (WP_DEBUG activ)', 'Se dezactivează din wp-config.php: define(\'WP_DEBUG\', false);');
+        }
+        if (file_exists(WP_CONTENT_DIR.'/debug.log')) {
+            $add('debug_log', 'critical', 'Fișierul debug.log e public', 'wp-content/debug.log ('.size_format(filesize(WP_CONTENT_DIR.'/debug.log')).') poate conține căi și date interne și se poate descărca din browser.', 'delete_debug_log');
+        }
+        if (file_exists(ABSPATH.'readme.html')) {
+            $add('readme', 'info', 'readme.html afișează versiunea WordPress', null, 'delete_readme');
+        }
+        $h = self::hardening();
+        if (! (defined('DISALLOW_FILE_EDIT') && DISALLOW_FILE_EDIT) && empty($h['file_edit'])) {
+            $add('file_edit', 'info', 'Editorul de fișiere din WordPress e activ', 'Un cont de administrator compromis poate modifica direct codul pluginurilor și temei.', 'disable_file_edit');
+        }
+        if (empty($h['xmlrpc'])) {
+            $add('xmlrpc', 'info', 'XML-RPC e activ', 'Folosit rar (aplicații vechi), des țintă pentru încercări de ghicire a parolei.', 'disable_xmlrpc');
+        }
+
+        // utilizatori
+        $admins = get_users(['role' => 'administrator', 'fields' => ['user_login']]);
+        foreach ($admins as $a) {
+            if (strtolower($a->user_login) === 'admin') {
+                $add('admin_username', 'warning', 'Există un administrator cu numele „admin”', 'Primul nume încercat în atacuri. Creează un administrator nou cu alt nume și șterge-l pe acesta.');
+            }
+        }
+        if (count($admins) > 3) {
+            $add('many_admins', 'info', count($admins).' conturi de administrator', implode(', ', array_map(function ($a) { return $a->user_login; }, $admins)));
+        }
+
+        // pluginuri inactive
+        $inactive = array_diff(array_keys($all), (array) get_option('active_plugins', []));
+        $inactive = array_values(array_filter($inactive, function ($f) { return strpos($f, 'vitim-connector') === false; }));
+        if ($inactive) {
+            $add('inactive_plugins', 'info', count($inactive).' pluginuri inactive instalate', 'Pluginurile inactive pot avea vulnerabilități. Dacă nu sunt folosite, ar trebui șterse: '.implode(', ', array_map(function ($f) use ($all) { return $all[$f]['Name']; }, $inactive)));
+        }
+
+        // integritate: fișierele WordPress comparate cu cele oficiale
+        $modified = self::coreChanges();
+        if ($modified === null) {
+            $add('core_checksums_unavailable', 'info', 'Nu am putut verifica integritatea fișierelor WordPress (api.wordpress.org indisponibil)');
+        } elseif ($modified) {
+            $add('core_modified', 'critical', count($modified).' fișiere WordPress modificate sau necunoscute', "Posibil cod malițios. Primele fișiere:\n".implode("\n", array_slice($modified, 0, 25)), 'reinstall_core');
+        }
+        $uploads = wp_get_upload_dir();
+        $php = self::phpFiles($uploads['basedir'], 25);
+        if ($php) {
+            $blocked = file_exists($uploads['basedir'].'/.htaccess') && strpos((string) file_get_contents($uploads['basedir'].'/.htaccess'), 'VITIM') !== false;
+            $add('php_in_uploads', $blocked ? 'warning' : 'critical', 'Fișiere PHP în folderul de imagini (uploads)'.($blocked ? ', blocate' : ''),
+                "În uploads nu ar trebui să existe cod PHP. Verifică și șterge ce nu recunoști:\n".implode("\n", array_map(function ($f) use ($uploads) { return substr($f, strlen($uploads['basedir']) + 1); }, $php)),
+                $blocked ? null : 'block_php_uploads');
+        }
+
+        return $issues;
+    }
+
+    /** Fișiere din nucleul WordPress care diferă de versiunea oficială sau nu fac parte din ea. @return array|null */
+    private static function coreChanges()
+    {
+        global $wp_version;
+        $locale = get_locale();
+        $response = wp_remote_get('https://api.wordpress.org/core/checksums/1.0/?'.http_build_query(['version' => $wp_version, 'locale' => $locale]), ['timeout' => 20]);
+        $json = is_wp_error($response) ? null : json_decode(wp_remote_retrieve_body($response), true);
+        if (empty($json['checksums']) && $locale !== 'en_US') {
+            $response = wp_remote_get('https://api.wordpress.org/core/checksums/1.0/?'.http_build_query(['version' => $wp_version, 'locale' => 'en_US']), ['timeout' => 20]);
+            $json = is_wp_error($response) ? null : json_decode(wp_remote_retrieve_body($response), true);
+        }
+        if (empty($json['checksums']) || ! is_array($json['checksums'])) {
+            return null;
+        }
+        $checksums = $json['checksums'];
+        $changed = [];
+        foreach ($checksums as $file => $md5) {
+            if (strpos($file, 'wp-content/') === 0) {
+                continue;
+            }
+            $path = ABSPATH.$file;
+            if (file_exists($path) && md5_file($path) !== $md5) {
+                $changed[] = $file.' (modificat)';
+            }
+        }
+        // fișiere PHP în plus în wp-admin / wp-includes
+        foreach (['wp-admin', 'wp-includes'] as $dir) {
+            foreach (self::phpFiles(ABSPATH.$dir, 200) as $path) {
+                $rel = substr($path, strlen(ABSPATH));
+                if (! isset($checksums[$rel])) {
+                    $changed[] = $rel.' (necunoscut)';
+                }
+            }
+        }
+
+        return $changed;
+    }
+
+    private static function phpFiles($dir, $limit)
+    {
+        $found = [];
+        if (! is_dir($dir)) {
+            return $found;
+        }
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $file) {
+            if ($file->isFile() && preg_match('/\.(php\d?|phtml|phar)$/i', $file->getFilename())) {
+                $found[] = $file->getPathname();
+                if (count($found) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return $found;
+    }
+
+    // ---------- remedieri cerute din panou ----------
+
+    public static function routes()
+    {
+        register_rest_route('vitim/v1', '/command', [
+            'methods' => 'POST',
+            'callback' => [__CLASS__, 'command'],
+            // autorizarea e semnătura HMAC verificată în callback (cererea vine de la panou, nu de la un utilizator WordPress)
+            'permission_callback' => '__return_true',
+        ]);
+    }
+
+    public static function command(WP_REST_Request $request)
+    {
+        $s = self::settings();
+        $body = $request->get_body();
+        $ts = (string) $request->get_header('x_vitim_timestamp');
+        $nonce = (string) $request->get_header('x_vitim_nonce');
+        $signature = (string) $request->get_header('x_vitim_signature');
+        $key = (string) $request->get_header('x_vitim_key');
+        $valid = self::connected()
+            && hash_equals((string) $s['key'], $key)
+            && ctype_digit($ts) && abs(time() - (int) $ts) <= 300
+            && strlen($nonce) >= 16 && strlen($nonce) <= 128
+            && hash_equals(hash_hmac('sha256', $ts.'.'.$nonce.'.'.$body, (string) $s['secret']), $signature);
+        if (! $valid) {
+            return new WP_REST_Response(['ok' => false, 'message' => 'Semnătură invalidă.'], 401);
+        }
+        $nonceKey = 'vitim_nonce_'.md5($nonce);
+        if (get_transient($nonceKey)) {
+            return new WP_REST_Response(['ok' => false, 'message' => 'Cerere repetată.'], 401);
+        }
+        set_transient($nonceKey, 1, 900);
+
+        $data = json_decode($body, true);
+        $action = isset($data['action']) ? (string) $data['action'] : '';
+        $target = isset($data['target']) ? (string) $data['target'] : '';
+        if (! in_array($action, self::ACTIONS, true)) {
+            return new WP_REST_Response(['ok' => false, 'message' => 'Acțiune nepermisă.'], 400);
+        }
+        if ($action !== 'scan' && ! self::remoteFixes()) {
+            return new WP_REST_Response(['ok' => false, 'message' => 'Remedierile de la distanță sunt oprite din pluginul de pe site.'], 403);
+        }
+
+        @set_time_limit(300);
+        try {
+            list($ok, $message) = self::execute($action, $target);
+        } catch (Throwable $e) {
+            list($ok, $message) = [false, 'Eroare: '.$e->getMessage()];
+        }
+        self::flush(); // lucrările înregistrate de actualizări pleacă imediat
+        $issues = self::scan();
+        $s = self::settings();
+        $s['last_scan'] = time();
+        update_option(self::OPTION, $s, false);
+
+        return new WP_REST_Response(['ok' => $ok, 'message' => $message, 'issues' => $issues], 200);
+    }
+
+    /** @return array{0: bool, 1: string} */
+    private static function execute($action, $target)
+    {
+        switch ($action) {
+            case 'scan':
+                return [true, 'Scanare făcută.'];
+            case 'allow_indexing':
+                update_option('blog_public', 1);
+
+                return [true, 'Indexarea este permisă.'];
+            case 'disable_xmlrpc':
+            case 'disable_file_edit':
+                $h = self::hardening();
+                $h[$action === 'disable_xmlrpc' ? 'xmlrpc' : 'file_edit'] = true;
+                update_option(self::HARDENING, $h, false);
+
+                return [true, $action === 'disable_xmlrpc' ? 'XML-RPC dezactivat.' : 'Editorul de fișiere dezactivat.'];
+            case 'delete_debug_log':
+                $file = WP_CONTENT_DIR.'/debug.log';
+
+                return file_exists($file) && ! @unlink($file) ? [false, 'Nu am putut șterge debug.log (permisiuni).'] : [true, 'debug.log șters.'];
+            case 'delete_readme':
+                $file = ABSPATH.'readme.html';
+
+                return file_exists($file) && ! @unlink($file) ? [false, 'Nu am putut șterge readme.html (permisiuni).'] : [true, 'readme.html șters.'];
+            case 'block_php_uploads':
+                $dir = wp_get_upload_dir()['basedir'];
+                $file = $dir.'/.htaccess';
+                $current = file_exists($file) ? (string) file_get_contents($file) : '';
+                if (strpos($current, 'VITIM') === false) {
+                    $rules = "\n# BEGIN VITIM: fără execuție PHP în uploads\n<FilesMatch \"\\.(php\\d?|phtml|phar)$\">\n<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\nOrder allow,deny\nDeny from all\n</IfModule>\n</FilesMatch>\n# END VITIM\n";
+                    if (@file_put_contents($file, $current.$rules) === false) {
+                        return [false, 'Nu am putut scrie uploads/.htaccess (permisiuni).'];
+                    }
+                }
+
+                return [true, 'Execuția PHP în uploads este blocată. Fișierele găsite trebuie verificate manual.'];
+        }
+
+        return self::upgrade($action, $target);
+    }
+
+    /** Actualizări prin mecanismul WordPress (aceleași ca din Panou → Actualizări). @return array{0: bool, 1: string} */
+    private static function upgrade($action, $target)
+    {
+        require_once ABSPATH.'wp-admin/includes/admin.php';
+        require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
+        global $wp_version;
+        if (! WP_Filesystem()) {
+            return [false, 'WordPress nu poate scrie direct fișierele (FS_METHOD). Actualizarea trebuie făcută din WordPress.'];
+        }
+        $skin = new Automatic_Upgrader_Skin();
+
+        if ($action === 'update_plugin' || $action === 'update_all_plugins') {
+            wp_update_plugins();
+            $updates = get_site_transient('update_plugins');
+            $available = is_object($updates) && ! empty($updates->response) ? array_keys($updates->response) : [];
+            if ($action === 'update_plugin') {
+                if (! array_key_exists($target, get_plugins())) {
+                    return [false, 'Pluginul nu există pe site.'];
+                }
+                if (! in_array($target, $available, true)) {
+                    return [true, 'Pluginul este deja la zi.'];
+                }
+                $available = [$target];
+            }
+            if (! $available) {
+                return [true, 'Toate pluginurile sunt la zi.'];
+            }
+            $result = (new Plugin_Upgrader($skin))->bulk_upgrade($available);
+            $failed = array_keys(array_filter((array) $result, function ($r) { return ! $r || is_wp_error($r); }));
+
+            return $failed ? [false, 'Nu s-au actualizat: '.implode(', ', $failed).'. '.implode(' ', $skin->get_upgrade_messages())] : [true, count($available).' plugin(uri) actualizat(e).'];
+        }
+        if ($action === 'update_theme') {
+            if (! wp_get_theme($target)->exists()) {
+                return [false, 'Tema nu există pe site.'];
+            }
+            wp_update_themes();
+            $result = (new Theme_Upgrader($skin))->upgrade($target);
+
+            return $result && ! is_wp_error($result) ? [true, 'Tema a fost actualizată.'] : [false, 'Tema nu s-a actualizat. '.implode(' ', $skin->get_upgrade_messages())];
+        }
+        if ($action === 'update_core' || $action === 'reinstall_core') {
+            wp_version_check([], true);
+            $chosen = null;
+            foreach ((array) get_core_updates(['dismissed' => true]) as $u) {
+                if ($action === 'update_core' && isset($u->response) && $u->response === 'upgrade') {
+                    $chosen = $u;
+                    break;
+                }
+                if ($action === 'reinstall_core' && isset($u->current) && $u->current === $wp_version) {
+                    $chosen = $u;
+                    $chosen->response = 'reinstall';
+                    break;
+                }
+            }
+            if (! $chosen) {
+                return [$action === 'update_core', $action === 'update_core' ? 'WordPress este deja la zi.' : 'Pachetul versiunii curente nu e disponibil.'];
+            }
+            self::$reinstalling = $action === 'reinstall_core';
+            $result = (new Core_Upgrader($skin))->upgrade($chosen);
+            self::$reinstalling = false;
+
+            return is_wp_error($result) || ! $result ? [false, 'WordPress nu s-a actualizat: '.(is_wp_error($result) ? $result->get_error_message() : implode(' ', $skin->get_upgrade_messages()))] : [true, $action === 'update_core' ? 'WordPress actualizat la '.$result.'.' : 'Fișierele WordPress au fost reinstalate.'];
+        }
+
+        return [false, 'Acțiune necunoscută.'];
+    }
+
+    // ---------- actualizarea pluginului din panou ----------
+
+    public static function selfUpdate($transient)
+    {
+        if (! is_object($transient) || ! self::connected()) {
+            return $transient;
+        }
+        $info = get_transient('vitim_connector_latest');
+        if ($info === false) {
+            $s = self::settings();
+            $response = wp_remote_get(rtrim($s['url'], '/').'/connector/v1/plugin', ['timeout' => 10]);
+            $info = is_wp_error($response) ? [] : (array) json_decode(wp_remote_retrieve_body($response), true);
+            set_transient('vitim_connector_latest', $info, 6 * HOUR_IN_SECONDS);
+        }
+        $file = plugin_basename(__FILE__);
+        if (! empty($info['version']) && ! empty($info['download_url']) && version_compare($info['version'], VITIM_CONNECTOR_VERSION, '>')
+            && strpos($info['download_url'], rtrim(self::settings()['url'], '/').'/') === 0) {
+            $transient->response[$file] = (object) [
+                'slug' => 'vitim-connector', 'plugin' => $file, 'new_version' => $info['version'],
+                'package' => $info['download_url'], 'url' => 'https://vitim.ro',
+            ];
+        }
+
+        return $transient;
     }
 }
+
 
 register_activation_hook(__FILE__, ['Vitim_Connector', 'activate']);
 register_deactivation_hook(__FILE__, ['Vitim_Connector', 'deactivate']);

@@ -13,6 +13,7 @@ use App\Models\Lead;
 use App\Models\Membership;
 use App\Models\Organization;
 use App\Models\Site;
+use App\Models\SiteIssue;
 use App\Models\Subscription;
 use App\Models\UsageRecord;
 use App\Models\User;
@@ -50,8 +51,12 @@ final class DashboardController extends Controller
 
     public function sites(): View
     {
-        return view('admin.sites', [
+        return view('admin.sites.index', [
+            // problemele deschise: doar numărul, peste toate firmele (cod de platformă)
             'sites' => Site::withoutTenancy()->with('organization')->orderBy('domain')->paginate(50),
+            'openIssues' => SiteIssue::withoutTenancy()->where('status', 'open')
+                ->select('site_id', DB::raw("sum(case when severity = 'critical' then 1 else 0 end) as critical"), DB::raw('count(*) as total'))
+                ->groupBy('site_id')->get()->keyBy('site_id'),
         ]);
     }
 

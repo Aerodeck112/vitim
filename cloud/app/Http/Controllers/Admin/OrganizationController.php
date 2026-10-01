@@ -63,7 +63,7 @@ final class OrganizationController extends Controller
         return view('admin.organizations.show', [
             'organization' => $organization,
             'subscription' => $organization->subscription,
-            'sites' => Site::query()->with(['keys' => fn ($q) => $q->latest()])->orderBy('domain')->get(),
+            'sites' => Site::query()->with(['keys' => fn ($q) => $q->latest(), 'issues'])->orderBy('domain')->get(),
             'members' => Membership::query()->with('user')->get(),
             'agents' => Agent::query()->with('site')->orderBy('name')->get(),
             'audit' => AuditLog::query()->latest('id')->limit(15)->get(),

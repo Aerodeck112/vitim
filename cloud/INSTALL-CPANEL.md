@@ -73,6 +73,10 @@ Dacă arhiva e mai mare decât limita de upload afișată în pagină, urc-o cu 
 3. **Site PHP** (făcut de noi): descarcă „conectorul PHP”, completează în fișier codul și adresa site-ului, urcă-l în folderul
    principal al contului de hosting (nu în `public_html`) și adaugă un cron **Once Per Hour**: `php ~/vitim-connector.php`.
 
+**Probleme și remedieri (de la 0.7.0, plugin 1.1.0):** Admin → client → click pe domeniu. Pluginul scanează zilnic; „Scanează acum” pornește o scanare
+imediat. Remedierile se aplică din aceeași pagină. Clientul le poate opri din WordPress (Setări → VITIM). Pluginul 1.0.0 trebuie înlocuit o dată
+manual cu 1.1.0 (Module → Adaugă nou → Încarcă modul → „Înlocuiește versiunea curentă”); de la 1.1.0 încolo se actualizează din WordPress.
+
 ## Backup și restaurare
 
 - Zilnic la 03:17, baza de date pleacă pe `BACKUP_EMAIL` și rămâne și în `vitim-ai/storage/app/backups` (ultimele 7).

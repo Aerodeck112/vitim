@@ -25,6 +25,8 @@
 | `subscriptions` | Plan, status, limite | ✓ | `trial`, `active`, `past_due`, `suspended`, `cancelled`. Limitele se copiază din `config/plans.php` |
 | `sites` | Website-urile firmei | ✓ | `domain` unic global. `platform`: wordpress, woocommerce, custom, other. `verification_status`, `widget_config`, `connector_version`, `last_seen_at`, `last_sync_at` |
 | `sites` (0.6.0) | + `health` (JSON: starea raportată de conector) | ✓ | `last_seen_at`, `connector_version`, `verification_status` (`verified` / `mismatch`) se completează din heartbeat |
+| `site_issues` (0.7.0) | Problemele găsite de scanare | ✓ | Unic pe (site, `code`); `severity`, `title`, `details`, `fix` (acțiune permisă), `status` open / resolved, prima / ultima apariție |
+| `site_commands` (0.7.0) | Remedieri trimise din panou | ✓ | `action`, `target`, `status` (running / done / failed), `result`, `requested_by`, durată |
 | `site_keys` | Cheia publică (widget) + secretul (plugin) | ✓ | Secretul e criptat (`APP_KEY`), cu rotație și revocare |
 | `agents` | Agenții AI | ✓ | `model_configuration` și `system_configuration` (JSON validat de `AgentConfiguration`, fără secrete; include `business_facts` și `contact_line`). `template`: presetul de pornire |
 | `agent_versions` | Istoricul configurației | ✓ | Un rând la fiecare schimbare de configurație (`version` crescător, cine a salvat). Append-only |

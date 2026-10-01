@@ -96,7 +96,16 @@ Fără sesiune. Fiecare cerere are antetele `X-Vitim-Key` (cheia publică `pk_�
 | Metodă | Rută | Corp | Efect |
 |---|---|---|---|
 | POST | `/heartbeat` | `platform` (wordpress/custom), `site_url`, `connector_version`, opțional `php_version`, `core_version`, `core_update`, `theme`, `plugins_total`, `plugin_updates[{name,from,to}]`, `theme_updates`, `app_version`, `disk_free_mb`, `https` | Actualizează starea site-ului, `last_seen_at`, `verification_status` (`verified` / `mismatch` după domeniul raportat) |
+| POST | `/scan` | `issues[{code, severity (critical/warning/info), title, details?, fix?}]` (max. 300) | Deschide / actualizează problemele site-ului; cele care lipsesc se închid. `fix` se păstrează doar dacă e în lista permisă (`App\Services\Remediation`) |
+| GET | `/plugin` | — (public) | Versiunea curentă a pluginului și adresa pachetului, pentru actualizarea din WordPress |
 | POST | `/worklog` | `entries[{ref, category, title, description?, performed_at?}]` (max. 50) | Lucrări vizibile clientului, sursa `plugin`; același `ref` pe același site nu se dublează |
+
+### În sens invers: panou → plugin
+
+`POST {command_url}` (raportată de plugin în heartbeat, acceptată doar pe domeniul site-ului, https), aceeași semnătură și aceleași antete.
+Corp: `{command_id, action, target?}`. `action` ∈ `scan`, `update_plugin` (țintă: fișierul pluginului), `update_all_plugins`, `update_theme` (țintă: tema), `update_core`, `reinstall_core`,
+`delete_debug_log`, `delete_readme`, `disable_xmlrpc`, `disable_file_edit`, `block_php_uploads`, `allow_indexing`. Răspuns: `{ok, message, issues}` (o scanare nouă).
+Pluginul refuză orice altă acțiune și, dacă clientul a oprit remedierile, orice acțiune în afară de `scan`.
 
 ## Evenimente de domeniu emise (pentru automatizările viitoare)
 

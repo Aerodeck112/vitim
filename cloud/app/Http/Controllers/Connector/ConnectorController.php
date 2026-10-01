@@ -8,7 +8,9 @@ use App\Enums\WorkCategory;
 use App\Http\Controllers\Controller;
 use App\Models\Site;
 use App\Models\WorkLog;
+use App\Services\ScanPayload;
 use App\Services\SiteKeyService;
+use App\Services\SiteScanService;
 use App\Services\WorkLogService;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\JsonResponse;
@@ -52,6 +54,8 @@ final class ConnectorController extends Controller
             'app_version' => ['nullable', 'string', 'max:32'],
             'disk_free_mb' => ['nullable', 'integer', 'min:0'],
             'https' => ['nullable', 'boolean'],
+            'command_url' => ['nullable', 'string', 'max:255'],
+            'remote_fixes' => ['nullable', 'boolean'],
         ])->validate();
 
         $host = strtolower((string) parse_url($data['site_url'], PHP_URL_HOST));
@@ -110,6 +114,30 @@ final class ConnectorController extends Controller
         });
 
         return response()->json(['ok' => true, 'saved' => $saved, 'skipped' => $skipped]);
+    }
+
+    /** Rezultatul scanării de securitate / sănătate făcute de plugin. */
+    public function scan(Request $request, SiteScanService $scans): JsonResponse
+    {
+        $site = $this->authenticate($request);
+        if (! $site) {
+            return $this->unauthorized();
+        }
+        $issues = Validator::make($request->json()->all(), ScanPayload::rules())->validate()['issues'];
+        $this->context->runAs($site->organization, fn () => $scans->ingest($site, $issues));
+
+        return response()->json(['ok' => true, 'open' => count($issues)]);
+    }
+
+    /** Versiunea curentă a pluginului (public): pluginul o folosește ca să se actualizeze din WordPress. */
+    public function plugin(): JsonResponse
+    {
+        $info = json_decode((string) @file_get_contents(public_path('downloads/vitim-connector.json')), true);
+        if (! is_array($info) || empty($info['version'])) {
+            return response()->json(['error' => ['code' => 'not_found', 'message' => 'Pachetul pluginului lipsește.']], 404);
+        }
+
+        return response()->json(['version' => $info['version'], 'download_url' => asset('downloads/vitim-connector.zip'), 'requires_php' => '7.4']);
     }
 
     private function authenticate(Request $request): ?Site
