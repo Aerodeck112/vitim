@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** O problemă găsită de scanarea conectorului pe un site. Se închide singură când nu mai apare la scanare. */
-#[Fillable(['site_id', 'code', 'severity', 'title', 'details', 'fix', 'status', 'first_seen_at', 'last_seen_at', 'resolved_at'])]
+#[Fillable(['site_id', 'code', 'category', 'source', 'severity', 'title', 'details', 'fix', 'status', 'first_seen_at', 'last_seen_at', 'resolved_at'])]
 class SiteIssue extends Model
 {
     use BelongsToOrganization;

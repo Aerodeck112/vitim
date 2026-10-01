@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Audit\Guidance;
 use App\Http\Controllers\Controller;
 use App\Models\Site;
 use App\Models\SiteIssue;
 use App\Services\Remediation;
+use App\Services\SiteAuditService;
 use App\Services\SiteCommandService;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +21,7 @@ final class SiteHealthController extends Controller
 {
     public function __construct(private readonly TenantContext $context) {}
 
-    public function show(int $site): View
+    public function show(Request $request, int $site): View
     {
         $model = Site::query()->findOrFail($site);
         $order = "CASE severity WHEN 'critical' THEN 0 WHEN 'warning' THEN 1 ELSE 2 END";
@@ -30,7 +32,17 @@ final class SiteHealthController extends Controller
             'open' => SiteIssue::query()->where('site_id', $model->id)->where('status', 'open')->orderByRaw($order)->orderBy('title')->get(),
             'resolved' => SiteIssue::query()->where('site_id', $model->id)->where('status', 'resolved')->latest('resolved_at')->limit(10)->get(),
             'commands' => $model->commands()->with('requester')->limit(20)->get(),
+            'category' => array_key_exists((string) $request->query('categorie'), Guidance::CATEGORIES) ? (string) $request->query('categorie') : null,
         ]);
+    }
+
+    public function audit(SiteAuditService $audits, int $site): RedirectResponse
+    {
+        $model = Site::query()->findOrFail($site);
+        $count = $audits->run($model);
+
+        return redirect()->route('admin.sites.health', [$this->context->organization()->slug, $model->id])
+            ->with('ok', "Audit terminat: {$count} constatări.");
     }
 
     public function command(Request $request, SiteCommandService $commands, int $site): RedirectResponse

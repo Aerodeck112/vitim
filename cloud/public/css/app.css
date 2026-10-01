@@ -58,3 +58,8 @@ textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--
 @media (max-width:640px){.bubble,.chat .tool{max-width:92%}}
 .linkbtn{all:unset;cursor:pointer;color:var(--err);margin-left:10px}.linkbtn:hover{text-decoration:underline}
 input[type=number],input[type=datetime-local]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-2);background:var(--panel);color:var(--text);font:14.5px var(--font)}
+.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 18px}
+.score{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}.score b{display:block;font-size:24px;letter-spacing:-.02em}.score span{font-size:12.5px;color:var(--text-2)}
+.score.good b{color:var(--ok)}.score.mid b{color:#d18a07}.score.bad b{color:var(--err)}
+.howto{margin-top:6px}.howto summary{cursor:pointer;color:var(--brand);font-size:13px}.howto div{white-space:pre-line;font-size:13px;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:6px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs a{padding:6px 12px;border-radius:999px;border:1px solid var(--border-2);font-size:13px;color:var(--text-2)}.tabs a.on{background:var(--brand);border-color:var(--brand);color:#fff;text-decoration:none}

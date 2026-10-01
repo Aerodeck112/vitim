@@ -1,5 +1,17 @@
 # VITIM AI Cloud — versiuni
 
+## 0.8.0 — auditul SEO, securitate și legal (România)
+
+- **Audit extern al fiecărui site** (WordPress sau PHP, cu sau fără plugin), zilnic și la cerere: prima pagină, robots.txt, sitemap-ul și până la 12 pagini.
+  - **SEO**: redirect http → https, www dublat, robots.txt care blochează tot, sitemap, noindex, meta viewport (mobil), titluri lipsă / prea lungi / duplicate, meta description, H1, canonical, imagini fără alt, limbă, Open Graph, date structurate pentru firmă, pagini din sitemap cu erori.
+  - **Securitate**: HTTPS și certificatul (expiră în < 14 zile), antete de securitate, HSTS, versiunea PHP afișată, fișiere sensibile publice (.env, .git, backup wp-config, debug.log, phpinfo), listarea folderelor.
+  - **Legal (România)**: politica de confidențialitate (GDPR), politica de cookie-uri, scripturi de urmărire fără banner de consimțământ (Legea 506/2004), termeni și condiții, linkurile ANPC – SAL și SOL (critice la magazine online), datele firmei: CUI și Nr. Reg. Com. (Legea 365/2002), contact, formulare fără informare GDPR.
+  - **Viteză**: timp de răspuns, mărimea paginii, compresie.
+- **„Cum rezolvi”** la fiecare problemă, cu pașii concreți (unde se setează în WordPress / cPanel / .htaccess), inclusiv pentru problemele găsite de plugin.
+- **Scoruri 0–100** pe Securitate, SEO, Legal, Actualizări, Viteză; pagina site-ului e împărțită pe categorii.
+- **Raportul clientului** (Panou → Site-urile tale → raport): scorurile, ce a rezolvat VITIM în ultimele 90 de zile, ce mai e de îmbunătățit și lucrările pe site.
+- Auditul nu iese niciodată de pe domeniul site-ului (protecție SSRF: doar domeniul și www, IP-uri publice, redirecturi verificate).
+
 ## 0.7.0 — scanarea și remedierea site-urilor WordPress (plugin 1.1.0)
 
 - **Scanare** (zilnic și la cerere, făcută de plugin, doar citire): actualizări WordPress / pluginuri / teme, PHP vechi, fără HTTPS, indexare blocată în Google, erori afișate vizitatorilor, debug.log public, readme.html, editorul de fișiere activ, XML-RPC, administrator „admin”, prea mulți administratori, pluginuri inactive, **fișiere WordPress modificate** (comparate cu cele oficiale de pe wordpress.org) și **fișiere PHP în uploads**.

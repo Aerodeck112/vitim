@@ -101,6 +101,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::post('/site-uri', [SiteController::class, 'store'])->name('sites.store');
             Route::post('/site-uri/{site}/chei', [SiteController::class, 'rotate'])->whereNumber('site')->name('sites.rotate');
             Route::get('/site-uri/{site}', [SiteHealthController::class, 'show'])->whereNumber('site')->name('sites.health');
+            Route::post('/site-uri/{site}/audit', [SiteHealthController::class, 'audit'])->whereNumber('site')->middleware('throttle:10,1')->name('sites.audit');
             Route::post('/site-uri/{site}/remediere', [SiteHealthController::class, 'command'])->whereNumber('site')->middleware('throttle:20,1')->name('sites.command');
             Route::get('/lucrari', [WorkLogController::class, 'index'])->name('worklogs.index');
             Route::post('/lucrari', [WorkLogController::class, 'store'])->name('worklogs.store');
@@ -133,6 +134,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::delete('/contacte/{contact}', [Portal\ContactController::class, 'destroy'])->middleware('can:delete_data')->where('contact', $id)->name('contacts.destroy');
         Route::post('/contacte/{contact}/consimtamant', [Portal\ContactController::class, 'consent'])->middleware('can:manage_consent')->where('contact', $id)->name('contacts.consent');
 
+        Route::get('/site-uri/{site}', [Portal\SiteReportController::class, 'show'])->middleware('can:view_reports')->where('site', $id)->name('sites.report');
         Route::get('/lucrari', [Portal\WorkLogController::class, 'index'])->middleware('can:view_reports')->name('worklogs');
 
         Route::get('/leaduri', [Portal\LeadController::class, 'index'])->middleware('can:view_leads')->name('leads.index');

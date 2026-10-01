@@ -9,7 +9,8 @@
 <div class="card">
   <h2>Site-urile tale</h2>
   @foreach ($sites as $site)
-    <div style="padding:6px 0"><strong>{{ $site->domain }}</strong> @include('partials.site-health', ['site' => $site])</div>
+    <div style="padding:8px 0;border-bottom:1px solid var(--border)"><a href="{{ route('portal.sites.report', [$organization->slug, $site->id]) }}"><strong>{{ $site->domain }}</strong></a> @include('partials.site-health', ['site' => $site])
+      @if ($site->scores)<div class="small muted" style="margin-top:4px">@foreach (\App\Audit\Guidance::CATEGORIES as $k => $l){{ $l }} <strong>{{ $site->scores[$k] ?? 100 }}</strong>@if (! $loop->last) · @endif @endforeach · <a href="{{ route('portal.sites.report', [$organization->slug, $site->id]) }}">raport</a></div>@endif</div>
   @endforeach
 </div>
 @endif

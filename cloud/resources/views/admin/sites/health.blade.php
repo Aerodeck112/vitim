@@ -5,43 +5,59 @@
 @php($h = $site->health ?? [])
 <div class="head"><div><h1>{{ $site->domain }}</h1>
   <p>@include('partials.site-health', ['site' => $site])
-    · scanat {{ $site->last_scan_at ? $site->last_scan_at->diffForHumans() : 'niciodată' }}</p></div>
+    · audit {{ $site->last_audit_at ? $site->last_audit_at->diffForHumans() : 'niciodată' }}
+    · scanare plugin {{ $site->last_scan_at ? $site->last_scan_at->diffForHumans() : 'niciodată' }}</p></div>
   <a class="btn" href="{{ route('admin.organizations.show', $slug) }}">Fișa clientului</a></div>
 @if (session('error'))<div class="alert alert-err">{{ session('error') }}</div>@endif
 @error('fix')<div class="alert alert-err">{{ $message }}</div>@enderror
 
-@if (empty($h['command_url']))
-  <div class="alert alert-warn">Remedierile din panou cer pluginul VITIM Connector 1.1.0 sau mai nou (instalat acum: {{ $site->connector_version ?? '—' }}).</div>
+@include('partials.site-scores', ['site' => $site])
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+  <form method="post" action="{{ route('admin.sites.audit', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se auditează… (până la un minut)'">@csrf
+    <button class="btn btn-p" type="submit">Rulează auditul SEO / securitate / legal</button></form>
+  @if (! empty($h['command_url']))
+    @foreach (['scan', 'update_all_plugins'] as $fix)
+      <form method="post" action="{{ route('admin.sites.command', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se execută pe site…'">@csrf
+        <input type="hidden" name="fix" value="{{ $fix }}"><button class="btn" type="submit">{{ $fix === 'scan' ? 'Scanează cu pluginul' : \App\Services\Remediation::label($fix) }}</button></form>
+    @endforeach
+  @endif
+</div>
+@if (($site->platform->value === 'wordpress' || $site->platform->value === 'woocommerce') && empty($h['command_url']))
+  <div class="alert alert-warn">Pentru scanarea din interiorul WordPress și remedierile cu un click instalează pluginul VITIM Connector 1.1.0.</div>
 @elseif (($h['remote_fixes'] ?? true) === false)
   <div class="alert alert-warn">Remedierile de la distanță sunt oprite din pluginul de pe site (WordPress → Setări → VITIM).</div>
 @endif
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
-  @foreach (['scan', 'update_all_plugins'] as $fix)
-    <form method="post" action="{{ route('admin.sites.command', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se execută pe site…'">@csrf
-      <input type="hidden" name="fix" value="{{ $fix }}"><button class="btn {{ $fix === 'scan' ? 'btn-p' : '' }}" type="submit">{{ \App\Services\Remediation::label($fix) }}</button></form>
+<div class="tabs">
+  <a href="?" @class(['on' => ! $category])>Toate ({{ $open->count() }})</a>
+  @foreach (\App\Audit\Guidance::CATEGORIES as $key => $label)
+    @php($n = $open->where('category', $key)->count())
+    @if ($n)<a href="?categorie={{ $key }}" @class(['on' => $category === $key])>{{ $label }} ({{ $n }})</a>@endif
   @endforeach
 </div>
 
 <div class="card">
-  <h2>Probleme deschise ({{ $open->count() }})</h2>
-  @forelse ($open as $issue)
+  @php($shown = $category ? $open->where('category', $category) : $open)
+  @forelse ($shown as $issue)
     <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
       <div style="flex:1;min-width:260px">
         <span class="badge {{ ['critical' => 'err', 'warning' => 'warn', 'info' => ''][$issue->severity] ?? '' }}">{{ \App\Models\SiteIssue::SEVERITIES[$issue->severity] ?? $issue->severity }}</span>
+        <span class="badge">{{ \App\Audit\Guidance::CATEGORIES[$issue->category] ?? $issue->category }}</span>
         <strong>{{ $issue->title }}</strong>
-        @if ($issue->details)<div class="small muted" style="white-space:pre-line;margin-top:4px">{{ $issue->details }}</div>@endif
-        <div class="small muted">din {{ $issue->first_seen_at->format('d.m.Y') }}</div>
+        @if ($issue->details)<div class="small muted" style="white-space:pre-line;margin-top:4px;word-break:break-word">{{ $issue->details }}</div>@endif
+        @if ($guide = \App\Audit\Guidance::howTo($issue->code, $site->domain))
+          <details class="howto"><summary>Cum rezolvi</summary><div>{{ $guide }}</div></details>
+        @endif
+        <div class="small muted">din {{ $issue->first_seen_at->format('d.m.Y') }} · {{ $issue->source === 'audit' ? 'audit extern' : 'plugin' }}</div>
       </div>
-      @if ($issue->fix)
+      @if ($issue->fix && ! empty($h['command_url']))
         <form method="post" action="{{ route('admin.sites.command', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se execută…'">@csrf
           <input type="hidden" name="fix" value="{{ $issue->fix }}"><button class="btn btn-p" type="submit">{{ \App\Services\Remediation::label($issue->fix) }}</button></form>
-      @else
-        <span class="small muted">remediere manuală</span>
       @endif
     </div>
   @empty
-    <p class="muted" style="margin:0">{{ $site->last_scan_at ? 'Nicio problemă găsită la ultima scanare.' : 'Site-ul nu a fost scanat încă. Apasă „Scanează acum”.' }}</p>
+    <p class="muted" style="margin:0">{{ $site->last_audit_at || $site->last_scan_at ? 'Nicio problemă deschisă.' : 'Site-ul nu a fost verificat încă. Apasă „Rulează auditul”.' }}</p>
   @endforelse
 </div>
 

@@ -25,6 +25,8 @@ class Site extends Model
             'last_seen_at' => 'datetime',
             'last_sync_at' => 'datetime',
             'last_scan_at' => 'datetime',
+            'last_audit_at' => 'datetime',
+            'scores' => 'array',
         ];
     }
 
