@@ -26,6 +26,7 @@
 | `sites` | Website-urile firmei | ✓ | `domain` unic global. `platform`: wordpress, woocommerce, custom, other. `verification_status`, `widget_config`, `connector_version`, `last_seen_at`, `last_sync_at` |
 | `sites` (0.6.0, 0.8.0) | + `health` (JSON: starea raportată de conector), `scores` (JSON 0–100 pe categorii), `last_scan_at`, `last_audit_at` | ✓ | `last_seen_at`, `connector_version`, `verification_status` (`verified` / `mismatch`) se completează din heartbeat |
 | `site_issues` (0.7.0, 0.8.0) | Problemele găsite de scanare și de audit | ✓ | Unic pe (site, `code`); `category` (security / seo / legal / updates / performance), `source` (plugin / audit), `severity`, `title`, `details`, `fix` (acțiune permisă), `status` open / resolved, prima / ultima apariție |
+| `site_backups` (0.9.0) | Backup-urile raportate de plugin | ✓ | `status` ok / failed, `verified`, început / sfârșit, mărimi (bază de date, fișiere), număr de fișiere, `location` (pe hostingul clientului, doar pentru echipa VITIM), `kept`, `error` |
 | `site_commands` (0.7.0) | Remedieri trimise din panou | ✓ | `action`, `target`, `status` (running / done / failed), `result`, `requested_by`, durată |
 | `site_keys` | Cheia publică (widget) + secretul (plugin) | ✓ | Secretul e criptat (`APP_KEY`), cu rotație și revocare |
 | `agents` | Agenții AI | ✓ | `model_configuration` și `system_configuration` (JSON validat de `AgentConfiguration`, fără secrete; include `business_facts` și `contact_line`). `template`: presetul de pornire |

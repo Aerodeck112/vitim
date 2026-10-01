@@ -17,7 +17,7 @@
   <form method="post" action="{{ route('admin.sites.audit', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se auditează… (până la un minut)'">@csrf
     <button class="btn btn-p" type="submit">Rulează auditul SEO / securitate / legal</button></form>
   @if (! empty($h['command_url']))
-    @foreach (['scan', 'update_all_plugins'] as $fix)
+    @foreach (['scan', 'backup', 'update_all_plugins'] as $fix)
       <form method="post" action="{{ route('admin.sites.command', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se execută pe site…'">@csrf
         <input type="hidden" name="fix" value="{{ $fix }}"><button class="btn" type="submit">{{ $fix === 'scan' ? 'Scanează cu pluginul' : \App\Services\Remediation::label($fix) }}</button></form>
     @endforeach
@@ -67,6 +67,8 @@
   @foreach ($resolved as $issue)<p style="margin:6px 0" class="small"><span class="badge ok">rezolvat</span> {{ $issue->title }} <span class="muted">· {{ $issue->resolved_at?->format('d.m.Y H:i') }}</span></p>@endforeach
 </div>
 @endif
+
+@include('partials.site-backups', ['site' => $site, 'backups' => $backups, 'staff' => true])
 
 <div class="card">
   <h2>Istoric remedieri</h2>

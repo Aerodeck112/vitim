@@ -13,6 +13,7 @@ final class Remediation
     /** acțiune => [etichetă, are țintă (plugin / temă)] */
     public const ACTIONS = [
         'scan' => ['Scanează acum', false],
+        'backup' => ['Backup acum', false],
         'update_plugin' => ['Actualizează pluginul', true],
         'update_all_plugins' => ['Actualizează toate pluginurile', false],
         'update_theme' => ['Actualizează tema', true],

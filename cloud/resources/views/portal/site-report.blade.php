@@ -22,6 +22,7 @@
   @endforelse
   @if ($open->isNotEmpty())<p class="tag-note" style="margin:10px 0 0">Pentru detalii și remediere, contactează echipa VITIM.</p>@endif
 </div>
+@include('partials.site-backups', ['site' => $site, 'backups' => $backups, 'staff' => false])
 <div class="card">
   <h2>Lucrări VITIM pe acest site</h2>
   @forelse ($work as $log)

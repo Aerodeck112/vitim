@@ -19,3 +19,4 @@ Schedule::command('auth:clear-resets')->daily();
 
 // auditul SEO / securitate / legal: câteva site-uri la 5 minute, fiecare o dată pe zi
 Schedule::command('vitim:audit')->everyFiveMinutes()->withoutOverlapping(30);
+Schedule::command('vitim:backups-check')->hourly()->withoutOverlapping(30);

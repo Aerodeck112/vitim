@@ -32,6 +32,7 @@ final class SiteHealthController extends Controller
             'open' => SiteIssue::query()->where('site_id', $model->id)->where('status', 'open')->orderByRaw($order)->orderBy('title')->get(),
             'resolved' => SiteIssue::query()->where('site_id', $model->id)->where('status', 'resolved')->latest('resolved_at')->limit(10)->get(),
             'commands' => $model->commands()->with('requester')->limit(20)->get(),
+            'backups' => $model->backups()->limit(10)->get(),
             'category' => array_key_exists((string) $request->query('categorie'), Guidance::CATEGORIES) ? (string) $request->query('categorie') : null,
         ]);
     }

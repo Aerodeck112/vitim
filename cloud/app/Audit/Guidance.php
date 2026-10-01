@@ -16,10 +16,17 @@ final class Guidance
         'legal' => 'Legal (România)',
         'updates' => 'Actualizări',
         'performance' => 'Viteză',
+        'backup' => 'Backup',
     ];
 
     /** cod (sau prefix înainte de „:”) => [categorie, cum rezolvi] */
     private const GUIDE = [
+        // ---------- backup ----------
+        'backup.failed' => ['backup', "Ultimul backup a eșuat (motivul e în pagina site-ului, la Backup-uri).\nCauze uzuale: spațiu plin pe hosting (cPanel → Disk Usage), limită de timp PHP prea mică pentru un site mare (cPanel → MultiPHP INI Editor → max_execution_time 300), folder fără drept de scriere.\nDupă corectare apasă „Backup acum”."],
+        'backup.stale' => ['backup', "Nu a mai fost un backup reușit de mai mult timp.\n1. Verifică în WordPress → Setări → VITIM că backup-ul automat e pornit.\n2. WP-Cron rulează doar când site-ul are vizite: pentru site-uri cu trafic mic adaugă în cPanel → Cron Jobs (o dată pe oră): wget -q -O /dev/null https://DOMENIU/wp-cron.php\n3. Apasă „Backup acum”."],
+        'backup.none' => ['backup', 'Site-ul nu are încă niciun backup. Apasă „Backup acum” și verifică după câteva minute rezultatul la Backup-uri.'],
+        'backup.public' => ['backup', 'Backup-urile sunt păstrate într-un folder din site (protejat), pentru că folderul principal al contului nu permite scrierea. Recomandat: dă drept de scriere folderului principal (cPanel → File Manager → permisiuni 755) ca backup-urile să stea în afara public_html.'],
+
         // ---------- actualizări (plugin) ----------
         'core_update' => ['updates', "Fă întâi un backup, apoi actualizează din butonul „Actualizează WordPress” sau din WordPress → Panou → Actualizări.\nVerifică după aceea formularul de contact, coșul (dacă e magazin) și paginile principale."],
         'plugin_update' => ['updates', 'Actualizează pluginul din buton. Pentru pluginuri mari (constructor de pagini, WooCommerce) fă înainte un backup și verifică site-ul după.'],

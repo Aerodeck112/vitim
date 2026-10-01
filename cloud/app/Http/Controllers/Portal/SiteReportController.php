@@ -23,6 +23,7 @@ final class SiteReportController extends PortalController
             'open' => SiteIssue::query()->where('site_id', $model->id)->where('status', 'open')->orderByRaw($order)->get(),
             'resolved' => SiteIssue::query()->where('site_id', $model->id)->where('status', 'resolved')
                 ->where('resolved_at', '>=', now()->subDays(90))->latest('resolved_at')->get(),
+            'backups' => $model->backups()->limit(7)->get(),
             'work' => WorkLog::query()->visible()->where('site_id', $model->id)->latest('performed_at')->limit(15)->get(),
         ]);
     }

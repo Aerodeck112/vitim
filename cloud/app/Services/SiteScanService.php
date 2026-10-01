@@ -45,8 +45,8 @@ final class SiteScanService
                 ->whereNotIn('code', $seen ?: [''])->update(['status' => 'resolved', 'resolved_at' => $now]);
 
             $open = SiteIssue::query()->where('site_id', $site->id)->where('status', 'open')->get(['category', 'severity']);
-            $site->forceFill([
-                $source === 'audit' ? 'last_audit_at' : 'last_scan_at' => $now,
+            $stamp = ['plugin' => 'last_scan_at', 'audit' => 'last_audit_at'][$source] ?? null;
+            $site->forceFill(($stamp ? [$stamp => $now] : []) + [
                 'scores' => Guidance::scores($open->map(fn ($i) => ['category' => $i->category, 'severity' => $i->severity])),
             ])->save();
         });

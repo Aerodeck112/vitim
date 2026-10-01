@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       VITIM Connector
  * Description:       Conectează site-ul la panoul VITIM: starea site-ului, scanarea problemelor, remedieri din panou și jurnalul automat al lucrărilor.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            VITIM
@@ -15,7 +15,8 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('VITIM_CONNECTOR_VERSION', '1.1.0');
+define('VITIM_CONNECTOR_VERSION', '1.2.0');
+require_once __DIR__.'/includes-backup.php';
 
 final class Vitim_Connector
 {
@@ -29,7 +30,7 @@ final class Vitim_Connector
     private static $reinstalling = false;
 
     /** Singurele acțiuni pe care panoul le poate cere (aceeași listă există în panou). */
-    const ACTIONS = ['scan', 'update_plugin', 'update_all_plugins', 'update_theme', 'update_core', 'reinstall_core',
+    const ACTIONS = ['scan', 'backup', 'update_plugin', 'update_all_plugins', 'update_theme', 'update_core', 'reinstall_core',
         'delete_debug_log', 'delete_readme', 'disable_xmlrpc', 'disable_file_edit', 'block_php_uploads', 'allow_indexing'];
 
     public static function boot()
@@ -44,6 +45,8 @@ final class Vitim_Connector
         add_action('rest_api_init', [__CLASS__, 'routes']);
         add_action('admin_post_vitim_connector_options', [__CLASS__, 'saveOptions']);
         add_filter('pre_set_site_transient_update_plugins', [__CLASS__, 'selfUpdate']);
+        add_action(Vitim_Connector_Backup::HOOK, [__CLASS__, 'backup']);
+        add_action('admin_post_vitim_connector_backup_settings', [__CLASS__, 'saveBackupSettings']);
         self::harden();
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), function ($links) {
             array_unshift($links, '<a href="'.esc_url(admin_url('options-general.php?page=vitim-connector')).'">Setări</a>');
@@ -57,12 +60,16 @@ final class Vitim_Connector
         if (! wp_next_scheduled(self::CRON)) {
             wp_schedule_event(time() + 60, 'hourly', self::CRON);
         }
+        if (! wp_next_scheduled(Vitim_Connector_Backup::HOOK)) {
+            Vitim_Connector_Backup::schedule();
+        }
     }
 
     public static function deactivate()
     {
         wp_clear_scheduled_hook(self::CRON);
         wp_clear_scheduled_hook(self::FLUSH);
+        wp_clear_scheduled_hook(Vitim_Connector_Backup::HOOK);
     }
 
     /** @return array{url?: string, key?: string, secret?: string, last?: array} */
@@ -122,6 +129,27 @@ final class Vitim_Connector
             printf('<label><input type="checkbox" name="remote_fixes" value="1" %s> Permite echipei VITIM să aplice remedieri din panou (actualizări, securizare). Scanarea rămâne activă oricum.</label> ', checked(self::remoteFixes(), true, false));
             submit_button('Salvează', 'secondary', 'submit', false);
             echo '</form>';
+            $b = Vitim_Connector_Backup::settings();
+            list($bdir, $inside) = Vitim_Connector_Backup::directory();
+            echo '<h2>Backup</h2><form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
+            wp_nonce_field('vitim_connector_backup_settings');
+            echo '<input type="hidden" name="action" value="vitim_connector_backup_settings"><table class="form-table" role="presentation">';
+            echo '<tr><th>Backup automat</th><td><select name="schedule">';
+            foreach (['daily' => 'Zilnic (noaptea)', 'weekly' => 'Săptămânal', 'off' => 'Oprit'] as $k => $l) {
+                printf('<option value="%s" %s>%s</option>', esc_attr($k), selected($b['schedule'], $k, false), esc_html($l));
+            }
+            echo '</select></td></tr>';
+            printf('<tr><th>Păstrează</th><td><input type="number" name="keep" min="1" max="30" value="%d" class="small-text"> copii</td></tr>', (int) $b['keep']);
+            printf('<tr><th>Unde</th><td><code>%s</code>%s</td></tr>', esc_html($bdir), $inside ? ' <em>(în site, protejat: folderul principal al contului nu permite scrierea)</em>' : '');
+            if (! empty($b['last'])) {
+                $last = $b['last'];
+                printf('<tr><th>Ultimul backup</th><td>%s — %s</td></tr>', esc_html(wp_date('d.m.Y H:i', strtotime($last['started_at']))), $last['status'] === 'ok' && $last['verified'] ? '<span style="color:#00a32a">reușit și verificat ('.esc_html(size_format($last['db_bytes'] + $last['files_bytes'])).')</span>' : '<span style="color:#d63638">eșuat: '.esc_html((string) $last['error']).'</span>');
+            }
+            echo '</table>';
+            submit_button('Salvează setările de backup', 'secondary', 'submit', false);
+            echo ' ';
+            submit_button('Fă backup acum', 'primary', 'backup_now', false);
+            echo '</form>';
             echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'" style="display:inline-block;margin-right:8px">';
             wp_nonce_field('vitim_connector_send');
             echo '<input type="hidden" name="action" value="vitim_connector_send">';
@@ -176,6 +204,33 @@ final class Vitim_Connector
         self::run();
         wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim=sent'));
         exit;
+    }
+
+    public static function saveBackupSettings()
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die('Acces interzis.');
+        }
+        check_admin_referer('vitim_connector_backup_settings');
+        Vitim_Connector_Backup::save(['schedule' => isset($_POST['schedule']) ? sanitize_key(wp_unslash($_POST['schedule'])) : 'daily', 'keep' => isset($_POST['keep']) ? (int) $_POST['keep'] : 7]);
+        if (isset($_POST['backup_now'])) {
+            self::backup();
+        } else {
+            self::run();
+        }
+        wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim=sent'));
+        exit;
+    }
+
+    /** Backup + raport la panou (din WP-Cron, din butonul local sau cerut din panou). */
+    public static function backup()
+    {
+        $report = Vitim_Connector_Backup::run();
+        if (self::connected()) {
+            self::post('backup', $report);
+        }
+
+        return $report;
     }
 
     private static function remoteFixes()
@@ -235,6 +290,10 @@ final class Vitim_Connector
     {
         if (! self::connected()) {
             return;
+        }
+        // la actualizarea pluginului nu rulează hook-ul de activare: programarea backup-ului se reface aici
+        if (Vitim_Connector_Backup::settings()['schedule'] !== 'off' && ! wp_next_scheduled(Vitim_Connector_Backup::HOOK)) {
+            Vitim_Connector_Backup::schedule();
         }
         $result = self::post('heartbeat', self::health());
         self::remember($result);
@@ -320,6 +379,8 @@ final class Vitim_Connector
             'https' => is_ssl() || strpos(home_url(), 'https://') === 0,
             'command_url' => rest_url('vitim/v1/command'),
             'remote_fixes' => self::remoteFixes(),
+            'backup_schedule' => Vitim_Connector_Backup::settings()['schedule'],
+            'backup_keep' => (int) Vitim_Connector_Backup::settings()['keep'],
         ];
     }
 
@@ -674,6 +735,12 @@ final class Vitim_Connector
         switch ($action) {
             case 'scan':
                 return [true, 'Scanare făcută.'];
+            case 'backup':
+                // backup-ul poate dura minute: pornește imediat în fundal (WP-Cron), rezultatul vine separat
+                wp_schedule_single_event(time(), Vitim_Connector_Backup::HOOK);
+                spawn_cron();
+
+                return [true, 'Backup pornit. Rezultatul apare la Backup-uri în câteva minute.'];
             case 'allow_indexing':
                 update_option('blog_public', 1);
 

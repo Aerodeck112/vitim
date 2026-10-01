@@ -8,6 +8,7 @@ use App\Enums\WorkCategory;
 use App\Http\Controllers\Controller;
 use App\Models\Site;
 use App\Models\WorkLog;
+use App\Services\BackupMonitor;
 use App\Services\ScanPayload;
 use App\Services\SiteKeyService;
 use App\Services\SiteScanService;
@@ -56,6 +57,8 @@ final class ConnectorController extends Controller
             'https' => ['nullable', 'boolean'],
             'command_url' => ['nullable', 'string', 'max:255'],
             'remote_fixes' => ['nullable', 'boolean'],
+            'backup_schedule' => ['nullable', Rule::in(['daily', 'weekly', 'off'])],
+            'backup_keep' => ['nullable', 'integer', 'min:1', 'max:60'],
         ])->validate();
 
         $host = strtolower((string) parse_url($data['site_url'], PHP_URL_HOST));
@@ -67,6 +70,7 @@ final class ConnectorController extends Controller
                 'last_seen_at' => now(),
                 'verification_status' => $matches ? 'verified' : 'mismatch',
             ])->save();
+            app(BackupMonitor::class)->evaluate($site);
         });
 
         return response()->json(['ok' => true, 'site' => $site->domain, 'verified' => $matches, 'next_heartbeat_seconds' => 3600]);
@@ -127,6 +131,30 @@ final class ConnectorController extends Controller
         $this->context->runAs($site->organization, fn () => $scans->ingest($site, $issues));
 
         return response()->json(['ok' => true, 'open' => count($issues)]);
+    }
+
+    /** Rezultatul unui backup făcut de plugin pe hostingul clientului. */
+    public function backup(Request $request, BackupMonitor $monitor): JsonResponse
+    {
+        $site = $this->authenticate($request);
+        if (! $site) {
+            return $this->unauthorized();
+        }
+        $data = Validator::make($request->json()->all(), [
+            'status' => ['required', Rule::in(['ok', 'failed'])],
+            'verified' => ['nullable', 'boolean'],
+            'started_at' => ['required', 'date'],
+            'finished_at' => ['nullable', 'date'],
+            'db_bytes' => ['nullable', 'integer', 'min:0'],
+            'files_bytes' => ['nullable', 'integer', 'min:0'],
+            'files_count' => ['nullable', 'integer', 'min:0'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'kept' => ['nullable', 'integer', 'min:0', 'max:1000'],
+            'error' => ['nullable', 'string', 'max:2000'],
+        ])->validate();
+        $this->context->runAs($site->organization, fn () => $monitor->record($site, $data));
+
+        return response()->json(['ok' => true]);
     }
 
     /** Versiunea curentă a pluginului (public): pluginul o folosește ca să se actualizeze din WordPress. */

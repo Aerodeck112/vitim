@@ -77,6 +77,11 @@ Dacă arhiva e mai mare decât limita de upload afișată în pagină, urc-o cu 
 imediat. Remedierile se aplică din aceeași pagină. Clientul le poate opri din WordPress (Setări → VITIM). Pluginul 1.0.0 trebuie înlocuit o dată
 manual cu 1.1.0 (Module → Adaugă nou → Încarcă modul → „Înlocuiește versiunea curentă”); de la 1.1.0 încolo se actualizează din WordPress.
 
+**Backup-urile site-urilor (plugin 1.2.0):** pornesc automat (zilnic, noaptea, ultimele 7 copii) în `/home/cont/vitim-backups/domeniu/`.
+Se setează din WordPress → Setări → VITIM → Backup. Restaurare: importă `baza-de-date.sql.gz` în phpMyAdmin (baza site-ului) și
+dezarhivează `fisiere.zip` peste folderul site-ului. Pe site-uri cu trafic mic, WP-Cron rulează rar: adaugă în cPanel un cron
+la oră `wget -q -O /dev/null https://domeniu/wp-cron.php`.
+
 ## Backup și restaurare
 
 - Zilnic la 03:17, baza de date pleacă pe `BACKUP_EMAIL` și rămâne și în `vitim-ai/storage/app/backups` (ultimele 7).

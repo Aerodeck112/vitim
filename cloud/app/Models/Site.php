@@ -77,4 +77,10 @@ class Site extends Model
     {
         return $this->hasMany(SiteCommand::class)->latest('id');
     }
+
+    /** @return HasMany<SiteBackup, $this> */
+    public function backups(): HasMany
+    {
+        return $this->hasMany(SiteBackup::class)->latest('started_at');
+    }
 }

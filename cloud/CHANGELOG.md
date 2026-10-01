@@ -1,5 +1,14 @@
 # VITIM AI Cloud — versiuni
 
+## 0.9.0 — backup-urile site-urilor (plugin 1.2.0)
+
+- **Backup automat** făcut de plugin pe hostingul clientului: baza de date (tabelele WordPress) + `wp-content`, `wp-config.php`, `.htaccess`. Zilnic noaptea (sau săptămânal / oprit), se păstrează ultimele N copii (implicit 7).
+- Copiile stau **în afara public_html** (`/home/cont/vitim-backups/domeniu/`); dacă folderul principal nu permite scrierea, într-un folder protejat din `wp-content` (și panoul semnalează asta).
+- **Fiecare backup e verificat**: arhiva bazei de date se citește până la marcajul de final, arhiva fișierelor se verifică integral.
+- **Panou**: secțiunea Backup-uri pe pagina site-ului (dată, mărimi, număr de fișiere, unde e copia), butonul „Backup acum”, probleme automate în categoria nouă **Backup**: backup eșuat (critic), niciun backup reușit de 2 zile (8 la cel săptămânal), niciun backup încă. Verificare la oră și pentru site-urile care nu mai trimit nimic.
+- **Clientul** vede ultimele backup-uri în raportul site-ului (fără căile de pe server) și, o dată pe săptămână, „Backup automat verificat” în Lucrări VITIM.
+- Testat pe WordPress real, inclusiv restaurarea bazei de date dintr-un backup într-o bază nouă.
+
 ## 0.8.0 — auditul SEO, securitate și legal (România)
 
 - **Audit extern al fiecărui site** (WordPress sau PHP, cu sau fără plugin), zilnic și la cerere: prima pagină, robots.txt, sitemap-ul și până la 12 pagini.
