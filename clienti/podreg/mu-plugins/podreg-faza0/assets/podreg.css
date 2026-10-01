@@ -1,0 +1,91 @@
+/* PODREG Faza 0: bară CTA, bloc CTA pe proiecte, banner cookie-uri. */
+:root {
+  --podreg-verde: #1f4d34;
+  --podreg-verde-inchis: #163a27;
+  --podreg-wa: #1a7f45;
+  --podreg-lemn: #f6f1e9;
+  --podreg-text: #1d211e;
+  --podreg-gri: #5b625d;
+}
+
+.podreg-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+  min-height: 48px; padding: .75em 1.4em; border-radius: 10px;
+  font-weight: 600; font-size: 16px; line-height: 1.2; text-decoration: none !important;
+  border: 2px solid transparent; transition: background-color .15s, color .15s, border-color .15s;
+  cursor: pointer;
+}
+.podreg-btn--primar { background: var(--podreg-verde); color: #fff !important; }
+.podreg-btn--primar:hover, .podreg-btn--primar:focus-visible { background: var(--podreg-verde-inchis); }
+.podreg-btn--wa { background: var(--podreg-wa); color: #fff !important; }
+.podreg-btn--simplu { background: transparent; color: var(--podreg-verde) !important; border-color: var(--podreg-verde); }
+.podreg-btn:focus-visible, .podreg-cta-bar__btn:focus-visible, .podreg-cta-flot:focus-visible { outline: 3px solid #e0a64a; outline-offset: 2px; }
+
+/* ---------- Bloc CTA la finalul proiectului ---------- */
+.podreg-cta-proiect {
+  display: grid; gap: 24px; grid-template-columns: 1.4fr 1fr; align-items: center;
+  max-width: 1170px; margin: 64px auto; padding: 40px 48px;
+  background: var(--podreg-lemn); border-radius: 18px; color: var(--podreg-text);
+  box-sizing: border-box;
+}
+.podreg-cta-proiect h2 { margin: 0 0 12px; font-size: clamp(24px, 3vw, 34px); line-height: 1.15; color: var(--podreg-text); }
+.podreg-cta-proiect p { margin: 0; color: var(--podreg-gri); font-size: 17px; line-height: 1.55; }
+.podreg-cta-proiect .podreg-cta-proiect__eticheta { margin-bottom: 8px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--podreg-verde); }
+.podreg-cta-proiect__butoane { display: flex; flex-direction: column; gap: 12px; }
+@media (max-width: 860px) {
+  .podreg-cta-proiect { grid-template-columns: 1fr; margin: 40px 16px; padding: 28px 20px; }
+}
+
+/* ---------- Bară sticky (mobil și tabletă) ---------- */
+.podreg-cta-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 9990;
+  display: none; grid-template-columns: 1fr 1fr 1.4fr; gap: 8px;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, .97); box-shadow: 0 -4px 20px rgba(0, 0, 0, .12);
+  transition: transform .2s;
+}
+.podreg-cta-bar.podreg-ascuns { transform: translateY(110%); }
+.podreg-cta-bar__btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 48px; border-radius: 10px; font-size: 15px; font-weight: 600;
+  text-decoration: none !important; color: var(--podreg-verde) !important; border: 2px solid var(--podreg-verde);
+}
+.podreg-cta-bar__btn--wa { color: #fff !important; background: var(--podreg-wa); border-color: var(--podreg-wa); }
+.podreg-cta-bar__btn--primar { color: #fff !important; background: var(--podreg-verde); }
+
+/* ---------- Buton flotant (desktop) ---------- */
+.podreg-cta-flot {
+  position: fixed; right: 24px; bottom: 24px; z-index: 9990;
+  padding: 14px 22px; border-radius: 999px; background: var(--podreg-verde); color: #fff !important;
+  font-weight: 600; font-size: 16px; text-decoration: none !important; box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
+}
+.podreg-cta-flot:hover { background: var(--podreg-verde-inchis); }
+
+@media (max-width: 1023px) {
+  .podreg-cta-bar { display: grid; }
+  .podreg-cta-flot { display: none; }
+  html.podreg-are-bara body { padding-bottom: 72px; }
+  /* Butonul „sus” al temei urcă deasupra barei. */
+  html.podreg-are-bara .trx_addons_scroll_to_top { bottom: 84px !important; }
+}
+@media (min-width: 1024px) {
+  /* Butonul „sus” al temei nu stă sub butonul flotant. */
+  .trx_addons_scroll_to_top { bottom: 96px !important; }
+}
+
+/* ---------- Banner cookie-uri ---------- */
+.podreg-cookies {
+  position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 9995;
+  max-width: 560px; margin: 0 auto; padding: 18px 20px; border-radius: 14px;
+  background: #fff; color: var(--podreg-text); box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+  font-size: 15px; line-height: 1.5;
+}
+.podreg-cookies[hidden] { display: none; }
+.podreg-cookies p { margin: 0 0 12px; }
+.podreg-cookies a { color: var(--podreg-verde); text-decoration: underline; }
+.podreg-cookies__butoane { display: flex; gap: 10px; justify-content: flex-end; }
+@media (max-width: 1023px) { .podreg-cookies { bottom: 88px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .podreg-cta-bar, .podreg-btn { transition: none; }
+}

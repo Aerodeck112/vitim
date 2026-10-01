@@ -23,7 +23,7 @@ $out = $root . '/dist/vitim-' . $version . '.zip';
 $exclude = [
     '#(^|/)\.git(/|$)#', '#(^|/)\.github/#', '#^dist/#', '#^tests/#', '#^node_modules/#', '#^\.claude/#', '#^\.gitignore$#',
     '#^app/config\.php$#', '#^storage/(?!\.htaccess$|cache/\.gitkeep$|logs/\.gitkeep$|backups/\.gitkeep$|tmp/\.gitkeep$)#',
-    '#^uploads/(?!\.htaccess$|\.gitkeep$)#', '#^(cloud|docs)/#', '#^tools/dev-router\.php$#', '#^composer\.(json|lock)$#', '#\.DS_Store$#',
+    '#^uploads/(?!\.htaccess$|\.gitkeep$)#', '#^(cloud|docs|clienti)/#', '#^tools/dev-router\.php$#', '#^composer\.(json|lock)$#', '#\.DS_Store$#',
 ];
 
 $zip = new ZipArchive();

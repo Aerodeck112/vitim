@@ -3,7 +3,7 @@
 **Data:** 1 octombrie 2026 · **Metodă:** crawl complet al celor 58 de URL-uri din sitemap, analiza HTML/CSS/JS publice, măsurători în Chromium (mobil Pixel 7 și desktop 1440 px), verificări pasive de securitate (doar cereri GET, nimic modificat pe site).
 
 > **Rezumat în 5 rânduri**
-> 1. Site-ul are **probleme critice de încredere și juridice**: politica de confidențialitate e a firmei ThemeREX (Cipru), iconițele de social media duc la ThemeREX, iar pagini demo cu prețuri în dolari și lorem ipsum sunt publice și indexate.
+> 1. Site-ul are **probleme critice de încredere și juridice**: link-ul GDPR din formulare duce la o pagină 404, singura politică de confidențialitate de pe site e a firmei ThemeREX (Cipru), iconițele de social media duc la ThemeREX, iar pagini demo cu prețuri în dolari și lorem ipsum sunt publice și indexate.
 > 2. **Prețurile se contrazic**: configuratorul spune 375 €/m² cu manoperă inclusă, dar Cabana Poșaga costă 49.970 € + TVA pentru 92 m², adică ~543 €/m² **fără** manoperă și fără învelitoare.
 > 3. **Performanța e slabă**: pe mobil LCP ≈ 8,1 s, CLS 0,45, 118 cereri și ~10 MB decodați pe homepage. Cauza principală: tema „Plank” (ThemeREX) + Elementor + Slider Revolution + WooCommerce încărcat degeaba.
 > 4. **SEO tehnic de bază lipsește**: nicio meta description pe niciun URL, zero schema markup, 10 H1 pe homepage, 0 H1 pe 16 pagini de proiect, pagini de template indexate.
@@ -73,7 +73,7 @@ Din sitemap:
 
 - 7 câmpuri obligatorii (nume, prenume, email, telefon, temă, mesaj, GDPR). E prea mult pentru un prim contact.
 - Textul de sub buton: „Mesajul ajunge la office@podreg.ro, **office@vitim.ro**…”. Expune public adresa agenției și rutarea internă.
-- Linkul GDPR duce la politica ThemeREX, deci **consimțământul colectat nu e valid**.
+- Linkul GDPR din ambele formulare (contact și configurator) duce la `www.podreg.ro/politica-de-confidentialitate`, care dă **404**. Singura politică existentă pe site, `/privacy-policy/`, e a ThemeREX. Deci **consimțământul colectat nu e valid**.
 
 ### 1.6 Pagini de proiect (exemplu: Cabana Poșaga, Scara Gornești)
 
@@ -407,3 +407,9 @@ Blog și studii de caz, versiunea FR, asistent AI, hartă de proiecte, jurnal de
 5. **Magazin online:** se va vinde ceva online (lambriu, scări standard)? Dacă nu, WooCommerce se elimină.
 6. **Piața franceză:** este o direcție strategică? De ea depinde dacă facem versiunea FR.
 7. **Capacitate:** câte lead-uri pe lună poate procesa echipa? Asta stabilește cât de agresiv calificăm.
+
+---
+
+## Implementare
+
+Reparațiile din Faza 0 care nu cer decizii de business sunt implementate în pachetul [`clienti/podreg/`](../clienti/podreg/README.md) (must-use plugin WordPress + reguli `.htaccess`).

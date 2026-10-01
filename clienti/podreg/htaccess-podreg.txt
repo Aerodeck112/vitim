@@ -1,0 +1,48 @@
+# =========================================================
+# PODREG – reguli de adăugat la ÎNCEPUTUL fișierului .htaccess
+# din rădăcina WordPress (public_html), DEASUPRA blocului
+# „# BEGIN WordPress”. Faceți întâi o copie a fișierului vechi.
+# =========================================================
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # www → fără www și http → https, direct din server (nu din PHP)
+    RewriteCond %{HTTP_HOST} ^www\.podreg\.ro$ [NC]
+    RewriteRule ^ https://podreg.ro%{REQUEST_URI} [L,R=301]
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://podreg.ro%{REQUEST_URI} [L,R=301]
+
+    # Fișiere care dezvăluie versiunea WordPress
+    RewriteRule ^(readme\.html|license\.txt|wp-config-sample\.php)$ - [F,L,NC]
+
+    # Fără execuție PHP în uploads
+    RewriteRule ^wp-content/uploads/.*\.(php|phtml|php\d|phar)$ - [F,L,NC]
+
+    # Fără listarea directoarelor de pluginuri și teme
+    RewriteRule ^wp-content/(plugins|themes)/?$ - [F,L]
+</IfModule>
+
+# Header-e de securitate și pentru fișierele statice (imagini, CSS, JS)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
+</IfModule>
+
+# Cache în browser pentru fișiere statice
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/webp "access plus 6 months"
+    ExpiresByType image/avif "access plus 6 months"
+    ExpiresByType image/jpeg "access plus 6 months"
+    ExpiresByType image/png "access plus 6 months"
+    ExpiresByType image/svg+xml "access plus 6 months"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
