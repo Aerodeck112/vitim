@@ -8,8 +8,10 @@ use App\Enums\Permission;
 use App\Http\Validation\AgentRules;
 use App\Models\Agent;
 use App\Models\Site;
+use App\Models\User;
 use App\Services\AgentConfiguration;
 use App\Services\AgentService;
+use App\Services\AgentTemplates;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -24,6 +26,7 @@ final class AgentController extends PortalController
             'agents' => Agent::query()->with('site')->orderBy('name')->get(),
             'sites' => Site::query()->orderBy('name')->get(),
             'canManage' => Gate::allows(Permission::ManageAgents->value),
+            'templates' => AgentTemplates::all(),
         ]);
     }
 
@@ -36,9 +39,14 @@ final class AgentController extends PortalController
 
     public function edit(int $agent): View
     {
+        $model = Agent::query()->findOrFail($agent);
+        $versions = $model->versions()->limit(20)->get();
+
         return view('portal.agents.edit', [
             'organization' => $this->organization(),
-            'agent' => Agent::query()->findOrFail($agent),
+            'agent' => $model,
+            'versions' => $versions,
+            'authors' => User::query()->whereIn('id', $versions->pluck('created_by')->filter())->pluck('name', 'id'),
             'sites' => Site::query()->orderBy('name')->get(),
             'canManage' => Gate::allows(Permission::ManageAgents->value),
             'tones' => AgentConfiguration::TONES,
@@ -53,12 +61,13 @@ final class AgentController extends PortalController
         $model = Agent::query()->findOrFail($agent);
         $data = $request->validate(AgentRules::agent(false) + [
             'tone' => ['sometimes', 'string'], 'languages' => ['sometimes', 'string', 'max:60'], 'greeting' => ['sometimes', 'nullable', 'string'],
+            'business_facts' => ['sometimes', 'nullable', 'string'], 'contact_line' => ['sometimes', 'nullable', 'string'],
             'instructions' => ['sometimes', 'nullable', 'string'], 'fallback_behavior' => ['sometimes', 'string'],
             'allowed_actions' => ['sometimes', 'array'], 'required_fields' => ['sometimes', 'array'],
         ]);
         // formularul trimite câmpuri plate; se convertesc în configurația validată de AgentConfiguration
         $system = $model->system_configuration;
-        foreach (['tone', 'greeting', 'instructions', 'fallback_behavior'] as $key) {
+        foreach (['tone', 'greeting', 'instructions', 'business_facts', 'contact_line', 'fallback_behavior'] as $key) {
             if (array_key_exists($key, $data)) {
                 $system[$key] = $data[$key];
             }

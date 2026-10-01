@@ -9,12 +9,13 @@ use App\Tenancy\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Agentul AI al unei firme. Configurația (ton, limbi, program, reguli de handoff și lead, acțiuni permise,
  * surse de cunoștințe, fallback) e normalizată de AgentConfiguration; nu conține secrete.
  */
-#[Fillable(['site_id', 'name', 'status', 'default_language', 'model_configuration', 'system_configuration'])]
+#[Fillable(['site_id', 'name', 'status', 'default_language', 'template', 'model_configuration', 'system_configuration'])]
 class Agent extends Model
 {
     use BelongsToOrganization;
@@ -32,5 +33,16 @@ class Agent extends Model
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
+    }
+
+    /** @return HasMany<AgentVersion, $this> */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(AgentVersion::class)->orderByDesc('version');
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === AgentStatus::Active;
     }
 }

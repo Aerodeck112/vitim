@@ -2,7 +2,8 @@
 @section('title', $agent->name)
 @section('content')
 @php($sys = $agent->system_configuration)
-<div class="head"><div><h1>{{ $agent->name }}</h1><p>Model {{ $agent->model_configuration['model'] ?? '—' }} · status {{ $agent->status->value }}</p></div></div>
+<div class="head"><div><h1>{{ $agent->name }}</h1><p>Model {{ $agent->model_configuration['model'] ?? '—' }} · status {{ $agent->status->value }} · versiunea {{ $versions->first()?->version ?? 1 }}</p></div>
+  @if ($canManage)<a class="btn btn-p" href="{{ route('portal.agents.test', [$organization->slug, $agent->id]) }}">Testează agentul</a>@endif</div>
 <form method="post" action="{{ route('portal.agents.update', [$organization->slug, $agent->id]) }}">
   @csrf @method('put')
   <fieldset @disabled(! $canManage) style="border:0;padding:0;margin:0">
@@ -17,6 +18,12 @@
       <div class="fl"><label for="site_id">Site</label><select id="site_id" name="site_id"><option value="">—</option>@foreach ($sites as $s)<option value="{{ $s->id }}" @selected($agent->site_id === $s->id)>{{ $s->domain }}</option>@endforeach</select></div>
       <div class="fl"><label for="default_language">Limba implicită</label><input id="default_language" type="text" name="default_language" value="{{ $agent->default_language }}" maxlength="2"></div>
     </div>
+  </div>
+  <div class="card">
+    <h2>Informații despre firmă</h2>
+    <p class="muted small" style="margin-top:-6px">Agentul răspunde doar din ce scrie aici: servicii, prețuri, program, zone, politici, întrebări frecvente. Ce nu apare aici, nu inventează.</p>
+    <div class="fl"><label for="business_facts">Informații</label><textarea id="business_facts" name="business_facts" maxlength="20000" rows="14" placeholder="Ex: Servicii: schimb distribuție (de la 900 lei manopera), ITP, diagnoză computerizată…&#10;Program: L–V 8–17, sâmbătă 9–13.&#10;Adresă: …">{{ old('business_facts', $sys['business_facts'] ?? '') }}</textarea></div>
+    <div class="fl"><label for="contact_line">Date de contact afișate când agentul nu poate răspunde</label><input id="contact_line" type="text" name="contact_line" maxlength="300" value="{{ old('contact_line', $sys['contact_line'] ?? '') }}" placeholder="0740 000 000 sau office@firma.ro"></div>
   </div>
   <div class="card">
     <h2>Comportament</h2>
@@ -46,4 +53,12 @@
   @if ($canManage)<button class="btn btn-p" type="submit">Salvează</button>@endif
   </fieldset>
 </form>
+@if ($versions->isNotEmpty())
+<div class="card" style="margin-top:18px">
+  <h2>Istoric versiuni</h2>
+  <table><thead><tr><th>Versiune</th><th>Salvată</th><th>De</th></tr></thead><tbody>
+  @foreach ($versions as $v)<tr><td>{{ $v->version }}</td><td>{{ $v->created_at?->format('d.m.Y H:i') }}</td><td>{{ $v->created_by ? ($authors[$v->created_by] ?? '—') : 'sistem' }}</td></tr>@endforeach
+  </tbody></table>
+</div>
+@endif
 @endsection

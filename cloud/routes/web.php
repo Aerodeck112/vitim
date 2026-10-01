@@ -107,6 +107,9 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/agent', [Portal\AgentController::class, 'store'])->middleware('can:manage_agents')->name('agents.store');
         Route::get('/agent/{agent}', [Portal\AgentController::class, 'edit'])->middleware('can:view_reports')->where('agent', $id)->name('agents.edit');
         Route::put('/agent/{agent}', [Portal\AgentController::class, 'update'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.update');
+        // testul consumă din plafonul de cost AI, deci cere drept de administrare a agentului
+        Route::get('/agent/{agent}/test', [Portal\AgentTestController::class, 'show'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.test');
+        Route::post('/agent/{agent}/test', [Portal\AgentTestController::class, 'send'])->middleware(['can:manage_agents', 'throttle:agent-test'])->where('agent', $id)->name('agents.test.send');
 
         Route::get('/contacte', [Portal\ContactController::class, 'index'])->middleware('can:view_contacts')->name('contacts.index');
         Route::get('/contacte/nou', [Portal\ContactController::class, 'create'])->middleware('can:manage_contacts')->name('contacts.create');

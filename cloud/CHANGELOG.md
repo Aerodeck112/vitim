@@ -1,5 +1,16 @@
 # VITIM AI Cloud — versiuni
 
+## 0.3.0 — Phase 2: agentul AI răspunde
+
+- **Agentul răspunde**, din „Informații despre firmă” completate în panou (servicii, prețuri, program, politici). Nu inventează ce nu scrie acolo.
+- **Salvează cereri** (`create_lead`): doar după acordul explicit al vizitatorului; contactul se deduplică după telefon / email, acordul intră în istoricul de consimțământ, lead-ul e legat de conversație.
+- **Cere un om** (`request_human`): la cerere, reclamație sau întrebare fără răspuns; conversația devine „în așteptare”.
+- **Testează agentul** din panou: conversații reale cu agentul, fără lead-uri sau notificări reale; se vede ce acțiuni ar fi făcut.
+- **Template-uri**: general, service auto, clinică, magazin online. **Versiuni** de configurație cu istoric.
+- **Cost și plafon**: costul fiecărui răspuns se calculează din tokeni; peste plafonul lunar al planului (cost sau conversații) agentul afișează datele de contact ale firmei, fără să apeleze AI-ul.
+- **Set de evaluare**: 30 de întrebări (general + service auto), inclusiv tentative de manipulare: `php artisan vitim:eval <firma> [generic|auto|all]`, raport în `storage/app/private/evals/`.
+- Configurare nouă în `.env`: `ANTHROPIC_API_KEY`.
+
 ## 0.2.0 — Phase 1: fundația VITIM AI Business Platform
 
 - Roluri noi: `super_admin`, `vitim_admin` (platformă); `org_owner`, `org_admin`, `agent`, `viewer` (firmă). Conversie automată din 0.1.0.

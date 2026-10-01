@@ -8,6 +8,7 @@ use App\Enums\LeadIntent;
 use App\Enums\LeadStatus;
 use App\Models\Agent;
 use App\Models\Contact;
+use App\Models\Conversation;
 use App\Models\Lead;
 use App\Models\Membership;
 use App\Models\Site;
@@ -34,6 +35,7 @@ final class LeadService
                 'contact_id' => $contact->getKey(),
                 'site_id' => $data['site_id'] ?? null,
                 'agent_id' => $data['agent_id'] ?? null,
+                'conversation_id' => $data['conversation_id'] ?? null,
                 'source' => $data['source'] ?? 'manual',
                 'status' => $status,
                 'intent' => $data['intent'] ?? LeadIntent::Other->value,
@@ -95,6 +97,9 @@ final class LeadService
         }
         if (! empty($data['agent_id']) && ! Agent::query()->whereKey($data['agent_id'])->exists()) {
             throw ValidationException::withMessages(['agent_id' => 'Agent inexistent.']);
+        }
+        if (! empty($data['conversation_id']) && ! Conversation::query()->whereKey($data['conversation_id'])->exists()) {
+            throw ValidationException::withMessages(['conversation_id' => 'Conversație inexistentă.']);
         }
     }
 }

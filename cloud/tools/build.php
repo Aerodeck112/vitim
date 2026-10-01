@@ -17,7 +17,7 @@ $out = dirname($root).'/dist/vitim-ai-'.$version.'.zip';
 $tmp = sys_get_temp_dir().'/vitim-ai-build-'.bin2hex(random_bytes(4));
 
 $exclude = [
-    '#^\.env$#', '#^\.env\.(?!example$|cpanel\.example$)#', '#^vendor/#', '#^node_modules/#', '#^tests/#', '#^tools/#',
+    '#^\.env$#', '#^\.env\.(?!example$|cpanel\.example$)#', '#^vendor/#', '#^node_modules/#', '#^tests/#', '#^tools/(?!verificare\.php$)#',
     '#^database/database\.sqlite$#', '#^\.phpunit#', '#^phpunit\.xml$#', '#^\.git#',
     // storage: doar structura (fișierele .gitignore păstrează directoarele)
     '#^storage/(?!.*\.gitignore$)#', '#^bootstrap/cache/(?!\.gitignore$)#', '#^public/storage$#',

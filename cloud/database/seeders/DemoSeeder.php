@@ -57,7 +57,10 @@ class DemoSeeder extends Seeder
                 'name' => 'VITIM Auto Assistant',
                 'site_id' => $site->id,
                 'status' => AgentStatus::Draft->value,
+                'template' => 'auto_service',
                 'system_configuration' => [
+                    'business_facts' => json_decode((string) file_get_contents(resource_path('evals/auto.json')), true)['business_facts'],
+                    'contact_line' => '0265 000 000',
                     'tone' => 'friendly',
                     'languages' => ['ro', 'en'],
                     'greeting' => 'Bună! Sunt asistentul service-ului Demo Auto. Cu ce te pot ajuta?',

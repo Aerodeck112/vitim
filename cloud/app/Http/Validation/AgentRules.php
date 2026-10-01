@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Validation;
 
 use App\Enums\AgentStatus;
+use App\Services\AgentTemplates;
 use Illuminate\Validation\Rule;
 
 final class AgentRules
@@ -19,6 +20,8 @@ final class AgentRules
             'default_language' => ['sometimes', 'string', 'size:2', 'alpha'],
             'model_configuration' => ['sometimes', 'array'],
             'system_configuration' => ['sometimes', 'array'],
+            // presetul se aplică doar la creare
+            'template' => $creating ? ['sometimes', 'nullable', Rule::in(array_keys(AgentTemplates::all()))] : ['prohibited'],
         ];
     }
 }

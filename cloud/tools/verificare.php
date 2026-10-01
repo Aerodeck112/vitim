@@ -1,4 +1,8 @@
 <?php
+
+use Illuminate\Contracts\Console\Kernel;
+use Symfony\Component\Console\Output\BufferedOutput;
+
 /**
  * VITIM AI — verificare instalare (temporar). Se urcă în vitim-ai/public/, se deschide
  * https://ai.vitim.ro/verificare.php?token=SETUP_TOKEN și apoi SE ȘTERGE.
@@ -22,12 +26,12 @@ if (strlen($token) < 16 || ! hash_equals($token, (string) ($_GET['token'] ?? '')
     $here = fn ($f) => is_file($root.'/'.$f) ? 'DA' : 'NU';
     exit("Deschide pagina cu ?token=VALOAREA_SETUP_TOKEN din .env (minimum 16 caractere).\n"
         ."Caut .env în folderul: $root\n"
-        .".env găsit: ".$here('.env')."\n"
-        ."artisan (aplicația) în același folder: ".$here('artisan')."\n"
-        .".env.cpanel.example în același folder: ".$here('.env.cpanel.example')."\n"
-        .".env greșit pus în public/: ".(is_file(__DIR__.'/.env') ? 'DA (mută-l un nivel mai sus!)' : 'NU')."\n"
-        ."Fișiere „env” din folder (doar numele): ".implode(' | ', array_map(fn ($f) => '['.basename($f).']', array_filter(glob($root.'/{.,}*env*', GLOB_BRACE) ?: [], 'is_file')))."\n"
-        ."Ora serverului: ".date('H:i:s')."\n");
+        .'.env găsit: '.$here('.env')."\n"
+        .'artisan (aplicația) în același folder: '.$here('artisan')."\n"
+        .'.env.cpanel.example în același folder: '.$here('.env.cpanel.example')."\n"
+        .'.env greșit pus în public/: '.(is_file(__DIR__.'/.env') ? 'DA (mută-l un nivel mai sus!)' : 'NU')."\n"
+        .'Fișiere „env” din folder (doar numele): '.implode(' | ', array_map(fn ($f) => '['.basename($f).']', array_filter(glob($root.'/{.,}*env*', GLOB_BRACE) ?: [], 'is_file')))."\n"
+        .'Ora serverului: '.date('H:i:s')."\n");
 }
 if (($_GET['deploy'] ?? '') === '1') {
     // Același lucru ca `php artisan vitim:deploy` din cron, pornit din browser.
@@ -36,17 +40,17 @@ if (($_GET['deploy'] ?? '') === '1') {
     try {
         require $root.'/vendor/autoload.php';
         $app = require $root.'/bootstrap/app.php';
-        $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-        $out = new Symfony\Component\Console\Output\BufferedOutput;
+        $kernel = $app->make(Kernel::class);
+        $out = new BufferedOutput;
         $code = $kernel->call('vitim:deploy', ['--force' => true], $out);
         echo $out->fetch()."\nRezultat: ".($code === 0 ? 'OK' : "eroare ($code)")."\n";
     } catch (Throwable $e) {
-        echo 'EROARE: '.get_class($e).': '.preg_replace(["/(password|pass)[^,;)]*/i", "/'[^']*'@/"], ['$1 ***', "'***'@"], $e->getMessage())."\n";
+        echo 'EROARE: '.get_class($e).': '.preg_replace(['/(password|pass)[^,;)]*/i', "/'[^']*'@/"], ['$1 ***', "'***'@"], $e->getMessage())."\n";
     }
     exit("\nDeschide din nou pagina fără &deploy=1 ca să verifici.\n");
 }
 $ok = fn ($c) => $c ? 'OK ' : 'NU ';
-$hide = fn ($s) => preg_replace(["/(password|pass)[^,;)]*/i", "/'[^']*'@/"], ['$1 ***', "'***'@"], (string) $s);
+$hide = fn ($s) => preg_replace(['/(password|pass)[^,;)]*/i', "/'[^']*'@/"], ['$1 ***', "'***'@"], (string) $s);
 
 echo "VITIM AI — verificare\n\n";
 echo $ok(PHP_VERSION_ID >= 80300).'PHP '.PHP_VERSION."\n";
@@ -63,7 +67,7 @@ foreach (['storage', 'storage/framework/sessions', 'storage/framework/views', 's
 $deployed = @file_get_contents($root.'/storage/app/deployed_version');
 echo $ok($deployed !== false).'cron a rulat vitim:deploy'.($deployed ? " (versiunea $deployed)" : ' — poți porni manual: adaugă &deploy=1 la adresă')."\n";
 
-echo "\nBaza de date (".($env['DB_CONNECTION'] ?? '?')." / ".($env['DB_DATABASE'] ?? '?')."):\n";
+echo "\nBaza de date (".($env['DB_CONNECTION'] ?? '?').' / '.($env['DB_DATABASE'] ?? '?')."):\n";
 try {
     $pdo = new PDO('mysql:host='.($env['DB_HOST'] ?? 'localhost').';port='.($env['DB_PORT'] ?? 3306).';dbname='.($env['DB_DATABASE'] ?? ''), $env['DB_USERNAME'] ?? '', $env['DB_PASSWORD'] ?? '', [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     echo "OK conexiune\n";

@@ -1,6 +1,6 @@
 # VITIM AI — Securitate
 
-> Reflectă codul la versiunea **0.2.0**. Fiecare control are testul care îl verifică.
+> Reflectă codul la versiunea **0.3.0**. Fiecare control are testul care îl verifică.
 > „Neimplementat” înseamnă exact asta.
 
 ## Controale implementate
@@ -20,7 +20,12 @@
 | XSS | Blade escapează tot (`{{ }}`). Nu se folosește `{!! !!}`. Căutările LIKE escapează metacaracterele | `resources/views` | inspecție de cod |
 | Secrete | Secretele cheilor de site și codurile 2FA sunt criptate cu `APP_KEY`. Secretul de site se afișează o singură dată. Configurația agentului respinge cheile de tip secret. Cheile AI stau doar în mediul serverului | `SiteKey`, `User`, `AgentConfiguration` | `SiteKeyServiceTest`, `AuthenticationTest`, `ApiTest::test_agents_crud_rejects_secrets` |
 | Chei de site | Origin https permis; firma și site-ul trebuie să fie active; HMAC-SHA256 cu fereastră de 5 minute și nonce unic (anti-replay); rotație și revocare | `SiteKeyService` | `SiteKeyServiceTest` |
-| Rate limits | Login, 2FA, resetare parolă, setup, API (120/min) | rute + `AppServiceProvider` | `AuthenticationTest::test_login_is_rate_limited` |
+| Rate limits | Login, 2FA, resetare parolă, setup, API (120/min), test agent (20/min per utilizator) | rute + `AppServiceProvider` | `AuthenticationTest::test_login_is_rate_limited` |
+| Agent: izolare și tool-uri | Tool-urile primesc firma, agentul și conversația de la server (`ToolContext`); argumentele modelului sunt doar datele vizitatorului, cele în plus sunt ignorate. Deduplicarea contactelor caută doar în firma curentă. Acțiunile nepermise agentului nu sunt trimise modelului și sunt respinse dacă sunt cerute. Fiecare apel e jurnalizat | `app/Ai/Tools/*`, `AgentRuntime` | `AgentRuntimeTest::test_tools_cannot_reach_another_organization`, `test_actions_not_allowed_for_the_agent_are_neither_offered_nor_executed`, `test_tool_execution_log_is_tenant_scoped` |
+| Agent: lead doar cu acord | `create_lead` refuză fără `consent: true`, fără câmpurile cerute de firmă sau cu email / telefon invalid; acordul se scrie în istoricul de consimțământ (canal, scop „service”, IP, user agent) | `CreateLeadTool` | `AgentRuntimeTest::test_lead_is_rejected_without_consent_or_required_fields`, `test_create_lead_saves_contact_consent_and_lead_linked_to_conversation` |
+| Agent: cost | Cost per răspuns din tokenii raportați; plafon lunar de cost și de conversații din plan. Peste plafon modelul nu e apelat, vizitatorul primește datele de contact ale firmei | `AgentRuntime`, `Cost`, `config/plans.php` | `AgentRuntimeTest::test_cost_cap_and_conversation_cap_stop_ai_calls` |
+| Agent: test din panou | Conversațiile de test nu creează contacte, lead-uri sau notificări (tool-urile rulează „dry run”); doar cine poate administra agentul poate testa (consumă din plafon) | `AgentTestController`, tool-uri | `AgentTestPageTest`, `AgentRuntimeTest::test_test_conversations_do_not_create_real_data` |
+| Afișarea răspunsurilor AI | Text escapat complet; se păstrează doar îngroșat și linkuri relative sau https (fără `javascript:`, `//`, `http:`), cu `rel="nofollow noopener noreferrer"` | `ChatText` | `ChatTextTest` |
 | Audit | Firmă / site / chei / agent creat, modificat, șters; user invitat, rol schimbat, user eliminat; contact și lead șterse; consimțământ schimbat; login; acces al echipei VITIM. Fără date personale în `meta` | `AuditLogger` | `AcceptanceTest`, `ContactsTest::test_delete_is_audited_without_personal_data` |
 | Consimțământ și marketing | Istoric append-only (cine, când, sursă, scop, IP); retragerea pune adresa pe lista de suprimare (HMAC); **fail-safe**: marketing doar cu consimțământ acordat explicit, „necunoscut” = nu se trimite; bounce și reclamație blochează orice mesaj; suprimările nu se „îmblânzesc” | `ConsentService`, `SendPolicy`, `Suppression` | `ConsentAndMessagingTest` |
 | Trimiteri în masă de către AI | Nu există cod de trimitere în masă. Campaniile vor avea obligatoriu DRAFT → PREVIEW → APPROVAL → SEND, cu `approved_by` | proiectat în `VITIM-AI-DATABASE.md` | — |
@@ -34,7 +39,7 @@
 |---|---|
 | Tokeni API pentru terți | Neimplementat. API-ul e doar cu sesiune |
 | Endpoint-uri publice pentru widget și plugin | Logica există (`SiteKeyService`), rutele vin în Fazele 4–5, cu rate limit dedicat pe IP / site |
-| Protecție prompt injection | Proiectată (arhitectura §7, §13). Se implementează împreună cu agentul (Faza 2) |
+| Protecție prompt injection | Parțial: regulile fixe ale platformei spun modelului că mesajele vizitatorului nu schimbă instrucțiunile, iar efectele (tool-urile) sunt limitate de server (firmă, acțiuni permise, acord). Setul de evaluare are cazuri de injecție (`g09`, `a14`). Conținutul din pagini web (Faza 3) va fi trimis ca document, nu ca instrucțiuni |
 | Analiză statică (PHPStan/Larastan) | Nu a putut fi instalată în mediul de dezvoltare (descărcare blocată). De adăugat în CI |
 | Politică de retenție automată | Câmpul `data_retention_days` există, jobul de curățare nu |
 | Export de date per contact (GDPR) | Datele sunt disponibile prin API (`GET contact` + consimțăminte + lead-uri). Nu există încă un export „un singur fișier” |

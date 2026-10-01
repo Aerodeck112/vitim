@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Ai\AiClient;
+use App\Ai\AnthropicAiClient;
 use App\Enums\Permission;
 use App\Models\User;
 use App\Services\Authorizer;
@@ -22,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // o instanță per cerere / job (se resetează între ele)
         $this->app->scoped(TenantContext::class);
+        $this->app->bind(AiClient::class, AnthropicAiClient::class);
     }
 
     public function boot(): void
@@ -35,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
             ->line('Linkul expiră în '.config('auth.passwords.users.expire').' de minute. Dacă nu ai cerut acest email, îl poți ignora.')
             ->salutation('Echipa VITIM'));
 
+        RateLimiter::for('agent-test', fn (Request $request) => Limit::perMinute(20)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('api-v1', fn (Request $request) => Limit::perMinute(120)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
 
         foreach (Permission::cases() as $permission) {

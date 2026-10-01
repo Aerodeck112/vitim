@@ -15,7 +15,7 @@
 - **Compatibil MySQL 5.7+/8, MariaDB 10.x, SQLite** (dezvoltare și teste). Pe cPanel: MySQL/MariaDB.
 - **Date personale minime în jurnale.** `audit_logs.meta` și `domain_events.payload` conțin doar ID-uri și valori tehnice.
 
-## Implementat (Phase 1)
+## Implementat (Phase 1 + Phase 2)
 
 | Tabel | Rol | Tenant | Note |
 |---|---|---|---|
@@ -25,16 +25,19 @@
 | `subscriptions` | Plan, status, limite | ✓ | `trial`, `active`, `past_due`, `suspended`, `cancelled`. Limitele se copiază din `config/plans.php` |
 | `sites` | Website-urile firmei | ✓ | `domain` unic global. `platform`: wordpress, woocommerce, custom, other. `verification_status`, `widget_config`, `connector_version`, `last_seen_at`, `last_sync_at` |
 | `site_keys` | Cheia publică (widget) + secretul (plugin) | ✓ | Secretul e criptat (`APP_KEY`), cu rotație și revocare |
-| `agents` | Agenții AI | ✓ | `model_configuration` și `system_configuration` (JSON validat de `AgentConfiguration`, fără secrete) |
+| `agents` | Agenții AI | ✓ | `model_configuration` și `system_configuration` (JSON validat de `AgentConfiguration`, fără secrete; include `business_facts` și `contact_line`). `template`: presetul de pornire |
+| `agent_versions` | Istoricul configurației | ✓ | Un rând la fiecare schimbare de configurație (`version` crescător, cine a salvat). Append-only |
 | `contacts` | Persoana (client / potențial client) | ✓ | Email și telefon **opționale**, `source`, `status`, `custom_fields` (JSON), `last_activity_at` |
 | `contact_identities` | Email, telefon, WhatsApp, ID extern | ✓ | Unic pe (org, type, provider, normalized_value). Telefon E.164. Baza deduplicării și a viitorului Inbox unificat |
 | `contact_consents` | Istoric de consimțământ | ✓ | **Append-only** (modificarea aruncă excepție). Canal × scop × status + sursă, IP, user agent, metadata, cine a înregistrat, când |
 | `suppressions` | Liste de excludere per canal | ✓ | Doar `value_hash` (HMAC), nu adresa. Rămâne după ștergerea contactului. Motiv: `unsubscribed`, `bounced`, `complaint`, `manual`; motivul doar se agravează |
 | `leads` | Oportunități | ✓ | Mai multe per contact. `status` (pipeline implicit), `intent`, `score`, `assigned_to` (membru al firmei), `summary`, valoare, `closed_at` |
-| `conversations` | Fundația Inbox | ✓ | `channel` web / email / whatsapp / sms / other, `status`, `mode` ai/human, `assigned_to`. **Fără interfață în Phase 1** |
+| `conversations` | Fundația Inbox | ✓ | `channel` web / email / whatsapp / sms / other, `status` (`pending` = cere un om), `mode` ai/human, `assigned_to`, `is_test` (conversații din panou), `ai_cost_micro_usd` |
+| `ai_turns` | Conversația cu modelul, în formatul API | ✓ | Append-only: tura asistentului se salvează completă (inclusiv blocurile de gândire) și se retrimite neschimbată |
+| `tool_executions` | Jurnalul acțiunilor agentului | ✓ | `tool`, `input`, `result`, `status` (`ok`, `rejected`, `error`, `dry_run`), durată |
 | `messages` | Mesaje | ✓ | `direction`, `sender_type`, `channel`, `purpose`, `status` intern, `provider`, `external_message_id`, `sent_at` / `delivered_at` / `read_at` / `failed_at` |
 | `domain_events` | Outbox de evenimente | ✓ (sau null) | Scris în aceeași tranzacție cu modificarea, procesat de `vitim:events` |
-| `usage_records` | Consum zilnic per metrică | ✓ | Unic pe (org, metric, zi), incrementat atomic |
+| `usage_records` | Consum zilnic per metrică | ✓ | Unic pe (org, metric, zi), incrementat atomic. Metrici AI: `ai_requests`, `ai_input_tokens`, `ai_output_tokens`, `ai_cost_micro_usd`, `ai_messages`, `conversations_started` |
 | `audit_logs` | Jurnal de audit | ✓ (sau null) | `actor_user_id`, `actor_type` (user / platform / system), `action`, `entity_type`, `entity_id`, `ip`, `meta` |
 | `cache`, `jobs`, `sessions`, `password_reset_tokens` | Infrastructură Laravel | — | Cache și coadă în baza de date (cPanel, fără Redis) |
 

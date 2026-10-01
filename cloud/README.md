@@ -3,14 +3,16 @@
 Backend-ul central al platformei VITIM AI: firme (tenanți), site-uri, agenți, knowledge, conversații, lead-uri.
 Arhitectura și roadmap-ul: [`../docs/VITIM-AI-ARCHITECTURE.md`](../docs/VITIM-AI-ARCHITECTURE.md).
 
-## Stare (0.2.0 — Phase 1)
+## Stare (0.3.0 — Phase 2)
 
-Fundația e gata și testată (84 de teste, SQLite + MariaDB, inclusiv criteriul de acceptanță Phase 1).
+Fundația (Phase 1) și agentul (Phase 2) sunt gata și testate (106 teste, SQLite + MariaDB).
 Ce există și ce nu: [`../docs/VITIM-AI-ARCHITECTURE.md` §0](../docs/VITIM-AI-ARCHITECTURE.md),
 schema: [`VITIM-AI-DATABASE.md`](../docs/VITIM-AI-DATABASE.md), API: [`VITIM-AI-API.md`](../docs/VITIM-AI-API.md),
 securitate: [`VITIM-AI-SECURITY.md`](../docs/VITIM-AI-SECURITY.md). Instalare: [`INSTALL-CPANEL.md`](INSTALL-CPANEL.md).
 
-**Nu este încă un produs vândabil**: agentul nu răspunde încă vizitatorilor (Faza 2), lipsesc knowledge, widgetul și pluginul.
+**Nu este încă un produs vândabil**: agentul răspunde și se poate testa din panou, dar nu e încă pe site-urile clienților (widget, Faza 4); knowledge din pagini web vine în Faza 3.
+
+Evaluarea agentului (API real, costă): `php artisan vitim:eval <slug-firmă> all`.
 
 Date demo (doar în afara producției): `php artisan db:seed` → organizația „VITIM Demo Auto”, parola proprietarului se afișează în consolă.
 Test de fum pe o instalare din arhivă: `tests/e2e/install-flow.cjs`.

@@ -28,7 +28,8 @@ Folosește o bază separată de cea a site-ului vitim.ro.
    - `APP_URL`, datele bazei (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`);
    - emailul (un cont din cPanel → Email Accounts, de exemplu `noreply@vitim.ro`);
    - `SETUP_TOKEN`: minimum 16 caractere aleatorii;
-   - `BACKUP_EMAIL`: o adresă **din afara hostingului** (Gmail/Outlook).
+   - `BACKUP_EMAIL`: o adresă **din afara hostingului** (Gmail/Outlook);
+   - `ANTHROPIC_API_KEY`: cheia pentru agentul AI (de la console.anthropic.com). Se poate adăuga și mai târziu; fără ea, agentul răspunde doar cu datele de contact ale firmei.
 
    Fișierele care încep cu punct apar în File Manager din Settings → Show Hidden Files.
 
