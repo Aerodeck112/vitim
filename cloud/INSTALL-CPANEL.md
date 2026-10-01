@@ -21,7 +21,7 @@ Folosește o bază separată de cea a site-ului vitim.ro.
 
 ## 3. Fișierele
 
-1. File Manager → în directorul principal (`/home/<cont>`, nu în `public_html`) creează folderul `vitim-ai`.
+1. File Manager → în directorul principal (Home Directory, de exemplu `/home/<cont>` sau `/home2/<cont>`, nu în `public_html`) creează folderul `vitim-ai`.
 2. Urcă `vitim-ai-<versiune>.zip` în `vitim-ai` → clic dreapta → **Extract**.
 3. Șterge arhiva zip.
 4. În `vitim-ai`, copiază `.env.cpanel.example` ca `.env` și completează liniile marcate **COMPLETEAZĂ**:
@@ -37,10 +37,10 @@ Folosește o bază separată de cea a site-ului vitim.ro.
 cPanel → **Cron Jobs** → Common Settings: **Once Per Minute** → Command:
 
 ```
-cd /home/<cont>/vitim-ai && /usr/local/bin/php artisan vitim:deploy >/dev/null 2>&1 && /usr/local/bin/php artisan schedule:run >/dev/null 2>&1
+cd ~/vitim-ai && /usr/local/bin/php artisan vitim:deploy >/dev/null 2>&1 && /usr/local/bin/php artisan schedule:run >/dev/null 2>&1
 ```
 
-- Înlocuiește `<cont>` cu numele contului cPanel (îl vezi în dreapta sus, la General Information → Home Directory).
+- `~` înseamnă directorul principal al contului (de exemplu `/home2/vitim`), deci comanda merge fără modificări.
 - Dacă hostingul folosește alt PHP pentru cron, calea poate fi `/opt/cpanel/ea-php83/root/usr/bin/php` (cere-o hostingului dacă nu ești sigur).
 
 În primul minut, cron-ul generează cheia aplicației (`APP_KEY` în `.env`) și creează tabelele. Tot el rulează coada de sarcini, backup-ul zilnic (03:17) și actualizările.
