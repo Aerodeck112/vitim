@@ -62,6 +62,7 @@
   <h2>Site-uri</h2>
   @forelse ($sites as $site)
     <div style="padding:10px 0;border-bottom:1px solid var(--border)"><strong>{{ $site->name }}</strong> <span class="small muted">{{ $site->domain }} · {{ $site->platform->label() }}</span>
+      <div style="margin:4px 0">@include('partials.site-health', ['site' => $site])</div>
       @if ($can['sites'] && ($key = $site->keys->first()))@include('partials.install', ['publicKey' => $key->public_key])@endif</div>
   @empty
     <p class="muted">Niciun site.</p>

@@ -64,6 +64,15 @@ Dacă arhiva e mai mare decât limita de upload afișată în pagină, urc-o cu 
 **Manual (sau pentru versiuni mai vechi de 0.4.0):** urcă arhiva în `vitim-ai` → Extract (suprascrie fișierele).
 În cel mult un minut, cron-ul vede versiunea nouă și rulează migrările.
 
+## Conectarea site-urilor clienților
+
+1. Admin → client → **Site-uri** → adaugă domeniul. Copiază **codul de conectare** (`VITIM1-…`), afișat o singură dată.
+   Dacă l-ai pierdut: „Schimbă cheile” la site și primești unul nou (vechiul nu mai merge).
+2. **Site WordPress**: descarcă „pluginul WordPress” din fișa clientului → în WordPress: Module → Adaugă nou → Încarcă modul →
+   Activează → **Setări → VITIM** → lipește codul → **Conectează**. Starea apare în panou imediat.
+3. **Site PHP** (făcut de noi): descarcă „conectorul PHP”, completează în fișier codul și adresa site-ului, urcă-l în folderul
+   principal al contului de hosting (nu în `public_html`) și adaugă un cron **Once Per Hour**: `php ~/vitim-connector.php`.
+
 ## Backup și restaurare
 
 - Zilnic la 03:17, baza de date pleacă pe `BACKUP_EMAIL` și rămâne și în `vitim-ai/storage/app/backups` (ultimele 7).

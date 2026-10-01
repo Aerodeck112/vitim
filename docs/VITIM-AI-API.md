@@ -88,6 +88,16 @@ X-XSRF-TOKEN: …
   "identities": [{"type": "email", "normalized_value": "andrei@example.test", "primary": true}, {"type": "phone", "normalized_value": "+40700000001", "primary": true}]}}
 ```
 
+## API conector (plugin WordPress / conector PHP) — `/connector/v1`
+
+Fără sesiune. Fiecare cerere are antetele `X-Vitim-Key` (cheia publică `pk_…`), `X-Vitim-Timestamp` (secunde Unix), `X-Vitim-Nonce` (16–128 caractere, unic) și
+`X-Vitim-Signature` = `hex(HMAC-SHA256(secret, timestamp + "." + nonce + "." + body))`. Fereastră de 5 minute, nonce-ul nu se poate refolosi, cheie revocată → `401 invalid_signature`. Limită: 30 de cereri/minut per cheie și IP.
+
+| Metodă | Rută | Corp | Efect |
+|---|---|---|---|
+| POST | `/heartbeat` | `platform` (wordpress/custom), `site_url`, `connector_version`, opțional `php_version`, `core_version`, `core_update`, `theme`, `plugins_total`, `plugin_updates[{name,from,to}]`, `theme_updates`, `app_version`, `disk_free_mb`, `https` | Actualizează starea site-ului, `last_seen_at`, `verification_status` (`verified` / `mismatch` după domeniul raportat) |
+| POST | `/worklog` | `entries[{ref, category, title, description?, performed_at?}]` (max. 50) | Lucrări vizibile clientului, sursa `plugin`; același `ref` pe același site nu se dublează |
+
 ## Evenimente de domeniu emise (pentru automatizările viitoare)
 
 `contact.created`, `contact.updated`, `contact.deleted`, `consent.changed`, `lead.created`, `lead.status_changed`, `lead.assigned`, `lead.deleted`, `agent.created`, `message.sent`, `message.cancelled`, `message.failed`.

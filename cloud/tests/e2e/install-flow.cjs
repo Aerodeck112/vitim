@@ -28,7 +28,7 @@ const ok = (c, m) => { console.log((c ? '✓ ' : '✗ ') + m); if (!c) process.e
   await p.fill('#owner_name', 'Ion Popescu'); await p.fill('#owner_email', 'ion@demoauto.ro'); await p.click('main button[type=submit]');
   ok(p.url().endsWith('/admin/clienti/demo-auto-srl'), 'client creat');
   await p.fill('#domain', 'https://www.demoauto.ro'); await p.click('text=Adaugă site');
-  const sec = await p.locator('.alert-warn pre.code').textContent(); ok(sec.trim().startsWith('sk_'), 'secret afișat o dată');
+  const sec = await p.locator('.alert-warn pre.code').textContent(); ok(sec.trim().startsWith('VITIM1-'), 'cod de conectare afișat o dată');
   await p.screenshot({ path: require('os').tmpdir() + '/vitim-ai-' + Date.now() + '.png', fullPage: true });
   await p.reload(); ok(!(await p.content()).includes(sec.trim()), 'secretul nu mai apare la reîncărcare');
   await p.goto(B + '/admin'); await p.screenshot({ path: require('os').tmpdir() + '/vitim-ai-' + Date.now() + '.png', fullPage: true });

@@ -18,13 +18,15 @@
 
 <div class="card">
   <h2>Site-uri</h2>
+  <p class="small muted" style="margin-top:-6px">Conectare: <a href="{{ asset('downloads/vitim-connector.zip') }}">pluginul WordPress</a> · <a href="{{ asset('downloads/vitim-connector.php.txt') }}" download="vitim-connector.php">conectorul PHP</a>. Codul de conectare apare o singură dată, la adăugarea site-ului sau după „Schimbă cheile”.</p>
   @if ($sites->isEmpty())<p class="muted">Niciun site încă.</p>@endif
   @foreach ($sites as $site)
     @php($active = $site->keys->firstWhere('revoked_at', null))
     <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
       <div><strong>{{ $site->domain }}</strong> <span class="badge">{{ $site->platform->label() }}</span>
-        <div class="small muted mono">{{ $active?->public_key ?? 'fără cheie activă' }}
-          · plugin: {{ $site->last_seen_at ? 'văzut '.$site->last_seen_at->diffForHumans() : 'neconectat' }}</div></div>
+        <div class="small muted mono">{{ $active?->public_key ?? 'fără cheie activă' }}</div>
+        <div style="margin-top:4px">@include('partials.site-health', ['site' => $site])</div>
+        @if (! empty($site->health['plugin_updates']))<details class="small"><summary>Pluginuri de actualizat</summary><ul style="margin:6px 0">@foreach ($site->health['plugin_updates'] as $u)<li>{{ $u['name'] }} {{ $u['from'] ?? '' }} → {{ $u['to'] ?? '' }}</li>@endforeach</ul></details>@endif</div>
       @if ($isAdmin)
         <form method="post" action="{{ route('admin.sites.rotate', [$organization->slug, $site->id]) }}" onsubmit="return confirm('Cheile vechi nu vor mai funcționa. Continui?')">
           @csrf<button class="btn btn-s" type="submit">Schimbă cheile</button></form>

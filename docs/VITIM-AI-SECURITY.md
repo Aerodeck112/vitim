@@ -1,6 +1,6 @@
 # VITIM AI — Securitate
 
-> Reflectă codul la versiunea **0.3.0**. Fiecare control are testul care îl verifică.
+> Reflectă codul la versiunea **0.6.0**. Fiecare control are testul care îl verifică.
 > „Neimplementat” înseamnă exact asta.
 
 ## Controale implementate
@@ -25,6 +25,8 @@
 | Agent: lead doar cu acord | `create_lead` refuză fără `consent: true`, fără câmpurile cerute de firmă sau cu email / telefon invalid; acordul se scrie în istoricul de consimțământ (canal, scop „service”, IP, user agent) | `CreateLeadTool` | `AgentRuntimeTest::test_lead_is_rejected_without_consent_or_required_fields`, `test_create_lead_saves_contact_consent_and_lead_linked_to_conversation` |
 | Agent: cost | Cost per răspuns din tokenii raportați; plafon lunar de cost și de conversații din plan. Peste plafon modelul nu e apelat, vizitatorul primește datele de contact ale firmei | `AgentRuntime`, `Cost`, `config/plans.php` | `AgentRuntimeTest::test_cost_cap_and_conversation_cap_stop_ai_calls` |
 | Agent: test din panou | Conversațiile de test nu creează contacte, lead-uri sau notificări (tool-urile rulează „dry run”); doar cine poate administra agentul poate testa (consumă din plafon) | `AgentTestController`, tool-uri | `AgentTestPageTest`, `AgentRuntimeTest::test_test_conversations_do_not_create_real_data` |
+| Conectorul site-urilor | HMAC-SHA256 cu secretul site-ului peste timestamp + nonce + corp, fereastră 5 minute, anti-replay, cheie revocată = refuz imediat. Firma vine doar din cheie; lucrările trimise intră doar la site-ul cheii. Pluginul doar trimite date, nu primește comenzi. Conectorul PHP rulează doar din CLI | `ConnectorController`, `SiteKeyService` | `ConnectorApiTest` |
+| Actualizare din panou | Doar super admin, parola reconfirmată, doar versiuni mai noi, backup al bazei înainte, căi din arhivă validate (fără `..`), `.env` / `storage` neatinse, audit | `SystemController`, `Updater` | `UpdaterTest` |
 | Afișarea răspunsurilor AI | Text escapat complet; se păstrează doar îngroșat și linkuri relative sau https (fără `javascript:`, `//`, `http:`), cu `rel="nofollow noopener noreferrer"` | `ChatText` | `ChatTextTest` |
 | Audit | Firmă / site / chei / agent creat, modificat, șters; user invitat, rol schimbat, user eliminat; contact și lead șterse; consimțământ schimbat; login; acces al echipei VITIM. Fără date personale în `meta` | `AuditLogger` | `AcceptanceTest`, `ContactsTest::test_delete_is_audited_without_personal_data` |
 | Consimțământ și marketing | Istoric append-only (cine, când, sursă, scop, IP); retragerea pune adresa pe lista de suprimare (HMAC); **fail-safe**: marketing doar cu consimțământ acordat explicit, „necunoscut” = nu se trimite; bounce și reclamație blochează orice mesaj; suprimările nu se „îmblânzesc” | `ConsentService`, `SendPolicy`, `Suppression` | `ConsentAndMessagingTest` |

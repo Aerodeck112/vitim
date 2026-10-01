@@ -5,6 +5,14 @@
 <div class="grid" style="margin-bottom:18px">
   @foreach ($kpi as [$label, $value])<div class="kpi"><small>{{ $label }}</small><b>{{ $value }}</b></div>@endforeach
 </div>
+@if ($sites->isNotEmpty())
+<div class="card">
+  <h2>Site-urile tale</h2>
+  @foreach ($sites as $site)
+    <div style="padding:6px 0"><strong>{{ $site->domain }}</strong> @include('partials.site-health', ['site' => $site])</div>
+  @endforeach
+</div>
+@endif
 <div class="card">
   <h2>Ultimele lucrări VITIM</h2>
   @forelse ($recentWork as $log)

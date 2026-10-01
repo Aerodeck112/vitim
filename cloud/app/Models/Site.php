@@ -21,9 +21,16 @@ class Site extends Model
             'allowed_origins' => 'array',
             'platform' => SitePlatform::class,
             'widget_config' => 'array',
+            'health' => 'array',
             'last_seen_at' => 'datetime',
             'last_sync_at' => 'datetime',
         ];
+    }
+
+    /** Conectorul a raportat în ultimele 3 ore (heartbeat-ul e la oră). */
+    public function isOnline(): bool
+    {
+        return $this->last_seen_at !== null && $this->last_seen_at->gt(now()->subHours(3));
     }
 
     public function isActive(): bool

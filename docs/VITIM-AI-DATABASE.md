@@ -24,6 +24,7 @@
 | `memberships` | Utilizator ↔ organizație + rol | ✓ | `org_owner`, `org_admin`, `agent`, `viewer`. Unic pe (org, user) |
 | `subscriptions` | Plan, status, limite | ✓ | `trial`, `active`, `past_due`, `suspended`, `cancelled`. Limitele se copiază din `config/plans.php` |
 | `sites` | Website-urile firmei | ✓ | `domain` unic global. `platform`: wordpress, woocommerce, custom, other. `verification_status`, `widget_config`, `connector_version`, `last_seen_at`, `last_sync_at` |
+| `sites` (0.6.0) | + `health` (JSON: starea raportată de conector) | ✓ | `last_seen_at`, `connector_version`, `verification_status` (`verified` / `mismatch`) se completează din heartbeat |
 | `site_keys` | Cheia publică (widget) + secretul (plugin) | ✓ | Secretul e criptat (`APP_KEY`), cu rotație și revocare |
 | `agents` | Agenții AI | ✓ | `model_configuration` și `system_configuration` (JSON validat de `AgentConfiguration`, fără secrete; include `business_facts` și `contact_line`). `template`: presetul de pornire |
 | `agent_versions` | Istoricul configurației | ✓ | Un rând la fiecare schimbare de configurație (`version` crescător, cine a salvat). Append-only |
@@ -37,7 +38,7 @@
 | `tool_executions` | Jurnalul acțiunilor agentului | ✓ | `tool`, `input`, `result`, `status` (`ok`, `rejected`, `error`, `dry_run`), durată |
 | `messages` | Mesaje | ✓ | `direction`, `sender_type`, `channel`, `purpose`, `status` intern, `provider`, `external_message_id`, `sent_at` / `delivered_at` / `read_at` / `failed_at` |
 | `domain_events` | Outbox de evenimente | ✓ (sau null) | Scris în aceeași tranzacție cu modificarea, procesat de `vitim:events` |
-| `work_logs` | Lucrările echipei VITIM pentru client | ✓ | `site_id` (opțional), `performed_by`, `performed_at`, `category`, `title`, `description`, `duration_minutes`, `visible_to_client`, `source` (manual / plugin / system) |
+| `work_logs` | Lucrările echipei VITIM pentru client | ✓ | `site_id` (opțional), `performed_by`, `performed_at`, `category`, `title`, `description`, `duration_minutes`, `visible_to_client`, `source` (manual / plugin / system), `external_ref` (unic per firmă: retrimiterile pluginului nu dublează) |
 | `usage_records` | Consum zilnic per metrică | ✓ | Unic pe (org, metric, zi), incrementat atomic. Metrici AI: `ai_requests`, `ai_input_tokens`, `ai_output_tokens`, `ai_cost_micro_usd`, `ai_messages`, `conversations_started` |
 | `audit_logs` | Jurnal de audit | ✓ (sau null) | `actor_user_id`, `actor_type` (user / platform / system), `action`, `entity_type`, `entity_id`, `ip`, `meta` |
 | `cache`, `jobs`, `sessions`, `password_reset_tokens` | Infrastructură Laravel | — | Cache și coadă în baza de date (cPanel, fără Redis) |

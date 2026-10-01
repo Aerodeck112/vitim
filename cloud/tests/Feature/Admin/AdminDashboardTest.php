@@ -10,6 +10,7 @@ use App\Http\Middleware\EnsureTwoFactor;
 use App\Models\Membership;
 use App\Models\Organization;
 use App\Models\User;
+use App\Services\ConnectionCode;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -53,8 +54,11 @@ final class AdminDashboardTest extends TestCase
         $secret = session('issued')['secret'];
         $this->assertStringStartsWith('sk_', $secret);
 
-        $this->get("/admin/clienti/{$org->slug}")->assertOk()->assertSee($secret)->assertSee('demoauto.ro');
-        $this->get("/admin/clienti/{$org->slug}")->assertOk()->assertDontSee($secret);
+        // secretul ajunge la plugin în codul de conectare, afișat o singură dată
+        $code = ConnectionCode::encode(config('app.url'), session('issued')['public'], $secret);
+        $this->assertSame($secret, ConnectionCode::decode($code)['s']);
+        $this->get("/admin/clienti/{$org->slug}")->assertOk()->assertSee($code)->assertSee('demoauto.ro');
+        $this->get("/admin/clienti/{$org->slug}")->assertOk()->assertDontSee($code)->assertDontSee($secret);
     }
 
     public function test_vitim_admin_manages_clients(): void

@@ -38,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
             ->line('Linkul expiră în '.config('auth.passwords.users.expire').' de minute. Dacă nu ai cerut acest email, îl poți ignora.')
             ->salutation('Echipa VITIM'));
 
+        RateLimiter::for('connector', fn (Request $request) => Limit::perMinute(30)->by(substr((string) $request->header('X-Vitim-Key'), 0, 40).'|'.$request->ip()));
         RateLimiter::for('agent-test', fn (Request $request) => Limit::perMinute(20)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('api-v1', fn (Request $request) => Limit::perMinute(120)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
 

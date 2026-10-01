@@ -1,5 +1,13 @@
 # VITIM AI Cloud — versiuni
 
+## 0.6.0 — conectarea site-urilor
+
+- **Cod de conectare**: la adăugarea unui site (sau după „Schimbă cheile”) panoul afișează o singură dată un cod `VITIM1-…` care conține adresa platformei, cheia și secretul.
+- **Plugin WordPress „VITIM Connector”** (descărcabil din fișa clientului): Setări → VITIM → lipești codul → Conectează. La fiecare oră trimite versiunea WordPress și PHP, tema, numărul de pluginuri și pluginurile / temele / WordPress cu actualizări în așteptare. Actualizările făcute în WordPress apar **automat** în jurnalul de lucrări (vizibil clientului), fără dubluri.
+- **Conector pentru site-urile PHP** (`vitim-connector.php`): un fișier rulat din cron la oră; trimite PHP, versiunea aplicației și spațiul liber. Poate trimite și lucrări: `php vitim-connector.php lucrare backup "Backup verificat"`.
+- **Starea site-urilor** (conectat / fără semnal, versiuni, actualizări în așteptare, adresă greșită) în fișa clientului, în lista de site-uri VITIM și în panoul clientului.
+- Securitate: fiecare cerere e semnată HMAC-SHA256 cu secretul site-ului, cu fereastră de 5 minute și protecție la retrimitere; firma se deduce doar din cheie; cheile schimbate nu mai funcționează imediat.
+
 ## 0.5.0 — jurnalul de lucrări
 
 - **Echipa VITIM** (Admin → client → „Adaugă lucrări”): înregistrează ce a făcut pentru client: data, tipul (actualizări, backup, securitate, reparație, conținut, SEO, dezvoltare, suport), site-ul, durata, detalii. Lucrările se pot marca „interne” (nu le vede clientul).

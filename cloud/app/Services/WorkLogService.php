@@ -17,16 +17,17 @@ final class WorkLogService
     public function __construct(private readonly AuditLogger $audit) {}
 
     /** @param array<string, mixed> $data */
-    public function create(array $data, ?int $authorId, string $source = 'manual'): WorkLog
+    public function create(array $data, ?int $authorId, string $source = 'manual', ?string $externalRef = null): WorkLog
     {
         $this->assertSite($data['site_id'] ?? null);
 
-        return DB::transaction(function () use ($data, $authorId, $source): WorkLog {
+        return DB::transaction(function () use ($data, $authorId, $source, $externalRef): WorkLog {
             $log = WorkLog::create(array_intersect_key($data, array_flip(self::FIELDS)) + [
                 'performed_by' => $authorId,
                 'performed_at' => $data['performed_at'] ?? now(),
                 'visible_to_client' => $data['visible_to_client'] ?? true,
                 'source' => $source,
+                'external_ref' => $externalRef,
             ]);
             $this->audit->record('worklog.created', $log, ['category' => $log->category->value]);
 

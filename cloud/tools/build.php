@@ -50,6 +50,19 @@ if ($code !== 0 || ! is_file($tmp.'/vendor/autoload.php')) {
     exit(1);
 }
 
+// 2b. pluginul WordPress și conectorul PHP, descărcabile din panou (/downloads/...)
+$connectors = dirname($root).'/connectors';
+@mkdir($tmp.'/public/downloads', 0755, true);
+$plugin = new ZipArchive;
+$plugin->open($tmp.'/public/downloads/vitim-connector.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($connectors.'/wordpress/vitim-connector', FilesystemIterator::SKIP_DOTS)) as $file) {
+    $plugin->addFile($file->getPathname(), 'vitim-connector/'.substr($file->getPathname(), strlen($connectors.'/wordpress/vitim-connector') + 1));
+}
+$plugin->close();
+copy($connectors.'/php/vitim-connector.php', $tmp.'/public/downloads/vitim-connector.php.txt');
+copy($tmp.'/public/downloads/vitim-connector.zip', dirname($root).'/dist/vitim-connector-wordpress.zip');
+copy($connectors.'/php/vitim-connector.php', dirname($root).'/dist/vitim-connector.php');
+
 // 3. arhivă
 @mkdir(dirname($out), 0755, true);
 @unlink($out);

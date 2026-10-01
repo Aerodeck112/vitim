@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** O lucrare făcută de echipa VITIM pentru client. Se scrie doar prin WorkLogService. */
-#[Fillable(['site_id', 'performed_by', 'performed_at', 'category', 'title', 'description', 'duration_minutes', 'visible_to_client', 'source'])]
+#[Fillable(['site_id', 'performed_by', 'performed_at', 'category', 'title', 'description', 'duration_minutes', 'visible_to_client', 'source', 'external_ref'])]
 class WorkLog extends Model
 {
     use BelongsToOrganization;
