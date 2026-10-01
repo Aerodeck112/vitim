@@ -6,6 +6,7 @@
  */
 header('Content-Type: text/plain; charset=utf-8');
 header('X-Robots-Tag: noindex');
+header('Cache-Control: no-store');
 $root = dirname(__DIR__);
 $env = [];
 if (is_file($root.'/.env')) {
@@ -24,7 +25,9 @@ if (strlen($token) < 16 || ! hash_equals($token, (string) ($_GET['token'] ?? '')
         .".env găsit: ".$here('.env')."\n"
         ."artisan (aplicația) în același folder: ".$here('artisan')."\n"
         .".env.cpanel.example în același folder: ".$here('.env.cpanel.example')."\n"
-        .".env greșit pus în public/: ".(is_file(__DIR__.'/.env') ? 'DA (mută-l un nivel mai sus!)' : 'NU')."\n");
+        .".env greșit pus în public/: ".(is_file(__DIR__.'/.env') ? 'DA (mută-l un nivel mai sus!)' : 'NU')."\n"
+        ."Fișiere „env” din folder (doar numele): ".implode(' | ', array_map(fn ($f) => '['.basename($f).']', array_filter(glob($root.'/{.,}*env*', GLOB_BRACE) ?: [], 'is_file')))."\n"
+        ."Ora serverului: ".date('H:i:s')."\n");
 }
 $ok = fn ($c) => $c ? 'OK ' : 'NU ';
 $hide = fn ($s) => preg_replace(["/(password|pass)[^,;)]*/i", "/'[^']*'@/"], ['$1 ***', "'***'@"], (string) $s);
