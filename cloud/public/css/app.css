@@ -56,3 +56,5 @@ textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--
 .chat .tool{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;max-width:78%}.chat .tool details{flex-basis:100%}
 .chat-form{display:flex;gap:10px;align-items:flex-end}.chat-form textarea{min-height:52px}
 @media (max-width:640px){.bubble,.chat .tool{max-width:92%}}
+.linkbtn{all:unset;cursor:pointer;color:var(--err);margin-left:10px}.linkbtn:hover{text-decoration:underline}
+input[type=number],input[type=datetime-local]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-2);background:var(--panel);color:var(--text);font:14.5px var(--font)}

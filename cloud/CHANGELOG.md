@@ -1,5 +1,11 @@
 # VITIM AI Cloud — versiuni
 
+## 0.5.0 — jurnalul de lucrări
+
+- **Echipa VITIM** (Admin → client → „Adaugă lucrări”): înregistrează ce a făcut pentru client: data, tipul (actualizări, backup, securitate, reparație, conținut, SEO, dezvoltare, suport), site-ul, durata, detalii. Lucrările se pot marca „interne” (nu le vede clientul).
+- **Clientul** (meniul „Lucrări VITIM”): vede lucrările vizibile, filtrate pe lună și pe site, cu totalul de lucrări și de timp. Ultimele lucrări apar și pe prima pagină a panoului lui.
+- Adăugarea, modificarea și ștergerea apar în audit.
+
 ## 0.4.0 — actualizare din panou
 
 - **Admin → Sistem** (doar super admin): urci arhiva `vitim-ai-x.y.z.zip`, confirmi parola și platforma se actualizează singură: backup la baza de date, fișiere noi, migrări. `.env` și `storage/` nu se ating.

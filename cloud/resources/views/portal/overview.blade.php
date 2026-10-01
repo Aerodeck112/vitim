@@ -6,6 +6,15 @@
   @foreach ($kpi as [$label, $value])<div class="kpi"><small>{{ $label }}</small><b>{{ $value }}</b></div>@endforeach
 </div>
 <div class="card">
+  <h2>Ultimele lucrări VITIM</h2>
+  @forelse ($recentWork as $log)
+    <p style="margin:6px 0"><span class="small muted">{{ $log->performed_at->format('d.m.Y') }}</span> · <strong>{{ $log->title }}</strong>@if ($log->site) <span class="small muted">({{ $log->site->domain }})</span>@endif</p>
+  @empty
+    <p class="muted" style="margin:0">Nicio lucrare înregistrată încă.</p>
+  @endforelse
+  <p style="margin:10px 0 0"><a href="{{ route('portal.worklogs', $organization->slug) }}">Toate lucrările</a></p>
+</div>
+<div class="card">
   <h2>Agent AI</h2>
   @forelse ($agents as $agent)
     <p style="margin:6px 0"><a href="{{ route('portal.agents.edit', [$organization->slug, $agent->id]) }}"><strong>{{ $agent->name }}</strong></a> <span class="badge">{{ $agent->status->value }}</span></p>

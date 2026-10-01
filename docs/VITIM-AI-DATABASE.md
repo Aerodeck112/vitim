@@ -37,6 +37,7 @@
 | `tool_executions` | Jurnalul acțiunilor agentului | ✓ | `tool`, `input`, `result`, `status` (`ok`, `rejected`, `error`, `dry_run`), durată |
 | `messages` | Mesaje | ✓ | `direction`, `sender_type`, `channel`, `purpose`, `status` intern, `provider`, `external_message_id`, `sent_at` / `delivered_at` / `read_at` / `failed_at` |
 | `domain_events` | Outbox de evenimente | ✓ (sau null) | Scris în aceeași tranzacție cu modificarea, procesat de `vitim:events` |
+| `work_logs` | Lucrările echipei VITIM pentru client | ✓ | `site_id` (opțional), `performed_by`, `performed_at`, `category`, `title`, `description`, `duration_minutes`, `visible_to_client`, `source` (manual / plugin / system) |
 | `usage_records` | Consum zilnic per metrică | ✓ | Unic pe (org, metric, zi), incrementat atomic. Metrici AI: `ai_requests`, `ai_input_tokens`, `ai_output_tokens`, `ai_cost_micro_usd`, `ai_messages`, `conversations_started` |
 | `audit_logs` | Jurnal de audit | ✓ (sau null) | `actor_user_id`, `actor_type` (user / platform / system), `action`, `entity_type`, `entity_id`, `ip`, `meta` |
 | `cache`, `jobs`, `sessions`, `password_reset_tokens` | Infrastructură Laravel | — | Cache și coadă în baza de date (cPanel, fără Redis) |

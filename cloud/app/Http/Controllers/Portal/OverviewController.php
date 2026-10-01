@@ -9,6 +9,7 @@ use App\Models\Agent;
 use App\Models\Contact;
 use App\Models\Conversation;
 use App\Models\Lead;
+use App\Models\WorkLog;
 use Illuminate\View\View;
 
 final class OverviewController extends PortalController
@@ -27,6 +28,7 @@ final class OverviewController extends PortalController
             ],
             'agents' => Agent::query()->orderBy('name')->get(),
             'recentLeads' => Lead::query()->with('contact')->latest('id')->limit(8)->get(),
+            'recentWork' => WorkLog::query()->visible()->with('site')->latest('performed_at')->limit(5)->get(),
         ]);
     }
 

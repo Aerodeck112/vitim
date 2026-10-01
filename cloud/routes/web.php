@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Admin\SystemController;
+use App\Http\Controllers\Admin\WorkLogController;
 use App\Http\Controllers\Api\V1 as Api;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -98,6 +99,11 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::get('/', [OrganizationController::class, 'show'])->name('organizations.show');
             Route::post('/site-uri', [SiteController::class, 'store'])->name('sites.store');
             Route::post('/site-uri/{site}/chei', [SiteController::class, 'rotate'])->whereNumber('site')->name('sites.rotate');
+            Route::get('/lucrari', [WorkLogController::class, 'index'])->name('worklogs.index');
+            Route::post('/lucrari', [WorkLogController::class, 'store'])->name('worklogs.store');
+            Route::get('/lucrari/{log}/editare', [WorkLogController::class, 'edit'])->whereNumber('log')->name('worklogs.edit');
+            Route::put('/lucrari/{log}', [WorkLogController::class, 'update'])->whereNumber('log')->name('worklogs.update');
+            Route::delete('/lucrari/{log}', [WorkLogController::class, 'destroy'])->whereNumber('log')->name('worklogs.destroy');
         });
     });
 
@@ -123,6 +129,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::put('/contacte/{contact}', [Portal\ContactController::class, 'update'])->middleware('can:manage_contacts')->where('contact', $id)->name('contacts.update');
         Route::delete('/contacte/{contact}', [Portal\ContactController::class, 'destroy'])->middleware('can:delete_data')->where('contact', $id)->name('contacts.destroy');
         Route::post('/contacte/{contact}/consimtamant', [Portal\ContactController::class, 'consent'])->middleware('can:manage_consent')->where('contact', $id)->name('contacts.consent');
+
+        Route::get('/lucrari', [Portal\WorkLogController::class, 'index'])->middleware('can:view_reports')->name('worklogs');
 
         Route::get('/leaduri', [Portal\LeadController::class, 'index'])->middleware('can:view_leads')->name('leads.index');
         Route::post('/leaduri', [Portal\LeadController::class, 'store'])->middleware('can:manage_leads')->name('leads.store');

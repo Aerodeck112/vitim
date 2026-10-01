@@ -28,8 +28,10 @@
       <div class="grp">{{ $organization->name }}</div>
       @if ($user->isPlatformStaff())
         <a href="{{ route('admin.organizations.show', $slug) }}" @class(['on' => request()->routeIs('admin.organizations.show')])>Fișa clientului</a>
+        <a href="{{ route('admin.worklogs.index', $slug) }}" @class(['on' => request()->routeIs('admin.worklogs.*')])>Adaugă lucrări</a>
       @endif
       <a href="{{ route('portal.home', $slug) }}" @class(['on' => request()->routeIs('portal.home')])>Prezentare</a>
+      <a href="{{ route('portal.worklogs', $slug) }}" @class(['on' => request()->routeIs('portal.worklogs')])>Lucrări VITIM</a>
       <a href="{{ route('portal.agents.index', $slug) }}" @class(['on' => request()->routeIs('portal.agents.*')])>Agent AI</a>
       <a href="{{ route('portal.upcoming', [$slug, 'inbox']) }}" @class(['on' => request()->is('*/in-curand/inbox')])>Inbox <span class="soon">curând</span></a>
       @can('view_contacts')<a href="{{ route('portal.contacts.index', $slug) }}" @class(['on' => request()->routeIs('portal.contacts.*')])>Contacte</a>@endcan
