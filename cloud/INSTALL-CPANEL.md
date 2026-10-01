@@ -37,11 +37,12 @@ Folosește o bază separată de cea a site-ului vitim.ro.
 cPanel → **Cron Jobs** → Common Settings: **Once Per Minute** → Command:
 
 ```
-cd ~/vitim-ai && /usr/local/bin/php artisan vitim:deploy >/dev/null 2>&1 && /usr/local/bin/php artisan schedule:run >/dev/null 2>&1
+cd ~/vitim-ai && /opt/cpanel/ea-php84/root/usr/bin/php artisan vitim:deploy >/dev/null 2>&1 && /opt/cpanel/ea-php84/root/usr/bin/php artisan schedule:run >/dev/null 2>&1
 ```
 
 - `~` înseamnă directorul principal al contului (de exemplu `/home2/vitim`), deci comanda merge fără modificări.
-- Dacă hostingul folosește alt PHP pentru cron, calea poate fi `/opt/cpanel/ea-php83/root/usr/bin/php` (cere-o hostingului dacă nu ești sigur).
+- Calea PHP trebuie să fie aceeași versiune ca a site-ului (MultiPHP Manager). `/usr/local/bin/php` poate fi altă versiune, iar atunci cron-ul se oprește fără niciun mesaj. Pentru PHP 8.3: `/opt/cpanel/ea-php83/root/usr/bin/php`.
+- Fără Terminal și fără cron: urcă `tools/verificare.php` în `public/` și deschide `/verificare.php?token=SETUP_TOKEN&deploy=1`, apoi șterge fișierul.
 
 În primul minut, cron-ul generează cheia aplicației (`APP_KEY` în `.env`) și creează tabelele. Tot el rulează coada de sarcini, backup-ul zilnic (03:17) și actualizările.
 
