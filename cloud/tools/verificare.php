@@ -29,6 +29,22 @@ if (strlen($token) < 16 || ! hash_equals($token, (string) ($_GET['token'] ?? '')
         ."Fișiere „env” din folder (doar numele): ".implode(' | ', array_map(fn ($f) => '['.basename($f).']', array_filter(glob($root.'/{.,}*env*', GLOB_BRACE) ?: [], 'is_file')))."\n"
         ."Ora serverului: ".date('H:i:s')."\n");
 }
+if (($_GET['deploy'] ?? '') === '1') {
+    // Același lucru ca `php artisan vitim:deploy` din cron, pornit din browser.
+    echo "VITIM AI — rulez vitim:deploy\n\n";
+    set_time_limit(300);
+    try {
+        require $root.'/vendor/autoload.php';
+        $app = require $root.'/bootstrap/app.php';
+        $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+        $out = new Symfony\Component\Console\Output\BufferedOutput;
+        $code = $kernel->call('vitim:deploy', ['--force' => true], $out);
+        echo $out->fetch()."\nRezultat: ".($code === 0 ? 'OK' : "eroare ($code)")."\n";
+    } catch (Throwable $e) {
+        echo 'EROARE: '.get_class($e).': '.preg_replace(["/(password|pass)[^,;)]*/i", "/'[^']*'@/"], ['$1 ***', "'***'@"], $e->getMessage())."\n";
+    }
+    exit("\nDeschide din nou pagina fără &deploy=1 ca să verifici.\n");
+}
 $ok = fn ($c) => $c ? 'OK ' : 'NU ';
 $hide = fn ($s) => preg_replace(["/(password|pass)[^,;)]*/i", "/'[^']*'@/"], ['$1 ***', "'***'@"], (string) $s);
 
@@ -45,7 +61,7 @@ foreach (['storage', 'storage/framework/sessions', 'storage/framework/views', 's
     echo $ok(is_dir($root.'/'.$d) && is_writable($root.'/'.$d))."scriere în $d\n";
 }
 $deployed = @file_get_contents($root.'/storage/app/deployed_version');
-echo $ok($deployed !== false).'cron a rulat vitim:deploy'.($deployed ? " (versiunea $deployed)" : '')."\n";
+echo $ok($deployed !== false).'cron a rulat vitim:deploy'.($deployed ? " (versiunea $deployed)" : ' — poți porni manual: adaugă &deploy=1 la adresă')."\n";
 
 echo "\nBaza de date (".($env['DB_CONNECTION'] ?? '?')." / ".($env['DB_DATABASE'] ?? '?')."):\n";
 try {
