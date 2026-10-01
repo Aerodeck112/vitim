@@ -63,3 +63,4 @@ input[type=number],input[type=datetime-local]{width:100%;padding:10px 12px;borde
 .score.good b{color:var(--ok)}.score.mid b{color:#d18a07}.score.bad b{color:var(--err)}
 .howto{margin-top:6px}.howto summary{cursor:pointer;color:var(--brand);font-size:13px}.howto div{white-space:pre-line;font-size:13px;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:6px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs a{padding:6px 12px;border-radius:999px;border:1px solid var(--border-2);font-size:13px;color:var(--text-2)}.tabs a.on{background:var(--brand);border-color:var(--brand);color:#fff;text-decoration:none}
+@media print{.side,.noprint,.alert{display:none!important}.shell{display:block}.main{padding:0}.card{break-inside:avoid;border-color:#ddd}body{background:#fff;color:#000}}

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrganizationController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Admin\SiteHealthController;
 use App\Http\Controllers\Admin\SystemController;
@@ -103,6 +104,11 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::get('/site-uri/{site}', [SiteHealthController::class, 'show'])->whereNumber('site')->name('sites.health');
             Route::post('/site-uri/{site}/audit', [SiteHealthController::class, 'audit'])->whereNumber('site')->middleware('throttle:10,1')->name('sites.audit');
             Route::post('/site-uri/{site}/remediere', [SiteHealthController::class, 'command'])->whereNumber('site')->middleware('throttle:20,1')->name('sites.command');
+            Route::get('/rapoarte', [ReportController::class, 'index'])->name('reports.index');
+            Route::post('/servicii', [ReportController::class, 'services'])->name('reports.services');
+            Route::get('/rapoarte/{period}', [ReportController::class, 'edit'])->where('period', '\d{4}-\d{2}')->name('reports.edit');
+            Route::put('/rapoarte/{period}', [ReportController::class, 'update'])->where('period', '\d{4}-\d{2}')->name('reports.update');
+            Route::post('/rapoarte/{period}/retrage', [ReportController::class, 'unpublish'])->where('period', '\d{4}-\d{2}')->name('reports.unpublish');
             Route::get('/lucrari', [WorkLogController::class, 'index'])->name('worklogs.index');
             Route::post('/lucrari', [WorkLogController::class, 'store'])->name('worklogs.store');
             Route::get('/lucrari/{log}/editare', [WorkLogController::class, 'edit'])->whereNumber('log')->name('worklogs.edit');
@@ -135,6 +141,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/contacte/{contact}/consimtamant', [Portal\ContactController::class, 'consent'])->middleware('can:manage_consent')->where('contact', $id)->name('contacts.consent');
 
         Route::get('/site-uri/{site}', [Portal\SiteReportController::class, 'show'])->middleware('can:view_reports')->where('site', $id)->name('sites.report');
+        Route::get('/rapoarte', [Portal\ReportController::class, 'index'])->middleware('can:view_reports')->name('reports.index');
+        Route::get('/rapoarte/{period}', [Portal\ReportController::class, 'show'])->middleware('can:view_reports')->where('period', '\d{4}-\d{2}')->name('reports.show');
         Route::get('/lucrari', [Portal\WorkLogController::class, 'index'])->middleware('can:view_reports')->name('worklogs');
 
         Route::get('/leaduri', [Portal\LeadController::class, 'index'])->middleware('can:view_leads')->name('leads.index');

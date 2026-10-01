@@ -12,6 +12,8 @@ enum WorkCategory: string
     case Repair = 'repair';
     case Content = 'content';
     case Seo = 'seo';
+    case Ads = 'ads';
+    case Gbp = 'gbp';
     case Development = 'development';
     case Support = 'support';
     case Other = 'other';
@@ -25,6 +27,8 @@ enum WorkCategory: string
             self::Repair => 'Reparație / depanare',
             self::Content => 'Conținut',
             self::Seo => 'SEO',
+            self::Ads => 'Google Ads',
+            self::Gbp => 'Google Business Profile',
             self::Development => 'Dezvoltare',
             self::Support => 'Suport',
             self::Other => 'Altele',

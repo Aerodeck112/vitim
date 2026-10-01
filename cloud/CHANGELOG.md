@@ -1,5 +1,15 @@
 # VITIM AI Cloud — versiuni
 
+## 0.10.0 — servicii și raportul lunar
+
+- **Servicii pe client** (Admin → client → „Servicii și rapoarte”): Mentenanță și securitate, SEO, Google Ads, Google Business Profile.
+- **Raportul lunar**: pentru fiecare serviciu activ, cifrele lunii (SEO: click-uri, afișări, poziție medie, cuvinte în top 10, pagini optimizate; Ads: buget, afișări, click-uri, conversii, apeluri; GBP: vizualizări, apeluri, indicații, click-uri spre site, recenzii noi, nota, postări) **comparate automat cu luna anterioară** (verde = mai bine, roșu = mai rău), textul „ce am făcut și ce rezultate” și lucrările din jurnal pe serviciu.
+- **Mentenanța se calculează singură**: actualizări aplicate, backup-uri verificate, probleme rezolvate, remedieri din panou, lucrări.
+- Ciornă → previzualizare (exact ce vede clientul) → **„Publică și trimite clientului”**: raportul apare în meniul „Rapoarte lunare” al clientului și proprietarul / administratorii firmei primesc email cu linkul. Publicarea se poate retrage.
+- Clientul poate descărca raportul ca PDF (tipărire din browser, fără meniuri).
+- Tipuri noi în jurnalul de lucrări: Google Ads și Google Business Profile.
+- Până la conectarea cu Google, cifrele SEO / Ads / GBP se copiază din Search Console, Google Ads și Business Profile.
+
 ## 0.9.0 — backup-urile site-urilor (plugin 1.2.0)
 
 - **Backup automat** făcut de plugin pe hostingul clientului: baza de date (tabelele WordPress) + `wp-content`, `wp-config.php`, `.htaccess`. Zilnic noaptea (sau săptămânal / oprit), se păstrează ultimele N copii (implicit 7).
