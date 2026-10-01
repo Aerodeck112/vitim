@@ -18,7 +18,13 @@ if (is_file($root.'/.env')) {
 $token = $env['SETUP_TOKEN'] ?? '';
 if (strlen($token) < 16 || ! hash_equals($token, (string) ($_GET['token'] ?? ''))) {
     http_response_code(403);
-    exit("Deschide pagina cu ?token=VALOAREA_SETUP_TOKEN din .env (minimum 16 caractere).\n.env găsit: ".(is_file($root.'/.env') ? 'DA' : 'NU')."\n");
+    $here = fn ($f) => is_file($root.'/'.$f) ? 'DA' : 'NU';
+    exit("Deschide pagina cu ?token=VALOAREA_SETUP_TOKEN din .env (minimum 16 caractere).\n"
+        ."Caut .env în folderul: $root\n"
+        .".env găsit: ".$here('.env')."\n"
+        ."artisan (aplicația) în același folder: ".$here('artisan')."\n"
+        .".env.cpanel.example în același folder: ".$here('.env.cpanel.example')."\n"
+        .".env greșit pus în public/: ".(is_file(__DIR__.'/.env') ? 'DA (mută-l un nivel mai sus!)' : 'NU')."\n");
 }
 $ok = fn ($c) => $c ? 'OK ' : 'NU ';
 $hide = fn ($s) => preg_replace(["/(password|pass)[^,;)]*/i", "/'[^']*'@/"], ['$1 ***', "'***'@"], (string) $s);
