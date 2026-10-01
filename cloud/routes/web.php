@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\SiteController;
+use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Api\V1 as Api;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -88,6 +89,9 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::get('/site-uri', [DashboardController::class, 'sites'])->name('sites.index');
         Route::get('/agenti', [DashboardController::class, 'agents'])->name('agents.index');
         Route::get('/utilizatori', [DashboardController::class, 'users'])->name('users.index');
+        Route::get('/sistem', [SystemController::class, 'show'])->name('system');
+        Route::post('/sistem/actualizare', [SystemController::class, 'upload'])->middleware('throttle:5,1')->name('system.upload');
+        Route::post('/sistem/actualizare-urcata', [SystemController::class, 'applyPending'])->middleware('throttle:5,1')->name('system.pending');
         Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
         Route::post('/clienti', [OrganizationController::class, 'store'])->name('organizations.store');
         Route::prefix('clienti/{organization}')->middleware('org')->group(function () {

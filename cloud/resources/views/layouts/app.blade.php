@@ -22,6 +22,7 @@
       <a href="{{ route('admin.sites.index') }}" @class(['on' => request()->routeIs('admin.sites.*')])>Site-uri</a>
       <a href="{{ route('admin.agents.index') }}" @class(['on' => request()->routeIs('admin.agents.*')])>Agenți</a>
       <a href="{{ route('admin.users.index') }}" @class(['on' => request()->routeIs('admin.users.*')])>Utilizatori</a>
+      @if ($user->platform_role === \App\Enums\PlatformRole::SuperAdmin)<a href="{{ route('admin.system') }}" @class(['on' => request()->routeIs('admin.system*')])>Sistem</a>@endif
     @endif
     @isset($organization)
       <div class="grp">{{ $organization->name }}</div>

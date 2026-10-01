@@ -59,7 +59,8 @@ $count = 0;
 $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tmp, FilesystemIterator::SKIP_DOTS));
 foreach ($it as $file) {
     // pachetele instalate din sursă aduc și istoricul git: nu are ce căuta pe server
-    if ($file->isFile() && ! preg_match('#/\.git(hub)?/#', str_replace('\\', '/', $file->getPathname()))) {
+    // + testele și documentația pachetelor (inutile în producție; arhiva mai mică trece de limitele de upload)
+    if ($file->isFile() && ! preg_match('#/\.git(hub)?/|^vendor/[^/]+/[^/]+/(tests?|Tests?|docs?)/#', str_replace('\\', '/', substr($file->getPathname(), strlen($tmp) + 1)))) {
         $zip->addFile($file->getPathname(), substr($file->getPathname(), strlen($tmp) + 1));
         $count++;
     }

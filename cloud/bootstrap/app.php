@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 
@@ -34,4 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
         $exceptions->render(fn (Throwable $e, Request $request) => $request->is('api/*') ? ApiError::render($e) : null);
+        // arhivă de actualizare mai mare decât limita de upload a hostingului: mesaj clar, nu pagina 413
+        $exceptions->render(fn (PostTooLargeException $e, Request $request) => $request->is('admin/sistem/*')
+            ? redirect()->route('admin.system')->with('error', 'Arhiva depășește limita de upload a hostingului. Urc-o cu File Manager în vitim-ai/storage/app/updates/ și apasă „Aplică” aici.')
+            : null);
     })->create();

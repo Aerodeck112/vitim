@@ -56,9 +56,13 @@ cd ~/vitim-ai && /opt/cpanel/ea-php84/root/usr/bin/php artisan vitim:deploy >/de
 
 ## Actualizări
 
-1. Urcă noua arhivă `vitim-ai-<versiune>.zip` în `vitim-ai` → Extract (suprascrie fișierele).
-   `.env` și `storage/` nu se ating.
-2. În cel mult un minut, cron-ul vede versiunea nouă și rulează migrările.
+**Din panou (de la 0.4.0):** Admin → **Sistem** → alegi arhiva `vitim-ai-<versiune>.zip` → parola ta → **Actualizează**.
+Se face backup la baza de date, se înlocuiesc fișierele și se rulează migrările. `.env` și `storage/` nu se ating.
+Dacă arhiva e mai mare decât limita de upload afișată în pagină, urc-o cu File Manager în
+`vitim-ai/storage/app/updates/`, reîncarcă pagina Sistem și apasă **Aplică**.
+
+**Manual (sau pentru versiuni mai vechi de 0.4.0):** urcă arhiva în `vitim-ai` → Extract (suprascrie fișierele).
+În cel mult un minut, cron-ul vede versiunea nouă și rulează migrările.
 
 ## Backup și restaurare
 

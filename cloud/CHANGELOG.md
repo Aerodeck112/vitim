@@ -1,5 +1,11 @@
 # VITIM AI Cloud — versiuni
 
+## 0.4.0 — actualizare din panou
+
+- **Admin → Sistem** (doar super admin): urci arhiva `vitim-ai-x.y.z.zip`, confirmi parola și platforma se actualizează singură: backup la baza de date, fișiere noi, migrări. `.env` și `storage/` nu se ating.
+- Dacă arhiva depășește limita de upload a hostingului: o urci cu File Manager în `vitim-ai/storage/app/updates/` și apeși „Aplică” în aceeași pagină.
+- Se acceptă doar versiuni mai noi decât cea instalată; actualizările (reușite sau nu) apar în audit.
+
 ## 0.3.0 — Phase 2: agentul AI răspunde
 
 - **Agentul răspunde**, din „Informații despre firmă” completate în panou (servicii, prețuri, program, politici). Nu inventează ce nu scrie acolo.
