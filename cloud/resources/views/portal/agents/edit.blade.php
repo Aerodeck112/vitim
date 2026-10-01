@@ -60,7 +60,7 @@
   @else
     @php($w = \App\Services\WidgetSettings::for($agent->site))
     @php($key = $agent->site->keys()->whereNull('revoked_at')->latest('id')->first())
-    <p class="small muted" style="margin-top:-6px">Pe <strong>{{ $agent->site->domain }}</strong> widgetul apare când agentul e <strong>Activ</strong> și opțiunea de mai jos e bifată.
+    <p class="small muted" style="margin-top:-6px">Pe <strong>{{ $agent->site->domain }}</strong> widgetul apare când agentul e <strong>Activ</strong> și opțiunea de mai jos e bifată. Asistentul AI răspunde non-stop; în program, un coleg poate prelua oricând conversația din <a href="{{ route('portal.conversations.index', $organization->slug) }}">Conversații</a>.
       @if ($agent->status->value !== 'active')<span class="badge warn">agentul nu e activ</span>@endif</p>
     <form method="post" action="{{ route('portal.agents.widget', [$organization->slug, $agent->id]) }}">
       @csrf @method('put')
@@ -75,6 +75,23 @@
         <div class="fl"><label for="w-position">Poziție</label><select id="w-position" name="position"><option value="right" @selected($w['position'] === 'right')>Dreapta jos</option><option value="left" @selected($w['position'] === 'left')>Stânga jos</option></select></div>
       </div>
       <div class="fl"><label for="w-privacy">Link spre politica de confidențialitate a site-ului</label><input id="w-privacy" type="text" name="privacy_url" maxlength="255" value="{{ $w['privacy_url'] }}" placeholder="https://{{ $agent->site->domain }}/politica-de-confidentialitate"></div>
+      <div class="row">
+        <div class="fl"><label for="w-wt">Salutul de pe prima pagină</label><input id="w-wt" type="text" name="welcome_title" maxlength="40" value="{{ $w['welcome_title'] }}"></div>
+        <div class="fl"><label for="w-wx">Textul de sub salut</label><input id="w-wx" type="text" name="welcome_text" maxlength="120" value="{{ $w['welcome_text'] }}"></div>
+      </div>
+      <div class="fl"><label for="w-qr">Butoane cu întrebări rapide (câte una pe rând, max. 4)</label><textarea id="w-qr" name="quick_replies" rows="4" maxlength="400">{{ implode("\n", $w['quick_replies']) }}</textarea></div>
+      <div class="row">
+        <div class="fl"><label for="w-pd">Mesaj automat după (secunde, 0 = oprit)</label><input id="w-pd" type="number" name="proactive_delay" min="0" max="300" value="{{ $w['proactive_delay'] }}"></div>
+        <div class="fl"><label for="w-pt">Mesajul automat de lângă buton</label><input id="w-pt" type="text" name="proactive_text" maxlength="140" value="{{ $w['proactive_text'] }}"></div>
+      </div>
+      <div class="row">
+        <div class="fl"><label for="w-hs">Echipa e online de la</label><input id="w-hs" type="time" name="hours_start" value="{{ $w['hours_start'] }}"></div>
+        <div class="fl"><label for="w-he">până la</label><input id="w-he" type="time" name="hours_end" value="{{ $w['hours_end'] }}"></div>
+      </div>
+      <div class="fl"><label for="w-av">Poză pentru chat (link https, pătrată; gol = inițiala)</label><input id="w-av" type="text" name="avatar_url" maxlength="255" value="{{ $w['avatar_url'] }}" placeholder="https://{{ $agent->site->domain }}/wp-content/uploads/logo.png"></div>
+      <label class="chk"><input type="checkbox" name="weekends" value="1" @checked($w['weekends'])> Online și în weekend</label>
+      <label class="chk"><input type="checkbox" name="email_capture" value="1" @checked($w['email_capture'])> În afara programului, cere vizitatorului emailul ca să-i răspundeți</label>
+      <label class="chk" style="margin-bottom:12px"><input type="checkbox" name="sound" value="1" @checked($w['sound'])> Sunet la mesajele noi</label>
       @if ($canManage)<button class="btn btn-p" type="submit">Salvează widgetul</button>@endif
       </fieldset>
     </form>

@@ -114,10 +114,13 @@ Cereri `POST` cu corp JSON trimis ca `text/plain` (fără preflight CORS). Fieca
 
 | Rută | Corp | Răspuns |
 |---|---|---|
-| `/config` | `key` | `enabled`, `title`, `greeting`, `color`, `position`, `launcher`, `privacy_url`, `notice` |
+| `/config` | `key` | `enabled`, `title`, `greeting`, `color`, `position`, `launcher`, `privacy_url`, `notice`, `avatar_url`, `welcome_title`, `welcome_text`, `quick_replies[]`, `proactive_delay`, `proactive_text`, `online` (programul echipei, ora României), `status_text`, `email_capture`, `sound` |
 | `/start` | `key`, `page?` | `token` (48 caractere; serverul păstrează doar hash-ul). 10 / oră / IP |
-| `/message` | `key`, `token`, `message` (max. 1.000) | `reply`, `status` (ok / refused / unavailable / capped / inactive). 30 / 10 min / IP, max. 40 de mesaje / conversație |
-| `/history` | `key`, `token` | `messages[{role: visitor/agent, text}]` |
+| `/message` | `key`, `token`, `message` (max. 1.000), `after?` | `reply` (null când răspunde un coleg), `status` (ok / refused / unavailable / capped / inactive / **human**), `messages[]` (răspunsurile apărute după `after`), `last_id`. 30 / 10 min / IP, max. 40 de mesaje / conversație |
+| `/history` | `key`, `token`, `after?` | `messages[{id, role: visitor/agent/operator/system, name, text, at}]`, `last_id`, `live`, `operator` (doar prenumele), `typing`, `has_contact`. Widgetul îl apelează la 4 s cu fereastra deschisă, la 15 s închisă (doar în conversații recente sau live) |
+| `/contact` | `key`, `token`, `email`, `name?`, `consent: true` | `{ok}` — contact + acord (serviciu, email, sursa `website_chat`) + lead pentru echipă. 5 / oră / IP |
+
+Panou (sesiune, permisiunea `handle_conversations` pentru scriere): `GET /app/{firma}/conversatii/{id}/mesaje?after=` (mesaje noi, HTML escapat), `POST …/raspuns` (`message`; preia conversația), `POST …/actiune` (`take` / `release` / `close`), `POST …/scrie` (indicatorul „scrie…” la vizitator, 6 s).
 
 Scriptul: `<script src="https://ai.vitim.ro/widget/v1/loader.js" data-site="pk_…" async></script>`.
 

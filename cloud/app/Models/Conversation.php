@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /** Fundația VITIM Inbox: aceeași structură pentru web chat, email, WhatsApp și SMS. */
-#[Fillable(['contact_id', 'site_id', 'agent_id', 'channel', 'status', 'mode', 'is_test', 'visitor_token_hash', 'visitor_page', 'assigned_to', 'subject', 'last_message_at', 'closed_at'])]
+#[Fillable(['contact_id', 'site_id', 'agent_id', 'channel', 'status', 'mode', 'is_test', 'visitor_token_hash', 'visitor_page', 'visitor_seen_at', 'staff_read_at', 'assigned_to', 'subject', 'last_message_at', 'closed_at'])]
 class Conversation extends Model
 {
     use BelongsToOrganization;
@@ -27,6 +27,8 @@ class Conversation extends Model
             'status' => ConversationStatus::class,
             'last_message_at' => 'datetime',
             'closed_at' => 'datetime',
+            'visitor_seen_at' => 'datetime',
+            'staff_read_at' => 'datetime',
         ];
     }
 
@@ -64,6 +66,17 @@ class Conversation extends Model
     public function toolExecutions(): HasMany
     {
         return $this->hasMany(ToolExecution::class)->orderBy('id');
+    }
+
+    /** Vizitatorul are widgetul deschis pe site acum (widgetul verifică mesajele noi la câteva secunde). */
+    public function visitorOnline(): bool
+    {
+        return $this->visitor_seen_at !== null && $this->visitor_seen_at->gt(now()->subSeconds(40));
+    }
+
+    public function isLive(): bool
+    {
+        return $this->mode === 'human';
     }
 
     /** @return HasOne<Lead, $this> */

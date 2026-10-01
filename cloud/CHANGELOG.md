@@ -1,5 +1,17 @@
 # VITIM AI Cloud — versiuni
 
+## 0.12.0 — chat ca Tidio, în română, cu echipa live
+
+- **Widget nou**: buton rotund cu iconiță și bulină de mesaje necitite, fereastră cu antet colorat („Salut 👋 / Cu ce te putem ajuta azi?”), poză sau inițială, starea echipei (online / revine la ora X), bule de mesaj cu avatar și oră, animația „scrie…” (trei puncte), emoji, sunet la mesaj nou, meniu (oprește sunetul, conversație nouă, confidențialitate), „Oferit de VITIM”. Pe telefon, ecran complet.
+- **Butoane cu întrebări rapide** sub salut (până la 4, din setări).
+- **Mesaj automat** lângă buton după N secunde (implicit 20; o dată pe vizită), cu bulină „1” și sunet.
+- **Chat live cu echipa**: din Conversații, un coleg vede dacă vizitatorul e pe site acum, apasă „Preia conversația” (sau doar scrie) și răspunde; mesajul apare în câteva secunde în chatul de pe site, cu prenumele lui. Cât timp conversația e preluată, AI-ul nu mai răspunde. „Predă asistentului AI” și „Încheie conversația”.
+- Vizitatorul vede când colegul scrie, primește bulină + previzualizare + sunet dacă a minimizat chatul, iar conversația continuă după reîncărcarea paginii.
+- **În afara programului**: după al doilea mesaj, chatul cere numele și emailul (cu bifă de acord) → contact + lead + email către echipă.
+- **Panou**: conversațiile necitite apar marcate, filtre noi „Live” și „Încheiate”, numărul de vizitatori aflați acum în chat, sunet și titlu de tab la mesaj nou.
+- **Setări noi** (Agent AI → „Agentul pe site”): salut, text, întrebări rapide, mesaj automat și întârzierea lui, programul echipei (ore, weekend), poză, cerere email în afara programului, sunet.
+- Pluginul WordPress nu trebuie actualizat (widgetul vine direct din platformă).
+
 ## 0.11.0 — agentul AI pe site (plugin 1.3.0)
 
 - **Widgetul de chat** pe site-urile clienților: buton + fereastră de conversație, izolat de stilurile site-ului (Shadow DOM), ~3,5 KB comprimat, adaptat pentru telefon (ecran complet), accesibil din tastatură (Enter trimite, Esc închide). Conversația continuă după reîncărcarea paginii.

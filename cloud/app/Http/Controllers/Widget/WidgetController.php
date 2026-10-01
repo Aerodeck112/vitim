@@ -12,6 +12,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\Site;
+use App\Models\User;
+use App\Services\IdentityNormalizer;
+use App\Services\LiveChatService;
 use App\Services\SiteKeyService;
 use App\Services\WidgetSettings;
 use App\Tenancy\TenantContext;
@@ -42,6 +45,8 @@ final class WidgetController extends Controller
             $agent = WidgetSettings::agentFor($site);
             $enabled = $settings['enabled'] && $agent !== null && $site->organization->subscription?->isServiceable();
 
+            $online = WidgetSettings::online($settings);
+
             return $this->json($origin, [
                 'enabled' => (bool) $enabled,
                 'title' => $settings['title'] ?? $agent?->name ?? $site->organization->name,
@@ -50,7 +55,17 @@ final class WidgetController extends Controller
                 'position' => $settings['position'],
                 'launcher' => $settings['launcher'],
                 'privacy_url' => $settings['privacy_url'],
-                'notice' => 'Răspunsurile sunt date de un asistent virtual (AI) al firmei '.($site->organization->company_name ?: $site->organization->name).'. Nu trimite date sensibile (CNP, card).',
+                'avatar_url' => $settings['avatar_url'],
+                'welcome_title' => $settings['welcome_title'],
+                'welcome_text' => $settings['welcome_text'],
+                'quick_replies' => $settings['quick_replies'],
+                'proactive_delay' => $settings['proactive_delay'],
+                'proactive_text' => $settings['proactive_text'],
+                'online' => $online,
+                'status_text' => $online ? 'Suntem online · răspundem imediat' : 'Asistentul răspunde acum · echipa revine la '.$settings['hours_start'],
+                'email_capture' => $settings['email_capture'],
+                'sound' => $settings['sound'],
+                'notice' => 'Răspunsurile sunt date de un asistent virtual (AI) al firmei '.($site->organization->company_name ?: $site->organization->name).', iar la cerere de un coleg din echipă. Nu trimite date sensibile (CNP, card).',
             ]);
         });
     }
@@ -81,7 +96,7 @@ final class WidgetController extends Controller
         });
     }
 
-    public function message(Request $request, AgentRuntime $runtime): JsonResponse
+    public function message(Request $request, AgentRuntime $runtime, LiveChatService $live): JsonResponse
     {
         [$site, $origin, $body] = $this->site($request);
         if (! $site) {
@@ -95,7 +110,7 @@ final class WidgetController extends Controller
             return $this->json($origin, ['reply' => 'Ai trimis multe mesaje într-un timp scurt. Încearcă din nou peste câteva minute.', 'status' => 'rate_limited'], 429);
         }
 
-        return $this->context->runAs($site->organization, function () use ($site, $origin, $body, $text, $runtime, $request): JsonResponse {
+        return $this->context->runAs($site->organization, function () use ($site, $origin, $body, $text, $runtime, $live, $request): JsonResponse {
             $conversation = $this->conversation($site, (string) ($body['token'] ?? ''));
             if (! $conversation) {
                 return $this->json($origin, ['error' => 'unknown_conversation'], 404);
@@ -103,29 +118,96 @@ final class WidgetController extends Controller
             if (Message::query()->where('conversation_id', $conversation->id)->where('sender_type', SenderType::Contact)->count() >= self::MAX_MESSAGES_PER_CONVERSATION) {
                 return $this->json($origin, ['reply' => 'Conversația a ajuns la limita de mesaje. Te rugăm să ne contactezi direct.', 'status' => 'limit'], 429);
             }
+            $after = max(0, (int) ($body['after'] ?? 0));
+            if ($conversation->isLive()) {
+                // un coleg a preluat conversația: mesajul ajunge la el în panou, nu la AI
+                $live->visitorMessage($conversation, $text);
+                $this->seen($conversation);
+
+                return $this->json($origin, ['reply' => null, 'status' => 'human'] + $this->since($live, $conversation, $after));
+            }
+            if ($conversation->status === ConversationStatus::Closed) {
+                $conversation->forceFill(['status' => ConversationStatus::Open, 'closed_at' => null])->save();
+            }
             $reply = $runtime->reply($conversation, $text, $request->ip(), $request->userAgent());
 
-            return $this->json($origin, ['reply' => $reply->text, 'status' => $reply->status]);
+            return $this->json($origin, ['reply' => $reply->text, 'status' => $reply->status] + $this->since($live, $conversation, $after));
         });
     }
 
-    public function history(Request $request): JsonResponse
+    /** Istoricul (la redeschidere) sau doar mesajele noi după `after` (verificarea periodică a widgetului). */
+    public function history(Request $request, LiveChatService $live): JsonResponse
     {
         [$site, $origin, $body] = $this->site($request);
         if (! $site) {
             return $this->deny($origin);
         }
 
-        return $this->context->runAs($site->organization, function () use ($site, $origin, $body): JsonResponse {
+        return $this->context->runAs($site->organization, function () use ($site, $origin, $body, $live): JsonResponse {
             $conversation = $this->conversation($site, (string) ($body['token'] ?? ''));
             if (! $conversation) {
                 return $this->json($origin, ['error' => 'unknown_conversation'], 404);
             }
-            $messages = Message::query()->where('conversation_id', $conversation->id)->orderBy('id')->limit(100)->get()
-                ->map(fn (Message $m) => ['role' => $m->direction === 'inbound' ? 'visitor' : 'agent', 'text' => $m->content]);
+            $this->seen($conversation);
+            $messages = $live->forVisitor($conversation, max(0, (int) ($body['after'] ?? 0)));
+            $operator = $conversation->assigned_to ? User::query()->whereKey($conversation->assigned_to)->value('name') : null;
 
-            return $this->json($origin, ['messages' => $messages]);
+            return $this->json($origin, [
+                'messages' => $messages,
+                'last_id' => (int) ($messages->last()['id'] ?? $body['after'] ?? 0),
+                'live' => $conversation->isLive(),
+                'operator' => $conversation->isLive() && $operator ? LiveChatService::firstName((string) $operator) : null,
+                'typing' => $conversation->isLive() && $live->isTyping($conversation),
+                'has_contact' => $conversation->contact_id !== null,
+            ]);
         });
+    }
+
+    /** Vizitatorul lasă numele și emailul ca echipa să-i poată răspunde (cu bifa de acord). */
+    public function contact(Request $request, LiveChatService $live): JsonResponse
+    {
+        [$site, $origin, $body] = $this->site($request);
+        if (! $site) {
+            return $this->deny($origin);
+        }
+        $email = mb_substr(trim((string) ($body['email'] ?? '')), 0, 190);
+        $name = mb_substr(trim((string) ($body['name'] ?? '')), 0, 80);
+        if (($body['consent'] ?? false) !== true) {
+            return $this->json($origin, ['error' => 'consent_required'], 422);
+        }
+        if (IdentityNormalizer::email($email) === null) {
+            return $this->json($origin, ['error' => 'invalid_email'], 422);
+        }
+        if (! RateLimiter::attempt('widget-contact:'.$request->ip(), 5, fn () => true, 3600)) {
+            return $this->json($origin, ['error' => 'rate_limited'], 429);
+        }
+
+        return $this->context->runAs($site->organization, function () use ($site, $origin, $body, $live, $name, $email, $request): JsonResponse {
+            $conversation = $this->conversation($site, (string) ($body['token'] ?? ''));
+            if (! $conversation) {
+                return $this->json($origin, ['error' => 'unknown_conversation'], 404);
+            }
+            $live->leaveContact($conversation, $name, $email, $request->ip(), $request->userAgent());
+
+            return $this->json($origin, ['ok' => true]);
+        });
+    }
+
+    /** @return array{messages: mixed, last_id: int} mesajele echipei/AI apărute după `after` (fără ale vizitatorului, deja afișate) */
+    private function since(LiveChatService $live, Conversation $conversation, int $after): array
+    {
+        $messages = $live->forVisitor($conversation, $after, false);
+        $last = (int) Message::query()->where('conversation_id', $conversation->id)->max('id');
+
+        return ['messages' => $messages, 'last_id' => $last];
+    }
+
+    private function seen(Conversation $conversation): void
+    {
+        // o scriere cel mult la 15 secunde, nu la fiecare verificare
+        if ($conversation->visitor_seen_at === null || $conversation->visitor_seen_at->lt(now()->subSeconds(15))) {
+            $conversation->forceFill(['visitor_seen_at' => now()])->saveQuietly();
+        }
     }
 
     /** @return array{0: ?Site, 1: ?string, 2: array<string, mixed>} */

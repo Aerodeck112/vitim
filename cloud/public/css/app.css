@@ -64,3 +64,8 @@ input[type=number],input[type=datetime-local]{width:100%;padding:10px 12px;borde
 .howto{margin-top:6px}.howto summary{cursor:pointer;color:var(--brand);font-size:13px}.howto div{white-space:pre-line;font-size:13px;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:6px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs a{padding:6px 12px;border-radius:999px;border:1px solid var(--border-2);font-size:13px;color:var(--text-2)}.tabs a.on{background:var(--brand);border-color:var(--brand);color:#fff;text-decoration:none}
 @media print{.side,.noprint,.alert{display:none!important}.shell{display:block}.main{padding:0}.card{break-inside:avoid;border-color:#ddd}body{background:#fff;color:#000}}
+.bubble.op{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.4);align-self:flex-start}
+.bubble .t{display:block;font-size:11px;opacity:.65;margin-top:4px}.bubble.sys{font-size:13px}
+.live-chat{max-height:62vh;overflow-y:auto}.live-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.live-bar form{margin:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--text-3);margin-right:5px;vertical-align:middle}.dot.on{background:var(--ok);box-shadow:0 0 0 3px rgba(16,185,129,.2)}
+.reply-form{display:flex;gap:10px;align-items:flex-end;margin-top:14px}.reply-form textarea{flex:1;min-height:52px;max-height:200px}

@@ -144,6 +144,10 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::get('/site-uri/{site}', [Portal\SiteReportController::class, 'show'])->middleware('can:view_reports')->where('site', $id)->name('sites.report');
         Route::get('/conversatii', [Portal\ConversationController::class, 'index'])->middleware('can:view_contacts')->name('conversations.index');
         Route::get('/conversatii/{conversation}', [Portal\ConversationController::class, 'show'])->middleware('can:view_contacts')->where('conversation', $id)->name('conversations.show');
+        Route::get('/conversatii/{conversation}/mesaje', [Portal\ConversationController::class, 'poll'])->middleware('can:view_contacts')->where('conversation', $id)->name('conversations.poll');
+        Route::post('/conversatii/{conversation}/raspuns', [Portal\ConversationController::class, 'reply'])->middleware('can:handle_conversations')->where('conversation', $id)->name('conversations.reply');
+        Route::post('/conversatii/{conversation}/actiune', [Portal\ConversationController::class, 'action'])->middleware('can:handle_conversations')->where('conversation', $id)->name('conversations.action');
+        Route::post('/conversatii/{conversation}/scrie', [Portal\ConversationController::class, 'typing'])->middleware('can:handle_conversations')->where('conversation', $id)->name('conversations.typing');
         Route::get('/rapoarte', [Portal\ReportController::class, 'index'])->middleware('can:view_reports')->name('reports.index');
         Route::get('/rapoarte/{period}', [Portal\ReportController::class, 'show'])->middleware('can:view_reports')->where('period', '\d{4}-\d{2}')->name('reports.show');
         Route::get('/lucrari', [Portal\WorkLogController::class, 'index'])->middleware('can:view_reports')->name('worklogs');

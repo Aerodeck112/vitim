@@ -66,8 +66,14 @@ final class AgentController extends PortalController
         $request->validate([
             'color' => ['nullable', 'string', 'max:7'], 'position' => ['nullable', 'in:left,right'], 'title' => ['nullable', 'string', 'max:60'],
             'launcher' => ['nullable', 'string', 'max:40'], 'privacy_url' => ['nullable', 'url', 'max:255'],
+            'avatar_url' => ['nullable', 'url:https', 'max:255'], 'welcome_title' => ['nullable', 'string', 'max:40'], 'welcome_text' => ['nullable', 'string', 'max:120'],
+            'quick_replies' => ['nullable', 'string', 'max:400'], 'proactive_delay' => ['nullable', 'integer', 'min:0', 'max:300'], 'proactive_text' => ['nullable', 'string', 'max:140'],
+            'hours_start' => ['nullable', 'date_format:H:i'], 'hours_end' => ['nullable', 'date_format:H:i'],
         ]);
-        $model->site->forceFill(['widget_config' => WidgetSettings::normalize($request->all() + ['enabled' => $request->boolean('enabled')])])->save();
+        $model->site->forceFill(['widget_config' => WidgetSettings::normalize($request->all() + [
+            'enabled' => $request->boolean('enabled'), 'weekends' => $request->boolean('weekends'),
+            'email_capture' => $request->boolean('email_capture'), 'sound' => $request->boolean('sound'),
+        ])])->save();
         $audit->record('widget.updated', $model->site);
 
         return $this->to('portal.agents.edit', ['agent' => $model->id], 'Setările widgetului au fost salvate.');

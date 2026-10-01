@@ -133,13 +133,25 @@ final class WidgetTest extends TestCase
 
     public function test_widget_settings_are_saved_from_the_agent_page(): void
     {
-        [$org, $site, , $agent] = $this->setup_();
+        [$org, $site, $key, $agent] = $this->setup_();
         $admin = User::factory()->create();
         $this->tenant()->runAs($org, fn () => Membership::create(['user_id' => $admin->id, 'role' => OrgRole::Admin]));
         $this->actingAs($admin);
         $this->get("/app/{$org->slug}/agent/{$agent->id}")->assertOk()->assertSee('Agentul pe site')->assertSee('widget/v1/loader.js');
         $this->put("/app/{$org->slug}/agent/{$agent->id}/widget", ['enabled' => '1', 'color' => '#00AA55', 'position' => 'left', 'launcher' => 'Ai o întrebare?', 'privacy_url' => 'https://podreg.ro/gdpr'])->assertRedirect();
-        $this->assertSame(['enabled' => true, 'color' => '#00aa55', 'position' => 'left', 'title' => null, 'launcher' => 'Ai o întrebare?', 'privacy_url' => 'https://podreg.ro/gdpr'], Site::withoutTenancy()->find($site->id)->widget_config);
+        $saved = Site::withoutTenancy()->find($site->id)->widget_config;
+        $this->assertSame(['enabled' => true, 'color' => '#00aa55', 'position' => 'left', 'title' => null, 'launcher' => 'Ai o întrebare?', 'privacy_url' => 'https://podreg.ro/gdpr'],
+            array_intersect_key($saved, array_flip(['enabled', 'color', 'position', 'title', 'launcher', 'privacy_url'])));
+        $this->assertSame([], $saved['quick_replies']);
+        $this->assertFalse($saved['sound']);
+
+        $this->put("/app/{$org->slug}/agent/{$agent->id}/widget", ['enabled' => '1', 'quick_replies' => "Preț\n\n Program \nA\nB\nC", 'proactive_delay' => 15,
+            'hours_start' => '08:30', 'hours_end' => '17:00', 'weekends' => '1', 'sound' => '1', 'avatar_url' => 'https://podreg.ro/logo.png'])->assertRedirect();
+        $saved = Site::withoutTenancy()->find($site->id)->widget_config;
+        $this->assertSame(['Preț', 'Program', 'A', 'B'], $saved['quick_replies']);
+        $this->assertSame([15, '08:30', '17:00', true, true], [$saved['proactive_delay'], $saved['hours_start'], $saved['hours_end'], $saved['weekends'], $saved['sound']]);
+        $this->call_('config', ['key' => $key->publicKey])->assertOk()->assertJson(['quick_replies' => ['Preț', 'Program', 'A', 'B'], 'proactive_delay' => 15, 'avatar_url' => 'https://podreg.ro/logo.png']);
+        $this->put("/app/{$org->slug}/agent/{$agent->id}/widget", ['avatar_url' => 'http://podreg.ro/logo.png'])->assertSessionHasErrors('avatar_url');
         $this->put("/app/{$org->slug}/agent/{$agent->id}/widget", ['privacy_url' => 'javascript:alert(1)'])->assertSessionHasErrors('privacy_url');
     }
 }

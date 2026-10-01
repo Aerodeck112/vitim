@@ -570,7 +570,7 @@ Limitări de urmărit (motive de mutare pe VPS mai târziu, fără schimbări de
 
 ## 23. Phase 2
 
-- Handoff live: mod AI/HUMAN, preluare de către operator din dashboard, polling sau SSE în widget.
+- ✅ Handoff live (0.12.0): mod AI/HUMAN, preluare de către operator din dashboard, polling în widget.
 - Follow-up Engine: secvențe configurabile (ziua 0/1/3/7), doar email, cu consimțământ, opt-out, ore liniștite și log complet.
 - Programări: Google Calendar.
 - Cereri de ofertă structurate.
