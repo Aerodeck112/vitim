@@ -1,5 +1,11 @@
 # Istoric versiuni
 
+## 1.4.0
+
+- **„Testează un agent AI pentru firma ta”** pe prima pagină. Vizitatorul scrie adresa site-ului său și emailul, apoi apasă „Creează demo AI”. Cererea intră în CRM ca oportunitate „Demo agent AI” și primești notificare pe email, ca la formularul de contact. Butonul „Testează pe site-ul tău” din secțiunea despre agenți AI duce direct la formular.
+- Adresa e verificată: se acceptă `firma.ro`, `www.firma.ro` sau un link complet, nu se acceptă IP-uri sau adrese locale. Limită: 4 cereri la 10 minute de pe același IP, plus aceleași protecții anti-spam ca la contact.
+- Deocamdată demo-ul îl pregătește echipa VITIM; în VITIM AI, același formular va genera demo-ul automat.
+
 ## 1.3.0
 
 - **Backup zilnic automat al bazei de date, trimis pe email.** O dată pe zi, arhiva bazei de date pleacă pe adresa din Setări → Avansat → „Email pentru backup” (implicit emailul pentru notificări). Așa există mereu o copie în afara serverului. Funcționează și fără cron: se declanșează după o vizită pe site, fără să încetinească pagina.

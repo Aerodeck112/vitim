@@ -29,6 +29,7 @@ $router->get('/despre-noi', [PageController::class, 'about']);
 
 $router->get('/api/form-token', [FormController::class, 'token']);
 $router->post('/api/contact', [FormController::class, 'contact']);
+$router->post('/api/demo-ai', [FormController::class, 'demo']);
 $router->post('/api/newsletter', [FormController::class, 'newsletter']);
 $router->post('/api/chat', [\App\Controllers\Site\ChatController::class, 'send']);
 $router->get('/api/chat/{token:[A-Za-z0-9_-]+}', [\App\Controllers\Site\ChatController::class, 'history']);

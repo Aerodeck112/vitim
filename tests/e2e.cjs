@@ -54,6 +54,21 @@ function ok(cond, msg) { if (cond) { passed++; console.log('  ✓ ' + msg); } el
   await page.waitForTimeout(1500);
   ok((await nl.locator('.form-msg').textContent()).length > 5, 'newsletter: mesaj de confirmare afișat');
 
+  // demo agent AI de pe prima pagină
+  await page.goto(BASE + '/');
+  const demo = page.locator('form[data-form=demo_ai]');
+  await demo.locator('[name=site_url]').fill('localhost');
+  await demo.locator('[name=email]').fill('demo.test@example.com');
+  await demo.locator('[name=consent]').check();
+  await page.waitForTimeout(3500);
+  await demo.locator('button[type=submit]').click();
+  await page.waitForTimeout(1200);
+  ok(/adresa site-ului/.test(await demo.locator('.form-msg').textContent()), 'demo AI: adresă invalidă respinsă');
+  await demo.locator('[name=site_url]').fill('www.firma-demo.ro/contact');
+  await demo.locator('button[type=submit]').click();
+  await page.waitForTimeout(1500);
+  ok(/www\.firma-demo\.ro/.test(await demo.locator('.form-msg').textContent()), 'demo AI: cerere primită');
+
   console.log('Panou de control');
   await page.goto(BASE + '/admin');
   await page.fill('[name=email]', EMAIL);

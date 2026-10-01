@@ -82,6 +82,86 @@ final class FormController extends SiteController
         exit;
     }
 
+    /** „Testează un agent AI pentru firma ta”: omul își lasă site-ul și emailul; cererea intră în CRM ca lead. */
+    public function demo(): never
+    {
+        $spam = $this->guard('demo', 4);
+        $site = self::normalizeSite(str_input('site_url'));
+        $d = [
+            'name' => Sanitizer::text(str_input('name'), 120),
+            'email' => mb_strtolower(Sanitizer::text(str_input('email'), 160)),
+            'phone' => Sanitizer::text(str_input('phone'), 30),
+        ];
+        $errors = [];
+        if ($site === null) {
+            $errors[] = 'adresa site-ului (ex: firma.ro)';
+        }
+        if (!filter_var($d['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'un email valid';
+        }
+        if (empty($_POST['consent'])) {
+            $errors[] = 'acordul pentru prelucrarea datelor';
+        }
+        if ($errors) {
+            json_out(['ok' => false, 'message' => 'Te rugăm să completezi ' . implode(', ', $errors) . '.'], 422);
+        }
+        $utm = [];
+        foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid', 'page', 'referrer'] as $k) {
+            $v = Sanitizer::text(str_input($k), 300);
+            if ($v !== '') {
+                $utm[$k] = $v;
+            }
+        }
+        $host = (string)parse_url($site, PHP_URL_HOST);
+        $d += [
+            'company' => $host,
+            'service' => '',
+            'service_title' => 'Demo agent AI',
+            'county' => '',
+            'budget' => '',
+            'message' => "Cerere demo agent AI pentru site-ul: {$site}",
+            'site_url' => $site,
+        ];
+        if ($d['name'] === '') {
+            $d['name'] = $d['email'];
+        }
+        $result = Crm::captureLead($d, $utm, $spam, false);
+
+        $this->respondThenContinue(['ok' => true, 'message' => "Am primit cererea pentru {$host}. Pregătim demo-ul și îți trimitem linkul pe email, de regulă în aceeași zi lucrătoare."]);
+
+        if ($spam < 5) {
+            Crm::notifyNewLead($result['contact_id'], $result['deal_id'], $d, 'Demo agent AI', $utm);
+        }
+        exit;
+    }
+
+    /** Acceptă „firma.ro”, „www.firma.ro” sau un URL complet; întoarce „https://domeniu” sau null. Fără IP-uri și nume locale. */
+    public static function normalizeSite(string $input): ?string
+    {
+        $input = trim(mb_substr($input, 0, 255));
+        if ($input === '') {
+            return null;
+        }
+        if (!preg_match('#^https?://#i', $input)) {
+            $input = 'https://' . $input;
+        }
+        $host = parse_url($input, PHP_URL_HOST);
+        if (!is_string($host) || $host === '') {
+            return null;
+        }
+        $host = rtrim(mb_strtolower($host), '.');
+        if (function_exists('idn_to_ascii') && preg_match('/[^\x20-\x7e]/', $host)) {
+            $host = (string)idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+        }
+        if (strlen($host) > 253 || filter_var($host, FILTER_VALIDATE_IP) || !preg_match('/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{2,63}|xn--[a-z0-9-]{1,59})$/', $host)) {
+            return null;
+        }
+        if (preg_match('/(^|\.)(localhost|local|internal|lan|home|test|example|invalid)$/', $host)) {
+            return null;
+        }
+        return 'https://' . $host;
+    }
+
     public function newsletter(): never
     {
         $spam = $this->guard('newsletter', 5);

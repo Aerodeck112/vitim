@@ -165,7 +165,7 @@ $all = Site::services();
       </ul>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="<?= e(url('/servicii/agenti-ai-software-personalizat')) ?>">Descoperă agenții AI <?= icon('arrow-right', 'ico ico-move') ?></a>
-        <a class="btn btn-ghost" href="<?= e(url('/servicii/automatizari')) ?>">Automatizări</a>
+        <a class="btn btn-ghost" href="#demo-ai">Testează pe site-ul tău</a>
       </div>
     </div>
     <div class="flow" data-reveal data-delay="120" aria-label="Exemplu de flux automatizat">
@@ -175,6 +175,12 @@ $all = Site::services();
       <div class="flow-node"><div class="icon-tile"><?= icon('file') ?></div><div><small>04 · rezultat</small><strong>Ofertă PDF generată + trimisă spre aprobare</strong></div></div>
       <div class="flow-node"><div class="icon-tile"><?= icon('kanban') ?></div><div><small>05 · CRM</small><strong>Oportunitate creată, follow-up programat</strong></div><span class="status">~2 min</span></div>
     </div>
+  </div>
+</section>
+
+<section class="section-sm" id="demo-ai">
+  <div class="container">
+    <?= View::partial('site/partials/ai_demo') ?>
   </div>
 </section>
 
