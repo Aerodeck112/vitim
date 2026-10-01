@@ -82,6 +82,10 @@ Se setează din WordPress → Setări → VITIM → Backup. Restaurare: importă
 dezarhivează `fisiere.zip` peste folderul site-ului. Pe site-uri cu trafic mic, WP-Cron rulează rar: adaugă în cPanel un cron
 la oră `wget -q -O /dev/null https://domeniu/wp-cron.php`.
 
+**Agentul AI pe site (0.11.0, plugin 1.3.0):** în panoul clientului → Agent AI → agentul legat de site, status **Activ** →
+„Agentul pe site” → bifează „Afișează asistentul pe site”. Pe WordPress apare singur (pluginul 1.3.0); pe alte site-uri pune
+codul afișat acolo înainte de `</body>`. Conversațiile apar în meniul „Conversații”; cererile ajung și pe email.
+
 ## Backup și restaurare
 
 - Zilnic la 03:17, baza de date pleacă pe `BACKUP_EMAIL` și rămâne și în `vitim-ai/storage/app/backups` (ultimele 7).

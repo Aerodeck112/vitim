@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Agent AI')
 @section('content')
-<div class="head"><div><h1>Agent AI</h1><p>Configurează agentul și testează-l din panou. Pe site răspunde după instalarea widgetului (în dezvoltare).</p></div></div>
+<div class="head"><div><h1>Agent AI</h1><p>Configurează agentul, testează-l din panou, apoi pornește-l pe site.</p></div></div>
 <div class="table-wrap" style="margin-bottom:18px"><table>
   <thead><tr><th>Agent</th><th>Site</th><th>Status</th><th>Limbă</th></tr></thead>
   <tbody>

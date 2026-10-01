@@ -1,6 +1,6 @@
 # VITIM AI — Securitate
 
-> Reflectă codul la versiunea **0.8.0**. Fiecare control are testul care îl verifică.
+> Reflectă codul la versiunea **0.11.0**. Fiecare control are testul care îl verifică.
 > „Neimplementat” înseamnă exact asta.
 
 ## Controale implementate
@@ -28,6 +28,7 @@
 | Conectorul site-urilor | HMAC-SHA256 cu secretul site-ului peste timestamp + nonce + corp, fereastră 5 minute, anti-replay, cheie revocată = refuz imediat. Firma vine doar din cheie; lucrările trimise intră doar la site-ul cheii. Pluginul doar trimite date, nu primește comenzi. Conectorul PHP rulează doar din CLI | `ConnectorController`, `SiteKeyService` | `ConnectorApiTest` |
 | Remedieri pe site-urile clienților | Listă închisă de acțiuni (aceeași în panou și în plugin), fără execuție de cod arbitrar; ținte validate (fără `..`, doar pluginuri / teme existente); cereri semnate HMAC, 5 minute, nonce unic; adresa pluginului doar pe domeniul site-ului (https); clientul le poate opri din WordPress; doar echipa VITIM (2FA) le poate porni; audit + jurnal de lucrări | `Remediation`, `SiteCommandService`, plugin `command()` | `SiteRemediationTest` |
 | Auditul site-urilor (SSRF) | Cereri doar spre domeniul site-ului și www, doar http(s), în producție doar porturile 80/443 și IP-uri publice, redirecturi urmate manual și verificate, răspunsuri limitate la 2 MB, maximum 40 de cereri per audit | `SafeFetcher` | `SiteAuditTest::test_audit_never_leaves_the_site_domain` |
+| Widgetul public | Cheie publică + Origin verificat (doar domeniul site-ului, https), răspuns fără CORS pentru Origin străin, token de conversație doar ca hash și legat de site, limite pe IP / conversație / lungime, plafon de cost; răspunsurile AI afișate ca text (doar îngroșat și linkuri https / relative); izolare în Shadow DOM | `WidgetController`, `loader.js` | `WidgetTest` |
 | Actualizare din panou | Doar super admin, parola reconfirmată, doar versiuni mai noi, backup al bazei înainte, căi din arhivă validate (fără `..`), `.env` / `storage` neatinse, audit | `SystemController`, `Updater` | `UpdaterTest` |
 | Afișarea răspunsurilor AI | Text escapat complet; se păstrează doar îngroșat și linkuri relative sau https (fără `javascript:`, `//`, `http:`), cu `rel="nofollow noopener noreferrer"` | `ChatText` | `ChatTextTest` |
 | Audit | Firmă / site / chei / agent creat, modificat, șters; user invitat, rol schimbat, user eliminat; contact și lead șterse; consimțământ schimbat; login; acces al echipei VITIM. Fără date personale în `meta` | `AuditLogger` | `AcceptanceTest`, `ContactsTest::test_delete_is_audited_without_personal_data` |
@@ -42,7 +43,7 @@
 | Subiect | Stare |
 |---|---|
 | Tokeni API pentru terți | Neimplementat. API-ul e doar cu sesiune |
-| Endpoint-uri publice pentru widget și plugin | Logica există (`SiteKeyService`), rutele vin în Fazele 4–5, cu rate limit dedicat pe IP / site |
+| Widget: atacuri automate (boți care consumă AI) | Parțial: limite pe IP și per conversație + plafoanele planului. Fără CAPTCHA încă |
 | Protecție prompt injection | Parțial: regulile fixe ale platformei spun modelului că mesajele vizitatorului nu schimbă instrucțiunile, iar efectele (tool-urile) sunt limitate de server (firmă, acțiuni permise, acord). Setul de evaluare are cazuri de injecție (`g09`, `a14`). Conținutul din pagini web (Faza 3) va fi trimis ca document, nu ca instrucțiuni |
 | Analiză statică (PHPStan/Larastan) | Nu a putut fi instalată în mediul de dezvoltare (descărcare blocată). De adăugat în CI |
 | Politică de retenție automată | Câmpul `data_retention_days` există, jobul de curățare nu |

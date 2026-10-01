@@ -53,6 +53,38 @@
   @if ($canManage)<button class="btn btn-p" type="submit">Salvează</button>@endif
   </fieldset>
 </form>
+<div class="card" style="margin-top:18px" id="widget">
+  <h2>Agentul pe site (widget)</h2>
+  @if (! $agent->site)
+    <p class="muted" style="margin:0">Alege mai sus site-ul pe care răspunde agentul, apoi revino aici.</p>
+  @else
+    @php($w = \App\Services\WidgetSettings::for($agent->site))
+    @php($key = $agent->site->keys()->whereNull('revoked_at')->latest('id')->first())
+    <p class="small muted" style="margin-top:-6px">Pe <strong>{{ $agent->site->domain }}</strong> widgetul apare când agentul e <strong>Activ</strong> și opțiunea de mai jos e bifată.
+      @if ($agent->status->value !== 'active')<span class="badge warn">agentul nu e activ</span>@endif</p>
+    <form method="post" action="{{ route('portal.agents.widget', [$organization->slug, $agent->id]) }}">
+      @csrf @method('put')
+      <fieldset @disabled(! $canManage) style="border:0;padding:0;margin:0">
+      <label class="chk"><input type="checkbox" name="enabled" value="1" @checked($w['enabled'])> Afișează asistentul pe site</label>
+      <div class="row" style="margin-top:10px">
+        <div class="fl"><label for="w-title">Titlul ferestrei</label><input id="w-title" type="text" name="title" maxlength="60" value="{{ $w['title'] }}" placeholder="{{ $agent->name }}"></div>
+        <div class="fl"><label for="w-launcher">Textul butonului</label><input id="w-launcher" type="text" name="launcher" maxlength="40" value="{{ $w['launcher'] }}"></div>
+      </div>
+      <div class="row">
+        <div class="fl"><label for="w-color">Culoare</label><input id="w-color" type="color" name="color" value="{{ $w['color'] }}" style="height:42px;width:80px;padding:2px"></div>
+        <div class="fl"><label for="w-position">Poziție</label><select id="w-position" name="position"><option value="right" @selected($w['position'] === 'right')>Dreapta jos</option><option value="left" @selected($w['position'] === 'left')>Stânga jos</option></select></div>
+      </div>
+      <div class="fl"><label for="w-privacy">Link spre politica de confidențialitate a site-ului</label><input id="w-privacy" type="text" name="privacy_url" maxlength="255" value="{{ $w['privacy_url'] }}" placeholder="https://{{ $agent->site->domain }}/politica-de-confidentialitate"></div>
+      @if ($canManage)<button class="btn btn-p" type="submit">Salvează widgetul</button>@endif
+      </fieldset>
+    </form>
+    @if ($key)
+      <div class="fl" style="margin-top:14px"><label>Instalare</label>
+        <div class="small muted">WordPress: pluginul VITIM Connector (1.3.0+) îl adaugă automat. Alte site-uri: pune codul înainte de &lt;/body&gt;:</div>
+        <pre class="code">&lt;script src="{{ url('/widget/v1/loader.js') }}" data-site="{{ $key->public_key }}" async&gt;&lt;/script&gt;</pre></div>
+    @endif
+  @endif
+</div>
 @if ($versions->isNotEmpty())
 <div class="card" style="margin-top:18px">
   <h2>Istoric versiuni</h2>

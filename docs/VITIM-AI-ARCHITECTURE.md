@@ -648,7 +648,7 @@ Legendă risc: **S** (scăzut) / **M** (mediu) / **R** (ridicat).
 | 3.4 | Varianta „context complet” pentru knowledge mic | runtime | 3.3 | S | Comutare automată după prag; cost măsurat |
 | 3.5 | UI: ce „știe” agentul, excludere documente, reindexare | UI | 3.2 | S | Document exclus nu mai apare în răspunsuri |
 
-### PHASE 4 — Widget
+### PHASE 4 — Widget ✅ (0.11.0)
 | # | Scop | Fișiere/componente | Dependențe | Risc | Acceptare |
 |---|---|---|---|---|---|
 | 4.1 | Widget API (sessions, messages, history, config) + origin check + rate limit | API | 2.3 | M | Origin neautorizat → 403; teste rate limit |

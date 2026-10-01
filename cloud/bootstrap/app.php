@@ -11,6 +11,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // pluginul WordPress / conectorul PHP: fără sesiune și CSRF, autentificare prin semnătură HMAC
         api: __DIR__.'/../routes/connector.php',
         apiPrefix: 'connector',
+        then: function () {
+            Route::prefix('widget/v1')->middleware(['api', 'throttle:widget'])->group(base_path('routes/widget.php'));
+        },
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -35,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*', 'connector/*') || $request->expectsJson(),
+            fn (Request $request) => $request->is('api/*', 'connector/*', 'widget/*') || $request->expectsJson(),
         );
         $exceptions->render(fn (Throwable $e, Request $request) => $request->is('api/*') ? ApiError::render($e) : null);
         // arhivă de actualizare mai mare decât limita de upload a hostingului: mesaj clar, nu pagina 413

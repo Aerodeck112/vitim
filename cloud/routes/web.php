@@ -127,6 +127,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/agent', [Portal\AgentController::class, 'store'])->middleware('can:manage_agents')->name('agents.store');
         Route::get('/agent/{agent}', [Portal\AgentController::class, 'edit'])->middleware('can:view_reports')->where('agent', $id)->name('agents.edit');
         Route::put('/agent/{agent}', [Portal\AgentController::class, 'update'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.update');
+        Route::put('/agent/{agent}/widget', [Portal\AgentController::class, 'widget'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.widget');
         // testul consumă din plafonul de cost AI, deci cere drept de administrare a agentului
         Route::get('/agent/{agent}/test', [Portal\AgentTestController::class, 'show'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.test');
         Route::post('/agent/{agent}/test', [Portal\AgentTestController::class, 'send'])->middleware(['can:manage_agents', 'throttle:agent-test'])->where('agent', $id)->name('agents.test.send');
@@ -141,6 +142,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/contacte/{contact}/consimtamant', [Portal\ContactController::class, 'consent'])->middleware('can:manage_consent')->where('contact', $id)->name('contacts.consent');
 
         Route::get('/site-uri/{site}', [Portal\SiteReportController::class, 'show'])->middleware('can:view_reports')->where('site', $id)->name('sites.report');
+        Route::get('/conversatii', [Portal\ConversationController::class, 'index'])->middleware('can:view_contacts')->name('conversations.index');
+        Route::get('/conversatii/{conversation}', [Portal\ConversationController::class, 'show'])->middleware('can:view_contacts')->where('conversation', $id)->name('conversations.show');
         Route::get('/rapoarte', [Portal\ReportController::class, 'index'])->middleware('can:view_reports')->name('reports.index');
         Route::get('/rapoarte/{period}', [Portal\ReportController::class, 'show'])->middleware('can:view_reports')->where('period', '\d{4}-\d{2}')->name('reports.show');
         Route::get('/lucrari', [Portal\WorkLogController::class, 'index'])->middleware('can:view_reports')->name('worklogs');

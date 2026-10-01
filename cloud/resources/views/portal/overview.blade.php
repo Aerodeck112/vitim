@@ -30,7 +30,7 @@
   @empty
     <p class="muted" style="margin:0">Niciun agent configurat. <a href="{{ route('portal.agents.index', $organization->slug) }}">Configurează agentul</a></p>
   @endforelse
-  <p class="tag-note" style="margin:10px 0 0">Agentul începe să răspundă vizitatorilor după activarea widgetului pe site (în dezvoltare).</p>
+  <p class="tag-note" style="margin:10px 0 0">Agentul răspunde pe site când e Activ și are widgetul pornit (Agent AI → „Agentul pe site”).</p>
 </div>
 @can('view_leads')
 <div class="card">

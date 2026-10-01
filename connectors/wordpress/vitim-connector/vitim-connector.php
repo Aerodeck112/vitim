@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       VITIM Connector
- * Description:       Conectează site-ul la panoul VITIM: starea site-ului, scanarea problemelor, remedieri din panou și jurnalul automat al lucrărilor.
- * Version:           1.2.0
+ * Description:       Conectează site-ul la panoul VITIM: asistentul AI pe site, starea site-ului, scanarea problemelor, remedieri, backup și jurnalul automat al lucrărilor.
+ * Version:           1.3.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            VITIM
@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('VITIM_CONNECTOR_VERSION', '1.2.0');
+define('VITIM_CONNECTOR_VERSION', '1.3.0');
 require_once __DIR__.'/includes-backup.php';
 
 final class Vitim_Connector
@@ -46,6 +46,7 @@ final class Vitim_Connector
         add_action('admin_post_vitim_connector_options', [__CLASS__, 'saveOptions']);
         add_filter('pre_set_site_transient_update_plugins', [__CLASS__, 'selfUpdate']);
         add_action(Vitim_Connector_Backup::HOOK, [__CLASS__, 'backup']);
+        add_action('wp_footer', [__CLASS__, 'widget']);
         add_action('admin_post_vitim_connector_backup_settings', [__CLASS__, 'saveBackupSettings']);
         self::harden();
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), function ($links) {
@@ -126,7 +127,8 @@ final class Vitim_Connector
             echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'" style="margin:12px 0">';
             wp_nonce_field('vitim_connector_options');
             echo '<input type="hidden" name="action" value="vitim_connector_options">';
-            printf('<label><input type="checkbox" name="remote_fixes" value="1" %s> Permite echipei VITIM să aplice remedieri din panou (actualizări, securizare). Scanarea rămâne activă oricum.</label> ', checked(self::remoteFixes(), true, false));
+            printf('<label><input type="checkbox" name="remote_fixes" value="1" %s> Permite echipei VITIM să aplice remedieri din panou (actualizări, securizare). Scanarea rămâne activă oricum.</label><br>', checked(self::remoteFixes(), true, false));
+            printf('<label><input type="checkbox" name="widget" value="1" %s> Afișează asistentul AI pe site (apare doar dacă agentul e activ în panoul VITIM)</label><br> ', checked(self::widgetEnabled(), true, false));
             submit_button('Salvează', 'secondary', 'submit', false);
             echo '</form>';
             $b = Vitim_Connector_Backup::settings();
@@ -200,6 +202,7 @@ final class Vitim_Connector
         check_admin_referer('vitim_connector_options');
         $s = self::settings();
         $s['remote_fixes'] = ! empty($_POST['remote_fixes']);
+        $s['widget'] = ! empty($_POST['widget']);
         update_option(self::OPTION, $s, false);
         self::run();
         wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim=sent'));
@@ -231,6 +234,23 @@ final class Vitim_Connector
         }
 
         return $report;
+    }
+
+    private static function widgetEnabled()
+    {
+        $s = self::settings();
+
+        return ! isset($s['widget']) || (bool) $s['widget'];
+    }
+
+    /** Scriptul widgetului în subsolul paginilor publice (se afișează doar dacă panoul spune că agentul e activ). */
+    public static function widget()
+    {
+        if (is_admin() || ! self::connected() || ! self::widgetEnabled()) {
+            return;
+        }
+        $s = self::settings();
+        printf('<script src="%s" data-site="%s" async></script>'."\n", esc_url(rtrim($s['url'], '/').'/widget/v1/loader.js'), esc_attr($s['key']));
     }
 
     private static function remoteFixes()

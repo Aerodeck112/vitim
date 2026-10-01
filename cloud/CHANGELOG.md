@@ -1,5 +1,15 @@
 # VITIM AI Cloud — versiuni
 
+## 0.11.0 — agentul AI pe site (plugin 1.3.0)
+
+- **Widgetul de chat** pe site-urile clienților: buton + fereastră de conversație, izolat de stilurile site-ului (Shadow DOM), ~3,5 KB comprimat, adaptat pentru telefon (ecran complet), accesibil din tastatură (Enter trimite, Esc închide). Conversația continuă după reîncărcarea paginii.
+- **Notă AI și GDPR** la deschidere: vizitatorul află că vorbește cu un asistent virtual al firmei, cu link spre politica de confidențialitate a site-ului.
+- **Setări** (Agent AI → „Agentul pe site”): pornit / oprit, titlu, textul butonului, culoare, poziție (dreapta / stânga), link de confidențialitate. Widgetul apare doar când agentul e Activ.
+- **WordPress**: pluginul 1.3.0 adaugă singur widgetul (se poate opri din Setări → VITIM). **Alte site-uri**: un rând de cod, afișat în pagina agentului.
+- **Conversații** (meniu nou în panoul clientului, în locul „Inbox – curând”): toate discuțiile vizitatorilor, cu filtrul „Cer un om”, transcriptul complet, cererile salvate și datele de contact.
+- **Email către echipa firmei** (proprietar, administratori, operatori) când agentul salvează o cerere (nume, telefon, email, rezumat) sau când un vizitator cere un om.
+- **Protecții**: widgetul funcționează doar pe domeniul site-ului (cheie publică + Origin verificat), token per conversație păstrat doar ca hash, limite pe IP (conversații noi, mesaje), maximum 40 de mesaje per conversație și 1.000 de caractere per mesaj, plus plafoanele de cost și de conversații din plan.
+
 ## 0.10.0 — servicii și raportul lunar
 
 - **Servicii pe client** (Admin → client → „Servicii și rapoarte”): Mentenanță și securitate, SEO, Google Ads, Google Business Profile.

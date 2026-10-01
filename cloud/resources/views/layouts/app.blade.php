@@ -35,7 +35,7 @@
       <a href="{{ route('portal.worklogs', $slug) }}" @class(['on' => request()->routeIs('portal.worklogs')])>Lucrări VITIM</a>
       <a href="{{ route('portal.reports.index', $slug) }}" @class(['on' => request()->routeIs('portal.reports.*')])>Rapoarte lunare</a>
       <a href="{{ route('portal.agents.index', $slug) }}" @class(['on' => request()->routeIs('portal.agents.*')])>Agent AI</a>
-      <a href="{{ route('portal.upcoming', [$slug, 'inbox']) }}" @class(['on' => request()->is('*/in-curand/inbox')])>Inbox <span class="soon">curând</span></a>
+      @can('view_contacts')<a href="{{ route('portal.conversations.index', $slug) }}" @class(['on' => request()->routeIs('portal.conversations.*')])>Conversații</a>@endcan
       @can('view_contacts')<a href="{{ route('portal.contacts.index', $slug) }}" @class(['on' => request()->routeIs('portal.contacts.*')])>Contacte</a>@endcan
       @can('view_leads')<a href="{{ route('portal.leads.index', $slug) }}" @class(['on' => request()->routeIs('portal.leads.*')])>Lead-uri</a>@endcan
       <a href="{{ route('portal.upcoming', [$slug, 'campanii']) }}" @class(['on' => request()->is('*/in-curand/campanii')])>Campanii <span class="soon">curând</span></a>

@@ -108,6 +108,19 @@ Corp: `{command_id, action, target?}`. `action` ∈ `scan`, `backup` (pornește 
 `delete_debug_log`, `delete_readme`, `disable_xmlrpc`, `disable_file_edit`, `block_php_uploads`, `allow_indexing`. Răspuns: `{ok, message, issues}` (o scanare nouă).
 Pluginul refuză orice altă acțiune și, dacă clientul a oprit remedierile, orice acțiune în afară de `scan`.
 
+## API widget — `/widget/v1` (public, de pe site-urile clienților)
+
+Cereri `POST` cu corp JSON trimis ca `text/plain` (fără preflight CORS). Fiecare cerere conține `key` (cheia publică `pk_…`); antetul `Origin` trebuie să fie domeniul site-ului (sau www), doar https. Răspunsurile permise au `Access-Control-Allow-Origin` = Origin-ul cererii; celelalte primesc `403` fără antetul CORS.
+
+| Rută | Corp | Răspuns |
+|---|---|---|
+| `/config` | `key` | `enabled`, `title`, `greeting`, `color`, `position`, `launcher`, `privacy_url`, `notice` |
+| `/start` | `key`, `page?` | `token` (48 caractere; serverul păstrează doar hash-ul). 10 / oră / IP |
+| `/message` | `key`, `token`, `message` (max. 1.000) | `reply`, `status` (ok / refused / unavailable / capped / inactive). 30 / 10 min / IP, max. 40 de mesaje / conversație |
+| `/history` | `key`, `token` | `messages[{role: visitor/agent, text}]` |
+
+Scriptul: `<script src="https://ai.vitim.ro/widget/v1/loader.js" data-site="pk_…" async></script>`.
+
 ## Evenimente de domeniu emise (pentru automatizările viitoare)
 
 `contact.created`, `contact.updated`, `contact.deleted`, `consent.changed`, `lead.created`, `lead.status_changed`, `lead.assigned`, `lead.deleted`, `agent.created`, `message.sent`, `message.cancelled`, `message.failed`.

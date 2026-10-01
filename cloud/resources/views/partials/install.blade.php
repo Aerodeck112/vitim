@@ -10,5 +10,5 @@
 <div class="fl">
   <label>Agentul AI pe orice site (înainte de &lt;/body&gt;)</label>
   <pre class="code">&lt;script src="{{ url('/widget/v1/loader.js') }}" data-site="{{ $publicKey }}" async&gt;&lt;/script&gt;</pre>
-  <div class="hint">Widgetul devine activ într-o versiune următoare. Codul și cheia rămân aceleași.</div>
+  <div class="hint">Se activează din Agent AI → „Agentul pe site”. Pe WordPress îl adaugă pluginul.</div>
 </div>

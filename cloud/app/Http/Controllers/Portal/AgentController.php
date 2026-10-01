@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Services\AgentConfiguration;
 use App\Services\AgentService;
 use App\Services\AgentTemplates;
+use App\Services\AuditLogger;
+use App\Services\WidgetSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -54,6 +56,21 @@ final class AgentController extends PortalController
             'actions' => AgentConfiguration::ACTIONS,
             'leadFields' => AgentConfiguration::LEAD_FIELDS,
         ]);
+    }
+
+    /** Aspectul widgetului pe site-ul agentului. */
+    public function widget(Request $request, AuditLogger $audit, int $agent): RedirectResponse
+    {
+        $model = Agent::query()->with('site')->findOrFail($agent);
+        abort_if($model->site === null, 422, 'Agentul nu e legat de un site.');
+        $request->validate([
+            'color' => ['nullable', 'string', 'max:7'], 'position' => ['nullable', 'in:left,right'], 'title' => ['nullable', 'string', 'max:60'],
+            'launcher' => ['nullable', 'string', 'max:40'], 'privacy_url' => ['nullable', 'url', 'max:255'],
+        ]);
+        $model->site->forceFill(['widget_config' => WidgetSettings::normalize($request->all() + ['enabled' => $request->boolean('enabled')])])->save();
+        $audit->record('widget.updated', $model->site);
+
+        return $this->to('portal.agents.edit', ['agent' => $model->id], 'Setările widgetului au fost salvate.');
     }
 
     public function update(Request $request, AgentService $agents, int $agent): RedirectResponse

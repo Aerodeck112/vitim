@@ -51,7 +51,9 @@ class Site extends Model
             return false;
         }
         $parts = parse_url($origin);
-        if (($parts['scheme'] ?? '') !== 'https' || empty($parts['host'])) {
+        $scheme = $parts['scheme'] ?? '';
+        // doar https; http e acceptat numai pe mediul local de dezvoltare (site-uri de test)
+        if (($scheme !== 'https' && ($scheme !== 'http' || ! app()->environment('local'))) || empty($parts['host'])) {
             return false;
         }
         $host = strtolower($parts['host']);
