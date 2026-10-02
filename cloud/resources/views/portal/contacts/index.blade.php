@@ -3,7 +3,7 @@
 @section('content')
 <div class="head">
   <div><h1>Contacte</h1><p>Clienții și potențialii clienți ai firmei.</p></div>
-  @if ($canManage)<a class="btn btn-p" href="{{ route('portal.contacts.create', $organization->slug) }}">Contact nou</a>@endif
+  @if ($canManage)<div style="display:flex;gap:8px"><a class="btn" href="{{ route('portal.contacts.import', $organization->slug) }}">Import din Excel / CSV</a><a class="btn btn-p" href="{{ route('portal.contacts.create', $organization->slug) }}">Contact nou</a></div>@endif
 </div>
 <form method="get" class="toolbar">
   <input type="text" name="q" value="{{ $q }}" placeholder="Caută după nume, email, telefon, firmă" aria-label="Caută">

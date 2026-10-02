@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')->everyMinute()->withoutOverlapping(2);
 
 Schedule::command('vitim:events')->everyMinute()->withoutOverlapping(5);
+Schedule::command('vitim:campaigns')->everyMinute()->withoutOverlapping(10);
 
 Schedule::command('vitim:backup')->dailyAt('03:17')->withoutOverlapping(60);
 Schedule::command('auth:clear-resets')->daily();

@@ -21,7 +21,7 @@ final class PermissionMatrixTest extends TestCase
     {
         $viewer = [Permission::ViewReports, Permission::ViewContacts, Permission::ViewLeads, Permission::ViewConversations];
         $agent = [...$viewer, Permission::ManageContacts, Permission::ManageConsent, Permission::ManageLeads, Permission::HandleConversations];
-        $admin = [...$agent, Permission::ManageAgents, Permission::ManageKnowledge, Permission::ManageSites, Permission::ManageIntegrations,
+        $admin = [...$agent, Permission::ManageAgents, Permission::ManageKnowledge, Permission::ManageSites, Permission::ManageIntegrations, Permission::ManageCampaigns,
             Permission::ManageUsers, Permission::ViewAudit, Permission::ExportData];
         $expected = ['viewer' => $viewer, 'agent' => $agent, 'org_admin' => $admin, 'org_owner' => Permission::cases()];
 

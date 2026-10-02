@@ -28,7 +28,7 @@ enum OrgRole: string
         $viewer = [Permission::ViewReports, Permission::ViewContacts, Permission::ViewLeads, Permission::ViewConversations];
         $agent = [...$viewer, Permission::ManageContacts, Permission::ManageConsent, Permission::ManageLeads, Permission::HandleConversations];
         $admin = [...$agent, Permission::ManageAgents, Permission::ManageKnowledge, Permission::ManageSites,
-            Permission::ManageIntegrations, Permission::ManageUsers, Permission::ViewAudit, Permission::ExportData];
+            Permission::ManageIntegrations, Permission::ManageCampaigns, Permission::ManageUsers, Permission::ViewAudit, Permission::ExportData];
 
         return match ($this) {
             self::Viewer => $viewer,

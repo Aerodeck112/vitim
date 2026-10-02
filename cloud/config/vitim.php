@@ -14,6 +14,9 @@ return [
     'ai_models' => array_values(array_filter(explode(',', (string) env('VITIM_AI_MODELS', 'claude-opus-5-5')))),
     'backup_keep_local' => (int) env('BACKUP_KEEP_LOCAL', 7),
 
+    // versiunea Graph API pentru WhatsApp Cloud API (Meta retrage versiunile vechi după ~2 ani)
+    'whatsapp_graph_version' => env('WHATSAPP_GRAPH_VERSION', 'v22.0'),
+
     /*
     | Agentul AI. Cheia stă doar în .env (niciodată în baza de date sau pe agent).
     | ANTHROPIC_BASE_URL e doar pentru teste locale (server care imită API-ul).

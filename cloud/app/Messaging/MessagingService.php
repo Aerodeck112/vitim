@@ -36,7 +36,7 @@ final class MessagingService
     public function send(Conversation $conversation, Channel $channel, ConsentPurpose $purpose, string $body, ?string $subject = null, SenderType $sender = SenderType::System, ?User $user = null): Message
     {
         $contact = $conversation->contact;
-        $recipient = $contact ? $this->recipient($contact, $channel) : null;
+        $recipient = $contact ? $this->recipientFor($contact, $channel) : null;
         $message = $conversation->messages()->create([
             'direction' => 'outbound',
             'sender_type' => $sender,
@@ -87,7 +87,8 @@ final class MessagingService
         return $message;
     }
 
-    private function recipient(Contact $contact, Channel $channel): ?string
+    /** Adresa contactului pe canal (normalizată): email, telefon; pentru WhatsApp, numărul WhatsApp sau telefonul. */
+    public function recipientFor(Contact $contact, Channel $channel): ?string
     {
         $type = match ($channel) {
             Channel::Email => IdentityType::Email,

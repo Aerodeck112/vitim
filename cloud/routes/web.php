@@ -135,6 +135,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
 
         Route::get('/contacte', [Portal\ContactController::class, 'index'])->middleware('can:view_contacts')->name('contacts.index');
         Route::get('/contacte/nou', [Portal\ContactController::class, 'create'])->middleware('can:manage_contacts')->name('contacts.create');
+        Route::get('/contacte/import', [Portal\ContactImportController::class, 'show'])->middleware('can:manage_contacts')->name('contacts.import');
+        Route::post('/contacte/import', [Portal\ContactImportController::class, 'store'])->middleware(['can:manage_contacts', 'can:manage_consent', 'throttle:10,1'])->name('contacts.import.store');
         Route::post('/contacte', [Portal\ContactController::class, 'store'])->middleware('can:manage_contacts')->name('contacts.store');
         Route::get('/contacte/{contact}', [Portal\ContactController::class, 'show'])->middleware('can:view_contacts')->where('contact', $id)->name('contacts.show');
         Route::get('/contacte/{contact}/editare', [Portal\ContactController::class, 'edit'])->middleware('can:manage_contacts')->where('contact', $id)->name('contacts.edit');
@@ -149,6 +151,17 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/conversatii/{conversation}/raspuns', [Portal\ConversationController::class, 'reply'])->middleware('can:handle_conversations')->where('conversation', $id)->name('conversations.reply');
         Route::post('/conversatii/{conversation}/actiune', [Portal\ConversationController::class, 'action'])->middleware('can:handle_conversations')->where('conversation', $id)->name('conversations.action');
         Route::post('/conversatii/{conversation}/scrie', [Portal\ConversationController::class, 'typing'])->middleware('can:handle_conversations')->where('conversation', $id)->name('conversations.typing');
+        Route::get('/campanii', [Portal\CampaignController::class, 'index'])->middleware('can:manage_campaigns')->name('campaigns.index');
+        Route::post('/campanii', [Portal\CampaignController::class, 'store'])->middleware('can:manage_campaigns')->name('campaigns.store');
+        Route::get('/campanii/{campaign}', [Portal\CampaignController::class, 'show'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.show');
+        Route::put('/campanii/{campaign}', [Portal\CampaignController::class, 'update'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.update');
+        Route::post('/campanii/{campaign}/test', [Portal\CampaignController::class, 'test'])->middleware(['can:manage_campaigns', 'throttle:10,1'])->where('campaign', $id)->name('campaigns.test');
+        Route::post('/campanii/{campaign}/aprobare', [Portal\CampaignController::class, 'approve'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.approve');
+        Route::post('/campanii/{campaign}/actiune', [Portal\CampaignController::class, 'action'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.action');
+        Route::get('/canale', [Portal\ChannelController::class, 'index'])->middleware('can:manage_campaigns')->name('channels');
+        Route::put('/canale/{channel}', [Portal\ChannelController::class, 'save'])->middleware('can:manage_campaigns')->name('channels.save');
+        Route::post('/canale/{channel}/test', [Portal\ChannelController::class, 'test'])->middleware(['can:manage_campaigns', 'throttle:10,1'])->name('channels.test');
+        Route::delete('/canale/{channel}', [Portal\ChannelController::class, 'destroy'])->middleware('can:manage_campaigns')->name('channels.destroy');
         Route::get('/rapoarte', [Portal\ReportController::class, 'index'])->middleware('can:view_reports')->name('reports.index');
         Route::get('/rapoarte/{period}', [Portal\ReportController::class, 'show'])->middleware('can:view_reports')->where('period', '\d{4}-\d{2}')->name('reports.show');
         Route::get('/lucrari', [Portal\WorkLogController::class, 'index'])->middleware('can:view_reports')->name('worklogs');

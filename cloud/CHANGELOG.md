@@ -1,5 +1,20 @@
 # VITIM AI Cloud — versiuni
 
+## 0.16.0 — campanii pe email, SMS și WhatsApp
+
+- **Campanii** (meniu nou în panoul clientului): email, SMS și WhatsApp, trimise **din conturile firmei**: emailul ei (SMTP, de exemplu din cPanel), contul ei SMSLink.ro și numărul ei de WhatsApp Business (API-ul oficial Meta). Costurile le plătește direct firma.
+- **Canale de trimitere** (Campanii → Canale): conectarea conturilor, cu buton de test. Parolele și tokenurile sunt criptate și nu se mai afișează după salvare.
+- Fluxul unei campanii: ciornă → **previzualizare** (exact cum arată, cu numele unui contact) → **test către tine** → **aprobare** (acum sau la o oră aleasă) → trimitere în tranșe → **statistici** pe destinatar (trimis, eșuat, exclus și de ce, dezabonat; pe WhatsApp și livrat / citit).
+- **Doar contactele cu acord de marketing** pe acel canal primesc campania (GDPR, Legea 506/2004); acordul se verifică și la aprobare, și la trimiterea fiecărui mesaj. Publicul se poate restrânge după sursa contactului, cererile trimise și data adăugării.
+- **Personalizare** cu {{prenume}}, {{nume}}, {{firma}}. În email: **îngroșat**, linkuri, datele firmei (denumire, CUI) și linkul de dezabonare adăugate automat, plus dezabonarea dintr-un click din Gmail / Outlook.
+- **SMS**: numărul de caractere și de SMS-uri pe destinatar, opțiune fără diacritice (160 de caractere în loc de 70), link scurt de dezabonare.
+- **WhatsApp**: șabloane aprobate de Meta, cu variabile; webhook pentru statusurile de livrare și pentru răspunsurile „STOP”, care dezabonează automat.
+- **Dezabonare**: pagina de dezabonare retrage acordul (rămâne în istoricul contactului) și pune adresa pe lista de suprimare. Un import ulterior nu o mai readuce.
+- **Limita pe oră a emailului** (hostingul limitează trimiterile): campaniile mari se împart automat pe ore.
+- **Oprire automată** după 3 erori la rând (parolă schimbată, credit SMS epuizat), cu motivul afișat. Campania se poate opri, continua sau anula oricând.
+- **Import de contacte din Excel / CSV** (Contacte → Import): completează contactele existente fără dubluri și înregistrează acordul de marketing doar dacă declari sursa lui.
+- Permisiune nouă: „campanii”, pentru proprietar și administratori.
+
 ## 0.15.0 — invitații retrimise și clienții pe servicii
 
 - **Invitațiile sunt valabile 7 zile** (înainte: 60 de minute, ca linkul de „Am uitat parola”). Emailul nou spune la ce firmă primește acces și până când e valabil linkul. Linkul de „Am uitat parola” rămâne la 60 de minute.

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'connector',
         then: function () {
             Route::prefix('widget/v1')->middleware(['api', 'throttle:widget'])->group(base_path('routes/widget.php'));
+            Route::middleware('web')->withoutMiddleware(ValidateCsrfToken::class)->group(base_path('routes/public.php'));
         },
         commands: __DIR__.'/../routes/console.php',
         health: '/up',

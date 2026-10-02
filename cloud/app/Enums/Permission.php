@@ -19,6 +19,7 @@ enum Permission: string
     case ManageLeads = 'manage_leads';
     case ViewConversations = 'view_conversations';
     case HandleConversations = 'handle_conversations';
+    case ManageCampaigns = 'manage_campaigns';
     case ManageAgents = 'manage_agents';
     case ManageKnowledge = 'manage_knowledge';
     case ManageSites = 'manage_sites';

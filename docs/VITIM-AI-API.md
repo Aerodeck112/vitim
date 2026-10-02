@@ -125,6 +125,15 @@ Panou (sesiune, permisiunea `handle_conversations` pentru scriere): `GET /app/{f
 
 Scriptul: `<script src="https://ai.vitim.ro/widget/v1/loader.js" data-site="pk_…" async></script>`.
 
+## Pagini publice pentru campanii (0.16.0)
+
+| Rută | Scop |
+|---|---|
+| `GET /d/{cod}` | Pagina de dezabonare (cod aleator de 10 caractere, din linkul campaniei) |
+| `POST /d/{cod}` | Dezabonare; cu `List-Unsubscribe=One-Click` în corp (RFC 8058), răspunde 200 fără conținut. Fără CSRF |
+| `GET /webhooks/whatsapp/{token}` | Verificarea Meta (`hub.mode`, `hub.verify_token`, `hub.challenge`) |
+| `POST /webhooks/whatsapp/{token}` | Statusuri (`sent`/`delivered`/`read`/`failed`) și mesaje primite („STOP” dezabonează); semnătura `X-Hub-Signature-256` obligatorie |
+
 ## Evenimente de domeniu emise (pentru automatizările viitoare)
 
 `contact.created`, `contact.updated`, `contact.deleted`, `consent.changed`, `lead.created`, `lead.status_changed`, `lead.assigned`, `lead.deleted`, `agent.created`, `message.sent`, `message.cancelled`, `message.failed`.

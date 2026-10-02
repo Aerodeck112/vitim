@@ -38,7 +38,7 @@
       @can('view_contacts')<a href="{{ route('portal.conversations.index', $slug) }}" @class(['on' => request()->routeIs('portal.conversations.*')])>Conversații</a>@endcan
       @can('view_contacts')<a href="{{ route('portal.contacts.index', $slug) }}" @class(['on' => request()->routeIs('portal.contacts.*')])>Contacte</a>@endcan
       @can('view_leads')<a href="{{ route('portal.leads.index', $slug) }}" @class(['on' => request()->routeIs('portal.leads.*')])>Lead-uri</a>@endcan
-      <a href="{{ route('portal.upcoming', [$slug, 'campanii']) }}" @class(['on' => request()->is('*/in-curand/campanii')])>Campanii <span class="soon">curând</span></a>
+      @can('manage_campaigns')<a href="{{ route('portal.campaigns.index', $slug) }}" @class(['on' => request()->routeIs('portal.campaigns.*', 'portal.channels')])>Campanii</a>@endcan
       <a href="{{ route('portal.upcoming', [$slug, 'automatizari']) }}" @class(['on' => request()->is('*/in-curand/automatizari')])>Automatizări <span class="soon">curând</span></a>
       <a href="{{ route('portal.upcoming', [$slug, 'analytics']) }}" @class(['on' => request()->is('*/in-curand/analytics')])>Analytics <span class="soon">curând</span></a>
       <a href="{{ route('portal.upcoming', [$slug, 'integrari']) }}" @class(['on' => request()->is('*/in-curand/integrari')])>Integrări <span class="soon">curând</span></a>

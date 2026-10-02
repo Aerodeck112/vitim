@@ -37,6 +37,9 @@
 | `suppressions` | Liste de excludere per canal | ✓ | Doar `value_hash` (HMAC), nu adresa. Rămâne după ștergerea contactului. Motiv: `unsubscribed`, `bounced`, `complaint`, `manual`; motivul doar se agravează |
 | `leads` | Oportunități | ✓ | Mai multe per contact. `status` (pipeline implicit), `intent`, `score`, `assigned_to` (membru al firmei), `summary`, valoare, `closed_at` |
 | `conversations` | Fundația Inbox | ✓ | `channel` web / email / whatsapp / sms / other, `status` (`pending` = cere un om), `mode` ai/human, `assigned_to`, `is_test` (conversații din panou), `ai_cost_micro_usd`, `visitor_token_hash` + `visitor_page` (widget), `visitor_seen_at` (vizitatorul are chatul deschis), `staff_read_at` (necitite în panou), `bot_state` (agentul fără AI: date de contact adunate, întrebarea în curs) |
+| `channel_accounts` | Conturile de trimitere ale firmei (0.16.0) | ✓ | `channel` email/sms/whatsapp, `provider` smtp/smslink/meta, `config` criptat (parole, tokenuri), `status` ok/error/untested, `hourly_limit` (email), `webhook_token` (WhatsApp) |
+| `campaigns` | Campanii (0.16.0) | ✓ | `channel`, `status` draft → scheduled → sending → completed (paused / cancelled), `audience` (surse, lead-uri, dată), `subject`, `body`, `template` (WhatsApp), `approved_by/at`, `scheduled_at`, `last_error` |
+| `campaign_recipients` | Destinatarii fixați la aprobare (0.16.0) | ✓ | `status` pending/sent/delivered/read/failed/excluded/unsubscribed, `reason` (de ce a fost exclus), `external_id` (ID-ul furnizorului), `unsubscribe_code` (link scurt) |
 | `ai_turns` | Conversația cu modelul, în formatul API | ✓ | Append-only: tura asistentului se salvează completă (inclusiv blocurile de gândire) și se retrimite neschimbată |
 | `tool_executions` | Jurnalul acțiunilor agentului | ✓ | `tool`, `input`, `result`, `status` (`ok`, `rejected`, `error`, `dry_run`), durată |
 | `messages` | Mesaje | ✓ | `direction`, `sender_type`, `channel`, `purpose`, `status` intern, `provider`, `external_message_id`, `sent_at` / `delivered_at` / `read_at` / `failed_at` |
@@ -95,9 +98,7 @@ Tabelele de mai jos sunt proiectate să se lege de schema existentă fără rest
 | `integrations` (+ `credentials_enc`) | Conexiuni externe (webhook, WooCommerce, Google...) | organizations | Faza 5+ |
 | `tags`, `contact_tag` | Etichete de contact (segmentare, automatizări) | contacts | cu Segmentele |
 | `segments` | Definiție JSON de filtre (ex. „consimțământ WhatsApp” + „lead fără răspuns 3 zile”), evaluată în SQL la rulare | contacts, identities, consents, leads, messages | Marketing |
-| `message_templates` | name, channel, language, subject, content, `variables` (listă), status (draft/approved) | organizations | Marketing |
-| `campaigns` | name, type, status (DRAFT → SCHEDULED → RUNNING → PAUSED/COMPLETED/CANCELLED), segment_id, channel, template_id, scheduled/started/completed_at, **approved_by / approved_at** | segments, templates | Marketing |
-| `campaign_recipients` | campaign_id, contact_id, message_id, status, motivul excluderii (fără consimțământ, suprimat) | campaigns, contacts, messages | Marketing |
+| `message_templates` | Șabloane reutilizabile (după campaniile din 0.16.0) | organizations | Marketing |
 | `automation_workflows` | Definiție versionată: noduri TRIGGER / CONDITION / WAIT / EMAIL / WHATSAPP / SMS / AI / WEBHOOK / CREATE_LEAD / CREATE_TASK / UPDATE_CONTACT / ADD_TAG / REMOVE_TAG / HUMAN_TASK / STOP | organizations | Automatizări |
 | `automation_runs` | Instanța unui flux pentru un contact: nodul curent, `wake_at` (pentru WAIT), status | workflows, contacts | Automatizări |
 | `automation_events` | Istoricul pașilor unui run (auditabil) | runs | Automatizări |
