@@ -100,6 +100,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::prefix('clienti/{organization}')->middleware('org')->group(function () {
             Route::get('/', [OrganizationController::class, 'show'])->name('organizations.show');
             Route::post('/site-uri', [SiteController::class, 'store'])->name('sites.store');
+            Route::post('/utilizatori/{member}/invitatie', [OrganizationController::class, 'resendInvite'])->whereNumber('member')->middleware('throttle:10,1')->name('organizations.resend');
             Route::post('/site-uri/{site}/chei', [SiteController::class, 'rotate'])->whereNumber('site')->name('sites.rotate');
             Route::get('/site-uri/{site}', [SiteHealthController::class, 'show'])->whereNumber('site')->name('sites.health');
             Route::post('/site-uri/{site}/audit', [SiteHealthController::class, 'audit'])->whereNumber('site')->middleware('throttle:10,1')->name('sites.audit');
@@ -161,6 +162,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/setari/utilizatori', [Portal\SettingsController::class, 'invite'])->middleware('can:manage_users')->name('settings.invite');
         Route::put('/setari/utilizatori/{member}', [Portal\SettingsController::class, 'changeRole'])->middleware('can:manage_users')->where('member', $id)->name('settings.role');
         Route::delete('/setari/utilizatori/{member}', [Portal\SettingsController::class, 'removeMember'])->middleware('can:manage_users')->where('member', $id)->name('settings.remove');
+        Route::post('/setari/utilizatori/{member}/invitatie', [Portal\SettingsController::class, 'resendInvite'])->middleware(['can:manage_users', 'throttle:10,1'])->where('member', $id)->name('settings.resend');
         Route::post('/setari/site-uri', [Portal\SettingsController::class, 'storeSite'])->middleware('can:manage_sites')->name('settings.sites');
     });
 });

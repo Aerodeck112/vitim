@@ -10,8 +10,8 @@ use App\Http\Middleware\EnsureTwoFactor;
 use App\Models\Membership;
 use App\Models\Organization;
 use App\Models\User;
+use App\Notifications\Invitation;
 use App\Services\ConnectionCode;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -40,7 +40,7 @@ final class AdminDashboardTest extends TestCase
         $org = Organization::where('slug', 'demo-auto-srl')->firstOrFail();
         $owner = User::where('email', 'ion@demoauto.ro')->firstOrFail();
         $this->assertSame(OrgRole::Owner, $owner->roleIn($org));
-        Notification::assertSentTo($owner, ResetPassword::class);
+        Notification::assertSentTo($owner, Invitation::class);
         $this->get('/admin')->assertOk()->assertSee('Demo Auto SRL');
     }
 

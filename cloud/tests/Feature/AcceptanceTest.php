@@ -13,9 +13,9 @@ use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Site;
 use App\Models\User;
+use App\Notifications\Invitation;
 use App\Security\Totp;
 use App\Services\ContactService;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -61,7 +61,7 @@ final class AcceptanceTest extends TestCase
         $this->post('/app/organizatia-a/setari/utilizatori', ['name' => 'Operator A', 'email' => 'operator-a@example.test', 'role' => 'agent'])->assertRedirect();
         $operator = User::where('email', 'operator-a@example.test')->firstOrFail();
         $token = null;
-        Notification::assertSentTo($operator, ResetPassword::class, function (ResetPassword $n) use (&$token) {
+        Notification::assertSentTo($operator, Invitation::class, function (Invitation $n) use (&$token) {
             $token = $n->token;
 
             return true;
@@ -70,7 +70,7 @@ final class AcceptanceTest extends TestCase
         // 6. utilizatorul își setează parola și se autentifică
         $this->post('/logout');
         Auth::forgetGuards();
-        $this->post('/parola/noua', ['token' => $token, 'email' => 'operator-a@example.test', 'password' => 'parola-operator-sigura', 'password_confirmation' => 'parola-operator-sigura'])->assertRedirect('/login');
+        $this->post('/parola/noua', ['token' => $token, 'email' => 'operator-a@example.test', 'invite' => '1', 'password' => 'parola-operator-sigura', 'password_confirmation' => 'parola-operator-sigura'])->assertRedirect('/login');
         $this->post('/login', ['email' => 'operator-a@example.test', 'password' => 'parola-operator-sigura'])->assertRedirect();
         $this->assertAuthenticatedAs($operator);
 

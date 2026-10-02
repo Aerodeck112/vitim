@@ -9,6 +9,8 @@ use App\Enums\Permission;
 use App\Enums\SitePlatform;
 use App\Models\Membership;
 use App\Models\Site;
+use App\Services\AuditLogger;
+use App\Services\Invitations;
 use App\Services\MembershipService;
 use App\Services\OrganizationService;
 use App\Services\SiteService;
@@ -76,6 +78,17 @@ final class SettingsController extends PortalController
         $members->remove($request->user(), Membership::query()->findOrFail($member));
 
         return $this->to('portal.settings', [], 'Utilizator eliminat din firmă.');
+    }
+
+    /** Retrimite invitația unui coleg care nu și-a setat încă parola (linkul expirase). */
+    public function resendInvite(Invitations $invitations, AuditLogger $audit, int $member): RedirectResponse
+    {
+        $membership = Membership::query()->with('user')->findOrFail($member);
+        abort_unless(Invitations::pending($membership->user), 422, 'Utilizatorul are deja parolă.');
+        $invitations->send($membership->user, $this->organization()->name);
+        $audit->record('user.invite_resent', $membership);
+
+        return $this->to('portal.settings', [], 'Invitația a fost retrimisă la '.$membership->user->email.'.');
     }
 
     public function storeSite(Request $request, SiteService $sites): RedirectResponse

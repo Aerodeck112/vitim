@@ -1,5 +1,12 @@
 # VITIM AI Cloud — versiuni
 
+## 0.15.0 — invitații retrimise și clienții pe servicii
+
+- **Invitațiile sunt valabile 7 zile** (înainte: 60 de minute, ca linkul de „Am uitat parola”). Emailul nou spune la ce firmă primește acces și până când e valabil linkul. Linkul de „Am uitat parola” rămâne la 60 de minute.
+- **„Retrimite invitația”**: în fișa clientului (Admin), lângă fiecare utilizator care nu și-a setat parola, cu starea invitației („trimisă, valabilă până la…” / „expirată”). Același buton îl are și proprietarul firmei în Setări → Utilizatori, pentru colegii lui.
+- Dacă invitația a expirat, mesajul de pe pagina de setare a parolei spune ce e de făcut.
+- **Clienții se filtrează după servicii** în lista din Admin: Mentenanță, SEO, Google Ads, Google Business Profile, Fără servicii (cu numărul de clienți la fiecare), iar tabelul are coloana „Servicii”.
+
 ## 0.14.0 — SEO reparat la buton (plugin 1.4.0)
 
 - **„Repară” pe fiecare problemă SEO** din audit, pe site-urile WordPress cu pluginul 1.4.0, plus un buton **„Repară tot automat”** care le rezolvă pe toate deodată. După reparare, auditul se reface imediat și problemele trec la „Rezolvate recent”.

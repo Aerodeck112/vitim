@@ -9,7 +9,6 @@ use App\Models\Membership;
 use App\Models\User;
 use App\Tenancy\TenantContext;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -44,7 +43,7 @@ final class MembershipService
             return $membership;
         });
         if ($isNew) {
-            Password::sendResetLink(['email' => $email]);
+            app(Invitations::class)->send($user, $this->context->organization()->name);
         }
 
         return $membership;

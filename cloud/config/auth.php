@@ -99,6 +99,13 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        // invitațiile pentru conturile noi (setarea primei parole): 7 zile, retrimise din panou
+        'invites' => [
+            'provider' => 'users',
+            'table' => 'invitation_tokens',
+            'expire' => (int) env('INVITE_EXPIRE_MINUTES', 10080),
+            'throttle' => 30,
+        ],
     ],
 
     /*

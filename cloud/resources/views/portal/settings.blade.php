@@ -37,8 +37,11 @@
             <select name="role" aria-label="Rol">@foreach ($roles as $r)<option value="{{ $r->value }}" @selected($m->role === $r)>{{ $r->label() }}</option>@endforeach</select>
             <button class="btn btn-s" type="submit">Schimbă</button></form>
           @else {{ $m->role->label() }} @endif</td>
-        <td>{{ $m->user->hasTwoFactor() ? 'activ' : '—' }}</td>
-        <td>@if ($can['users'] && in_array($m->role, $roles, true) && $m->user_id !== auth()->id())
+        <td>{{ $m->user->hasTwoFactor() ? 'activ' : '—' }}@if (\App\Services\Invitations::pending($m->user))<div class="small">@include('partials.invite-status', ['user' => $m->user])</div>@endif</td>
+        <td>@if ($can['users'] && \App\Services\Invitations::pending($m->user))
+          <form method="post" action="{{ route('portal.settings.resend', [$organization->slug, $m->id]) }}" style="margin-bottom:6px">@csrf<button class="btn btn-s" type="submit">Retrimite invitația</button></form>
+        @endif
+        @if ($can['users'] && in_array($m->role, $roles, true) && $m->user_id !== auth()->id())
           <form method="post" action="{{ route('portal.settings.remove', [$organization->slug, $m->id]) }}" onsubmit="return confirm('Elimini utilizatorul din firmă?')">@csrf @method('delete')<button class="btn btn-s btn-d" type="submit">Elimină</button></form>
         @endif</td></tr>
     @endforeach

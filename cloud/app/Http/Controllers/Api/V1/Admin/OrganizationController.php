@@ -8,10 +8,10 @@ use App\Http\Controllers\Api\V1\ApiController;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
 use App\Models\User;
+use App\Services\Invitations;
 use App\Services\OrganizationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -46,7 +46,7 @@ final class OrganizationController extends ApiController
         }
         $organization = $organizations->create($data['name'], $data['plan'], $owner, $data);
         if ($newOwner) {
-            Password::sendResetLink(['email' => $owner->email]);
+            app(Invitations::class)->send($owner, $organization->name);
         }
 
         return new OrganizationResource($organization->load('subscriptionWithoutTenancy'));

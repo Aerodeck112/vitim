@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\AgentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\ClientService;
 use App\Models\Contact;
 use App\Models\Conversation;
 use App\Models\Lead;
@@ -17,6 +18,8 @@ use App\Models\SiteIssue;
 use App\Models\Subscription;
 use App\Models\UsageRecord;
 use App\Models\User;
+use App\Reports\ServiceCatalog;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -26,19 +29,32 @@ use Illuminate\View\View;
  */
 final class DashboardController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $count = fn (string $model) => $model::withoutTenancy()->select('organization_id', DB::raw('count(*) as n'))->groupBy('organization_id')->pluck('n', 'organization_id');
-        $organizations = Organization::query()->orderBy('name')->get();
+        // serviciile active ale fiecărui client (cod de platformă: echipa VITIM vede toți clienții)
+        $services = ClientService::withoutTenancy()->where('status', 'active')->get(['organization_id', 'service'])
+            ->groupBy('organization_id')->map(fn ($rows) => $rows->pluck('service')->all());
+        $filter = $request->query('serviciu');
+        $filter = $filter === 'fara' || isset(ServiceCatalog::SERVICES[$filter]) ? $filter : null;
+        $all = Organization::query()->orderBy('name')->get();
+        $organizations = $filter === null ? $all : $all->filter(fn (Organization $o) => $filter === 'fara'
+            ? empty($services[$o->id]) : in_array($filter, $services[$o->id] ?? [], true))->values();
+        $serviceCounts = collect(ServiceCatalog::SERVICES)->keys()->mapWithKeys(fn (string $k) => [$k => $all->filter(fn ($o) => in_array($k, $services[$o->id] ?? [], true))->count()])
+            ->put('fara', $all->filter(fn ($o) => empty($services[$o->id]))->count());
         $counts = ['sites' => $count(Site::class), 'agents' => $count(Agent::class), 'members' => $count(Membership::class),
             'contacts' => $count(Contact::class), 'leads' => $count(Lead::class)];
 
         return view('admin.dashboard', [
             'organizations' => $organizations,
+            'services' => $services,
+            'serviceFilter' => $filter,
+            'serviceCounts' => $serviceCounts,
+            'totalOrganizations' => $all->count(),
             'counts' => $counts,
             'subscriptions' => Subscription::withoutTenancy()->get()->keyBy('organization_id'),
             'kpi' => [
-                ['Organizații', $organizations->count(), null],
+                ['Organizații', $all->count(), null],
                 ['Agenți activi', Agent::withoutTenancy()->where('status', AgentStatus::Active->value)->count(), 'Agentul AI răspunde vizitatorilor din Faza 2.'],
                 ['Conversații', Conversation::withoutTenancy()->count(), 'Widgetul de chat vine în Faza 4.'],
                 ['Lead-uri', (int) $counts['leads']->sum(), null],

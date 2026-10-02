@@ -11,11 +11,11 @@ use App\Models\AuditLog;
 use App\Models\DomainEvent;
 use App\Models\Membership;
 use App\Models\User;
+use App\Notifications\Invitation;
 use App\Services\AgentService;
 use App\Services\ContactService;
 use App\Services\LeadService;
 use App\Services\MembershipService;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Notification;
@@ -137,7 +137,7 @@ final class LeadsAgentsMembersTest extends TestCase
         $this->tenant()->runAs($org, function () use ($owner, $members): void {
             $adminMembership = $members->invite($owner, 'admin@example.test', 'Admin', OrgRole::Admin);
             $admin = $adminMembership->user;
-            Notification::assertSentTo($admin, ResetPassword::class);
+            Notification::assertSentTo($admin, Invitation::class);
             $this->assertTrue(AuditLog::query()->where('action', 'user.invited')->exists());
 
             // un admin nu poate crea proprietari și nu poate modifica proprietarul

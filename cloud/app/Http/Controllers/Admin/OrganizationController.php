@@ -11,11 +11,12 @@ use App\Models\AuditLog;
 use App\Models\Membership;
 use App\Models\Site;
 use App\Models\User;
+use App\Services\AuditLogger;
+use App\Services\Invitations;
 use App\Services\OrganizationService;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -48,7 +49,7 @@ final class OrganizationController extends Controller
         }
         $organization = $organizations->create($data['name'], $data['plan'], $owner, $data);
         if ($isNew) {
-            Password::sendResetLink(['email' => $email]);
+            app(Invitations::class)->send($owner, $organization->name);
         }
 
         return redirect()->route('admin.organizations.show', $organization->slug)
@@ -69,5 +70,16 @@ final class OrganizationController extends Controller
             'audit' => AuditLog::query()->latest('id')->limit(15)->get(),
             'roles' => OrgRole::cases(),
         ]);
+    }
+
+    /** Retrimite invitația unui utilizator al clientului care nu și-a setat încă parola. */
+    public function resendInvite(TenantContext $context, Invitations $invitations, AuditLogger $audit, int $member): RedirectResponse
+    {
+        $membership = Membership::query()->with('user')->findOrFail($member); // doar membrii firmei din context
+        $invitations->send($membership->user, $context->organization()->name);
+        $audit->record('user.invite_resent', $membership);
+
+        return redirect()->route('admin.organizations.show', $context->organization()->slug)
+            ->with('ok', 'Invitația a fost retrimisă la '.$membership->user->email.'. Linkul e valabil 7 zile.');
     }
 }

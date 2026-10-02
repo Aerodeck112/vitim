@@ -18,21 +18,29 @@
     <dl class="kv">@foreach ($usage as $metric => $total)<dt class="mono">{{ $metric }}</dt><dd>{{ number_format((int) $total, 0, ',', '.') }}</dd>@endforeach</dl>
   @endif
 </div>
+<div class="tabs">
+  <a href="?" @class(['on' => ! $serviceFilter])>Toți clienții ({{ $totalOrganizations }})</a>
+  @foreach (\App\Reports\ServiceCatalog::SERVICES as $key => $service)
+    <a href="?serviciu={{ $key }}" @class(['on' => $serviceFilter === $key])>{{ $service[0] }} ({{ $serviceCounts[$key] }})</a>
+  @endforeach
+  <a href="?serviciu=fara" @class(['on' => $serviceFilter === 'fara'])>Fără servicii ({{ $serviceCounts['fara'] }})</a>
+</div>
 <div class="table-wrap">
   <table>
-    <thead><tr><th>Organizație</th><th>Plan</th><th>Abonament</th><th>Site-uri</th><th>Agenți</th><th>Utilizatori</th><th>Contacte</th><th>Lead-uri</th></tr></thead>
+    <thead><tr><th>Organizație</th><th>Servicii</th><th>Plan</th><th>Abonament</th><th>Site-uri</th><th>Agenți</th><th>Utilizatori</th><th>Contacte</th><th>Lead-uri</th></tr></thead>
     <tbody>
     @forelse ($organizations as $org)
       @php($sub = $subscriptions[$org->id] ?? null)
       <tr>
         <td><a href="{{ route('admin.organizations.show', $org->slug) }}"><strong>{{ $org->name }}</strong></a>
           @unless ($org->isActive())<span class="badge err">suspendat</span>@endunless</td>
+        <td>@forelse ($services[$org->id] ?? [] as $svc)<span class="badge ok" style="margin:1px">{{ ['maintenance' => 'Mentenanță', 'seo' => 'SEO', 'google_ads' => 'Ads', 'google_business' => 'GBP'][$svc] ?? $svc }}</span>@empty<span class="muted small">—</span>@endforelse</td>
         <td>{{ strtoupper($sub?->plan ?? '—') }}</td>
         <td>@if ($sub)<span @class(['badge', 'ok' => $sub->isServiceable(), 'err' => ! $sub->isServiceable()])>{{ $sub->status->value }}</span>@endif</td>
         @foreach (['sites', 'agents', 'members', 'contacts', 'leads'] as $k)<td>{{ $counts[$k][$org->id] ?? 0 }}</td>@endforeach
       </tr>
     @empty
-      <tr><td colspan="8" class="empty">Niciun client încă.</td></tr>
+      <tr><td colspan="9" class="empty">{{ $serviceFilter ? 'Niciun client cu acest serviciu.' : 'Niciun client încă.' }}</td></tr>
     @endforelse
     </tbody>
   </table>

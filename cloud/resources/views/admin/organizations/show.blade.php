@@ -59,12 +59,16 @@
 <div class="card">
   <h2>Utilizatori <a class="btn btn-s" style="float:right" href="{{ route('portal.settings', $organization->slug) }}">Invită / administrează</a></h2>
   <div class="table-wrap"><table>
-    <thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Ultima autentificare</th></tr></thead>
+    <thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Ultima autentificare</th><th></th></tr></thead>
     <tbody>
     @forelse ($members as $m)
-      <tr><td>{{ $m->user->name }}</td><td>{{ $m->user->email }}</td><td>{{ $m->role->label() }}</td><td class="small muted">{{ $m->user->last_login_at?->format('d.m.Y H:i') ?? 'niciodată' }}</td></tr>
+      <tr><td>{{ $m->user->name }}</td><td>{{ $m->user->email }}</td><td>{{ $m->role->label() }}</td>
+        <td class="small">@include('partials.invite-status', ['user' => $m->user])</td>
+        <td>@if (\App\Services\Invitations::pending($m->user))
+          <form method="post" action="{{ route('admin.organizations.resend', [$organization->slug, $m->id]) }}">@csrf<button class="btn btn-s" type="submit">Retrimite invitația</button></form>
+        @endif</td></tr>
     @empty
-      <tr><td colspan="4" class="muted">Niciun utilizator.</td></tr>
+      <tr><td colspan="5" class="muted">Niciun utilizator.</td></tr>
     @endforelse
     </tbody>
   </table></div>
