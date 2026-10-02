@@ -477,7 +477,18 @@
   }
 
   function init() {
-    call('config').then(function (cfg) { if (cfg && cfg.enabled) build(cfg); }).catch(function () {});
+    call('config').then(function (cfg) {
+      if (!cfg) return;
+      if (cfg.enabled && script.getAttribute('data-chat') !== '0') build(cfg);
+      if (cfg.forms && cfg.forms.length) forms(cfg.forms);
+    }).catch(function () {});
+  }
+
+  // formularele de abonare se încarcă doar dacă firma are cel puțin unul activ pe site
+  function forms(list) {
+    var start = function () { window.VitimForms.start({ forms: list, call: call }); };
+    if (window.VitimForms) return start();
+    var s = document.createElement('script'); s.src = API + '/forms.js?v=1'; s.async = true; s.onload = start; document.head.appendChild(s);
   }
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();

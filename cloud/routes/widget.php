@@ -9,3 +9,5 @@ Route::post('start', [WidgetController::class, 'start']);
 Route::post('message', [WidgetController::class, 'message']);
 Route::post('history', [WidgetController::class, 'history']);
 Route::post('contact', [WidgetController::class, 'contact']);
+Route::post('forms/view', [WidgetController::class, 'formView']);
+Route::post('forms/submit', [WidgetController::class, 'formSubmit']);

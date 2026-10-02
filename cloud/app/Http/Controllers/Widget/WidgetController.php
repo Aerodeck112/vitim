@@ -11,10 +11,12 @@ use App\Enums\SenderType;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\SignupForm;
 use App\Models\Site;
 use App\Models\User;
 use App\Services\IdentityNormalizer;
 use App\Services\LiveChatService;
+use App\Services\SignupFormService;
 use App\Services\SiteKeyService;
 use App\Services\WidgetSettings;
 use App\Tenancy\TenantContext;
@@ -22,6 +24,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * API-ul public al widgetului de chat. Fără sesiune: site-ul se identifică prin cheia publică + Origin-ul permis,
@@ -66,6 +69,10 @@ final class WidgetController extends Controller
                 'email_capture' => $settings['email_capture'],
                 'sound' => $settings['sound'],
                 'notice' => 'Răspunsurile sunt date de un asistent virtual (AI) al firmei '.($site->organization->company_name ?: $site->organization->name).', iar la cerere de un coleg din echipă. Nu trimite date sensibile (CNP, card).',
+                'forms' => $site->organization->subscription?->isServiceable()
+                    ? SignupForm::query()->where('status', 'live')->where(fn ($q) => $q->whereNull('site_id')->orWhere('site_id', $site->id))->orderBy('id')->limit(10)->get()
+                        ->map(fn (SignupForm $form) => SignupFormService::publicPayload($form, $site->organization, $settings['privacy_url'] ?? null))->values()
+                    : [],
             ]);
         });
     }
@@ -191,6 +198,53 @@ final class WidgetController extends Controller
 
             return $this->json($origin, ['ok' => true]);
         });
+    }
+
+    /** Formularul a fost afișat (pentru rata de conversie din panou). */
+    public function formView(Request $request): JsonResponse
+    {
+        [$site, $origin, $body] = $this->site($request);
+        if (! $site) {
+            return $this->deny($origin);
+        }
+        if (RateLimiter::attempt('form-view:'.$request->ip().':'.(int) ($body['form'] ?? 0), 3, fn () => true, 3600)) {
+            $this->context->runAs($site->organization, fn () => $this->form($site, (int) ($body['form'] ?? 0))?->increment('views'));
+        }
+
+        return $this->json($origin, ['ok' => true]);
+    }
+
+    public function formSubmit(Request $request, SignupFormService $forms): JsonResponse
+    {
+        [$site, $origin, $body] = $this->site($request);
+        if (! $site) {
+            return $this->deny($origin);
+        }
+        if (trim((string) ($body['website'] ?? '')) !== '') {
+            return $this->json($origin, ['status' => 'subscribed']); // capcană pentru roboți: răspuns normal, nimic salvat
+        }
+        if (! RateLimiter::attempt('form-submit:'.$request->ip(), 10, fn () => true, 3600)) {
+            return $this->json($origin, ['error' => 'Prea multe înscrieri de pe această conexiune. Încearcă mai târziu.'], 429);
+        }
+
+        return $this->context->runAs($site->organization, function () use ($site, $origin, $body, $forms, $request): JsonResponse {
+            $form = $this->form($site, (int) ($body['form'] ?? 0));
+            if (! $form) {
+                return $this->json($origin, ['error' => 'Formularul nu mai este activ.'], 404);
+            }
+            try {
+                $status = $forms->submit($form, $site->organization, $body, $request->ip(), $request->userAgent());
+            } catch (ValidationException $e) {
+                return $this->json($origin, ['error' => collect($e->errors())->flatten()->first()], 422);
+            }
+
+            return $this->json($origin, ['status' => $status]);
+        });
+    }
+
+    private function form(Site $site, int $id): ?SignupForm
+    {
+        return SignupForm::query()->where('status', 'live')->where(fn ($q) => $q->whereNull('site_id')->orWhere('site_id', $site->id))->find($id);
     }
 
     /** @return array{messages: mixed, last_id: int, has_contact: bool} mesajele echipei/AI apărute după `after` (fără ale vizitatorului, deja afișate) */
