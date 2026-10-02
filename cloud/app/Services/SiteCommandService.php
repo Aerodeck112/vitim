@@ -41,7 +41,11 @@ final class SiteCommandService
         }
 
         $command = SiteCommand::create(['site_id' => $site->id, 'action' => $action, 'target' => $target, 'status' => 'running', 'requested_by' => $user?->id]);
-        $body = (string) json_encode(['command_id' => $command->id, 'action' => $action, 'target' => $target], JSON_UNESCAPED_SLASHES);
+        $payload = ['command_id' => $command->id, 'action' => $action, 'target' => $target];
+        if ($action === 'seo_fix' && in_array('schema', explode('.', (string) $target), true)) {
+            $payload['data'] = $this->companyData($site);
+        }
+        $body = (string) json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $ts = (string) time();
         $nonce = Str::random(32);
         $started = hrtime(true);
@@ -70,11 +74,35 @@ final class SiteCommandService
             $this->scans->ingest($site, ScanPayload::issues($json['issues']));
         }
         $this->audit->record('site.command', $site, ['action' => $action, 'target' => $target, 'status' => $command->status]);
-        if ($ok && in_array($action, self::LOGGED, true)) {
+        if ($ok && $action === 'seo_fix') {
+            // fiecare remediere SEO apare separat în „Lucrări VITIM”, la categoria SEO
+            // doar ce a aplicat pluginul (de ex. HTTPS nu se aplică fără certificat)
+            $parts = isset($json['applied']) && is_array($json['applied'])
+                ? array_intersect(explode('.', (string) $target), $json['applied'])
+                : explode('.', (string) $target);
+            foreach ($parts as $part) {
+                $this->logs->create(['site_id' => $site->id, 'category' => 'seo', 'title' => Remediation::SEO_FIXES[$part]], $user?->id, 'system');
+            }
+        } elseif ($ok && in_array($action, self::LOGGED, true)) {
             $this->logs->create(['site_id' => $site->id, 'category' => 'security', 'title' => Remediation::label($fix).($target ? " ({$target})" : '')], $user?->id, 'system');
         }
 
         return $command;
+    }
+
+    /** Datele firmei pentru datele structurate de pe site (doar ce e public: nume, contact, adresă). @return array<string, string> */
+    private function companyData(Site $site): array
+    {
+        $organization = $site->organization;
+        $billing = (array) ($organization->billing_details ?? []);
+
+        return array_filter([
+            'name' => (string) ($organization->company_name ?: $organization->name),
+            'phone' => (string) ($billing['phone'] ?? ''),
+            'email' => (string) ($billing['email'] ?? ''),
+            'address' => (string) ($billing['address'] ?? ''),
+            'city' => (string) ($billing['city'] ?? ''),
+        ]);
     }
 
     /** Adresa raportată de plugin, acceptată doar pe domeniul site-ului (și doar https în producție). */

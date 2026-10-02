@@ -46,12 +46,16 @@ final class SiteHealthController extends Controller
             ->with('ok', "Audit terminat: {$count} constatări.");
     }
 
-    public function command(Request $request, SiteCommandService $commands, int $site): RedirectResponse
+    public function command(Request $request, SiteCommandService $commands, SiteAuditService $audits, int $site): RedirectResponse
     {
         $model = Site::query()->findOrFail($site);
         $data = $request->validate(['fix' => ['required', 'string', 'max:200']]);
         $command = $commands->run($model, $data['fix'], $request->user());
         $label = Remediation::label($data['fix']);
+        if ($command->status === 'done' && in_array($command->action, ['seo_fix', 'allow_indexing'], true)) {
+            // auditul extern se reface imediat: problemele rezolvate trec la „Rezolvate recent”
+            $audits->run($model->refresh());
+        }
 
         return redirect()->route('admin.sites.health', [$this->context->organization()->slug, $model->id])
             ->with($command->status === 'done' ? 'ok' : 'error', "{$label}: {$command->result}");

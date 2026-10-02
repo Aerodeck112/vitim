@@ -23,6 +23,16 @@
     @endforeach
   @endif
 </div>
+@php($autoFix = ! empty($h['command_url']) ? \App\Services\Remediation::combine($open->pluck('fix')) : null)
+@if ($autoFix)
+  @php($autoCount = $open->filter(fn ($i) => $i->fix && str_starts_with($i->fix, 'seo_fix:'))->count())
+  <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-color:var(--brand)">
+    <div><strong>{{ $autoCount }} {{ $autoCount === 1 ? 'problemă se poate' : 'probleme se pot' }} rezolva automat</strong>
+      <div class="small muted">{{ implode(' · ', array_map(fn ($t) => \App\Services\Remediation::SEO_FIXES[$t], explode('.', substr($autoFix, 8)))) }}. Pluginul aplică remedierile, apoi auditul se reface. Fiecare remediere intră în „Lucrări VITIM” la SEO și se poate opri din WordPress → Setări → VITIM.</div></div>
+    <form method="post" action="{{ route('admin.sites.command', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se repară și se refac verificările… (până la un minut)'">@csrf
+      <input type="hidden" name="fix" value="{{ $autoFix }}"><button class="btn btn-p" type="submit">Repară tot automat</button></form>
+  </div>
+@endif
 @if (($site->platform->value === 'wordpress' || $site->platform->value === 'woocommerce') && empty($h['command_url']))
   <div class="alert alert-warn">Pentru scanarea din interiorul WordPress și remedierile cu un click instalează pluginul VITIM Connector 1.1.0.</div>
 @elseif (($h['remote_fixes'] ?? true) === false)
@@ -53,7 +63,7 @@
       </div>
       @if ($issue->fix && ! empty($h['command_url']))
         <form method="post" action="{{ route('admin.sites.command', [$slug, $site->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se execută…'">@csrf
-          <input type="hidden" name="fix" value="{{ $issue->fix }}"><button class="btn btn-p" type="submit">{{ \App\Services\Remediation::label($issue->fix) }}</button></form>
+          <input type="hidden" name="fix" value="{{ $issue->fix }}"><button class="btn btn-p" type="submit">{{ str_starts_with($issue->fix, 'seo_fix:') ? 'Repară' : \App\Services\Remediation::label($issue->fix) }}</button></form>
       @endif
     </div>
   @empty
@@ -74,7 +84,7 @@
   <h2>Istoric remedieri</h2>
   @forelse ($commands as $c)
     <p style="margin:6px 0" class="small"><span class="badge {{ $c->status === 'done' ? 'ok' : ($c->status === 'failed' ? 'err' : '') }}">{{ $c->status === 'done' ? 'reușit' : ($c->status === 'failed' ? 'eșuat' : 'în curs') }}</span>
-      {{ $c->created_at->format('d.m.Y H:i') }} · <strong>{{ \App\Services\Remediation::label($c->action.($c->target ? ':'.$c->target : '')) }}</strong>{{ $c->target ? ' ('.$c->target.')' : '' }}
+      {{ $c->created_at->format('d.m.Y H:i') }} · <strong>{{ \App\Services\Remediation::label($c->action.($c->target ? ':'.$c->target : '')) }}</strong>{{ $c->target && $c->action !== 'seo_fix' ? ' ('.$c->target.')' : '' }}
       · {{ $c->requester?->name ?? 'sistem' }} <span class="muted">· {{ $c->result }}</span></p>
   @empty
     <p class="muted" style="margin:0">Nicio remediere încă.</p>

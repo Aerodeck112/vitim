@@ -1,5 +1,14 @@
 # VITIM AI Cloud — versiuni
 
+## 0.14.0 — SEO reparat la buton (plugin 1.4.0)
+
+- **„Repară” pe fiecare problemă SEO** din audit, pe site-urile WordPress cu pluginul 1.4.0, plus un buton **„Repară tot automat”** care le rezolvă pe toate deodată. După reparare, auditul se reface imediat și problemele trec la „Rezolvate recent”.
+- Ce se repară automat: descrierea paginilor, canonical și Open Graph (titlu + imagine la distribuire pe Facebook / WhatsApp), titlul paginilor, robots.txt, sitemap, redirecționarea spre HTTPS (doar dacă certificatul merge), www / fără www, limba paginii, viewport pentru telefon, textul alternativ al imaginilor (completat și în biblioteca media), date structurate cu numele firmei, „Permite indexarea”, plus antetele de securitate și compresia gzip.
+- Dacă site-ul are deja Yoast / Rank Math / All in One SEO, pluginul nu dublează descrierile și spune unde se completează.
+- **Fiecare reparare apare în „Lucrări VITIM” la categoria SEO**, deci clientul o vede în raportul lunar. Se trece doar ce s-a aplicat efectiv (de exemplu, HTTPS fără certificat nu).
+- Totul e reversibil: în WordPress → Setări → VITIM se vede lista reparărilor active și butonul „Oprește remedierile SEO”. Fișierele modificate (robots.txt, .htaccess) au copii de siguranță.
+- Rămân manuale (cu „Cum rezolvi”): H1 lipsă sau dublu, titluri duplicate, pagini cu eroare, problemele legale și cele de pe site-urile care nu sunt WordPress.
+
 ## 0.13.0 — agentul funcționează și fără Claude; pagina agentului se salvează corect
 
 - **Agent fără AI extern (gratuit)**: dacă pe server nu e pusă cheia Claude, agentul răspunde din **„Informații despre firmă”**: istoria firmei, servicii, prețuri, program, adresă, întrebări frecvente. Caută propoziția sau secțiunea potrivită (fără diacritice, cu forme ca preț / prețul / prețurile și sinonime ca „cât costă” → prețuri, „unde sunteți” → adresă, „de când existați” → istoria firmei).

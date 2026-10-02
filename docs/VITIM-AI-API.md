@@ -106,6 +106,7 @@ Fără sesiune. Fiecare cerere are antetele `X-Vitim-Key` (cheia publică `pk_�
 `POST {command_url}` (raportată de plugin în heartbeat, acceptată doar pe domeniul site-ului, https), aceeași semnătură și aceleași antete.
 Corp: `{command_id, action, target?}`. `action` ∈ `scan`, `backup` (pornește în fundal), `update_plugin` (țintă: fișierul pluginului), `update_all_plugins`, `update_theme` (țintă: tema), `update_core`, `reinstall_core`,
 `delete_debug_log`, `delete_readme`, `disable_xmlrpc`, `disable_file_edit`, `block_php_uploads`, `allow_indexing`. Răspuns: `{ok, message, issues}` (o scanare nouă).
+Din pluginul 1.4.0: `seo_fix` cu ținta una sau mai multe remedieri unite prin punct (`meta`, `title`, `robots`, `sitemap`, `https`, `www`, `lang`, `viewport`, `alt`, `schema`, `headers`, `gzip`, ex. `meta.robots`); pentru `schema` corpul semnat include `data` (nume firmă, telefon, email, adresă). Răspunsul include `applied` (remedierile aplicate efectiv).
 Pluginul refuză orice altă acțiune și, dacă clientul a oprit remedierile, orice acțiune în afară de `scan`.
 
 ## API widget — `/widget/v1` (public, de pe site-urile clienților)

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       VITIM Connector
  * Description:       Conectează site-ul la panoul VITIM: asistentul AI pe site, starea site-ului, scanarea problemelor, remedieri, backup și jurnalul automat al lucrărilor.
- * Version:           1.3.0
+ * Version:           1.4.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            VITIM
@@ -15,8 +15,9 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('VITIM_CONNECTOR_VERSION', '1.3.0');
+define('VITIM_CONNECTOR_VERSION', '1.4.0');
 require_once __DIR__.'/includes-backup.php';
+require_once __DIR__.'/includes-seo.php';
 
 final class Vitim_Connector
 {
@@ -31,11 +32,13 @@ final class Vitim_Connector
 
     /** Singurele acțiuni pe care panoul le poate cere (aceeași listă există în panou). */
     const ACTIONS = ['scan', 'backup', 'update_plugin', 'update_all_plugins', 'update_theme', 'update_core', 'reinstall_core',
-        'delete_debug_log', 'delete_readme', 'disable_xmlrpc', 'disable_file_edit', 'block_php_uploads', 'allow_indexing'];
+        'delete_debug_log', 'delete_readme', 'disable_xmlrpc', 'disable_file_edit', 'block_php_uploads', 'allow_indexing', 'seo_fix'];
 
     public static function boot()
     {
+        Vitim_Connector_Seo::boot();
         add_action('admin_menu', [__CLASS__, 'menu']);
+        add_action('admin_post_vitim_connector_seo_reset', [__CLASS__, 'seoReset']);
         add_action('admin_post_vitim_connector_save', [__CLASS__, 'save']);
         add_action('admin_post_vitim_connector_send', [__CLASS__, 'sendNow']);
         add_action('admin_post_vitim_connector_disconnect', [__CLASS__, 'disconnect']);
@@ -131,6 +134,18 @@ final class Vitim_Connector
             printf('<label><input type="checkbox" name="widget" value="1" %s> Afișează asistentul AI pe site (apare doar dacă agentul e activ în panoul VITIM)</label><br> ', checked(self::widgetEnabled(), true, false));
             submit_button('Salvează', 'secondary', 'submit', false);
             echo '</form>';
+            $seo = array_intersect_key(Vitim_Connector_Seo::FIXES, Vitim_Connector_Seo::modules());
+            if ($seo) {
+                echo '<h2>Remedieri SEO aplicate de VITIM</h2><ul style="list-style:disc;margin-left:20px">';
+                foreach ($seo as $label) {
+                    echo '<li>'.esc_html($label).'</li>';
+                }
+                echo '</ul><form method="post" action="'.esc_url(admin_url('admin-post.php')).'" onsubmit="return confirm(\'Oprești toate remedierile SEO aplicate de VITIM?\')">';
+                wp_nonce_field('vitim_connector_seo_reset');
+                echo '<input type="hidden" name="action" value="vitim_connector_seo_reset">';
+                submit_button('Oprește remedierile SEO', 'secondary', 'submit', false);
+                echo '</form>';
+            }
             $b = Vitim_Connector_Backup::settings();
             list($bdir, $inside) = Vitim_Connector_Backup::directory();
             echo '<h2>Backup</h2><form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
@@ -205,6 +220,17 @@ final class Vitim_Connector
         $s['widget'] = ! empty($_POST['widget']);
         update_option(self::OPTION, $s, false);
         self::run();
+        wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim=sent'));
+        exit;
+    }
+
+    public static function seoReset()
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die('Acces interzis.');
+        }
+        check_admin_referer('vitim_connector_seo_reset');
+        Vitim_Connector_Seo::reset();
         wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim=sent'));
         exit;
     }
@@ -736,7 +762,12 @@ final class Vitim_Connector
 
         @set_time_limit(300);
         try {
-            list($ok, $message) = self::execute($action, $target);
+            $applied = null;
+            if ($action === 'seo_fix') {
+                list($ok, $message, $applied) = Vitim_Connector_Seo::apply($target, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
+            } else {
+                list($ok, $message) = self::execute($action, $target);
+            }
         } catch (Throwable $e) {
             list($ok, $message) = [false, 'Eroare: '.$e->getMessage()];
         }
@@ -746,7 +777,7 @@ final class Vitim_Connector
         $s['last_scan'] = time();
         update_option(self::OPTION, $s, false);
 
-        return new WP_REST_Response(['ok' => $ok, 'message' => $message, 'issues' => $issues], 200);
+        return new WP_REST_Response(['ok' => $ok, 'message' => $message, 'issues' => $issues] + ($applied !== null ? ['applied' => $applied] : []), 200);
     }
 
     /** @return array{0: bool, 1: string} */

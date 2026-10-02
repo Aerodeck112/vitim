@@ -15,6 +15,11 @@ final class SiteAuditService
     public function run(Site $site): int
     {
         $findings = $this->auditor->audit($site);
+        // pe WordPress cu pluginul 1.4.0+ o parte din probleme se rezolvă la buton
+        $version = in_array($site->platform?->value, ['wordpress', 'woocommerce'], true) ? $site->connector_version : null;
+        foreach ($findings as $i => $finding) {
+            $findings[$i]['fix'] = Remediation::forAudit($finding['code'], $version) ?? $finding['fix'];
+        }
         $this->scans->ingest($site, $findings, 'audit');
 
         return count($findings);
