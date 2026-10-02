@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Un destinatar al campaniei: trimis, eșuat sau exclus (cu motivul: fără acord, dezabonat, fără adresă). */
-#[Fillable(['campaign_id', 'contact_id', 'address', 'status', 'reason', 'external_id', 'unsubscribe_code', 'sent_at', 'opened_at', 'clicked_at', 'open_count', 'click_count'])]
+#[Fillable(['campaign_id', 'flow_id', 'flow_step_id', 'flow_run_id', 'contact_id', 'address', 'status', 'reason', 'external_id', 'unsubscribe_code', 'sent_at', 'opened_at', 'clicked_at', 'open_count', 'click_count'])]
 class CampaignRecipient extends Model
 {
     use BelongsToOrganization;

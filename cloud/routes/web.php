@@ -158,6 +158,15 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/campanii/{campaign}/test', [Portal\CampaignController::class, 'test'])->middleware(['can:manage_campaigns', 'throttle:10,1'])->where('campaign', $id)->name('campaigns.test');
         Route::post('/campanii/{campaign}/aprobare', [Portal\CampaignController::class, 'approve'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.approve');
         Route::post('/campanii/{campaign}/actiune', [Portal\CampaignController::class, 'action'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.action');
+        Route::get('/automatizari', [Portal\FlowController::class, 'index'])->middleware('can:manage_campaigns')->name('flows.index');
+        Route::post('/automatizari', [Portal\FlowController::class, 'store'])->middleware('can:manage_campaigns')->name('flows.store');
+        Route::get('/automatizari/{flow}', [Portal\FlowController::class, 'show'])->middleware('can:manage_campaigns')->where('flow', $id)->name('flows.show');
+        Route::put('/automatizari/{flow}', [Portal\FlowController::class, 'update'])->middleware('can:manage_campaigns')->where('flow', $id)->name('flows.update');
+        Route::delete('/automatizari/{flow}', [Portal\FlowController::class, 'destroy'])->middleware('can:manage_campaigns')->where('flow', $id)->name('flows.destroy');
+        Route::post('/automatizari/{flow}/stare', [Portal\FlowController::class, 'status'])->middleware('can:manage_campaigns')->where('flow', $id)->name('flows.status');
+        Route::post('/automatizari/{flow}/pasi', [Portal\FlowController::class, 'addStep'])->middleware('can:manage_campaigns')->where('flow', $id)->name('flows.steps.store');
+        Route::put('/automatizari/{flow}/pasi/{step}', [Portal\FlowController::class, 'updateStep'])->middleware('can:manage_campaigns')->where(['flow' => $id, 'step' => $id])->name('flows.steps.update');
+        Route::delete('/automatizari/{flow}/pasi/{step}', [Portal\FlowController::class, 'deleteStep'])->middleware('can:manage_campaigns')->where(['flow' => $id, 'step' => $id])->name('flows.steps.destroy');
         Route::get('/audienta', [Portal\AudienceController::class, 'index'])->middleware('can:manage_campaigns')->name('audience');
         Route::post('/audienta/liste', [Portal\AudienceController::class, 'storeList'])->middleware('can:manage_campaigns')->name('audience.lists.store');
         Route::get('/audienta/liste/{list}', [Portal\AudienceController::class, 'showList'])->middleware('can:manage_campaigns')->where('list', $id)->name('audience.list');

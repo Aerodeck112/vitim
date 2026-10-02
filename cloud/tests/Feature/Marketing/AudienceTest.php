@@ -167,7 +167,7 @@ final class AudienceTest extends TestCase
             $r = CampaignRecipient::query()->sole();
             $this->assertNotNull($r->opened_at);
             $this->assertSame(1, $r->click_count);
-            $this->assertSame(['email_clicked', 'email_opened', 'email_sent'], ContactEvent::query()->where('contact_id', $ana->id)->orderBy('type')->pluck('type')->all());
+            $this->assertSame(['email_clicked', 'email_opened', 'email_sent', 'subscribed'], ContactEvent::query()->where('contact_id', $ana->id)->orderBy('type')->pluck('type')->all());
             $this->assertSame(['sent' => 1, 'opened' => 1, 'clicked' => 1, 'open_rate' => 100.0, 'click_rate' => 100.0], $c->fresh()->engagement());
         });
         $this->actingAs($owner);

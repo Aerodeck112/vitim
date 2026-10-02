@@ -20,9 +20,7 @@ final class ContactActivity
             'campaign_id' => $campaignId, 'flow_id' => $flowId, 'recipient_id' => $recipientId, 'occurred_at' => $at ?? now(),
         ]);
         Contact::query()->whereKey($id)->update(['last_activity_at' => $at ?? now()]);
-        if (class_exists(FlowTriggers::class)) {
-            app(FlowTriggers::class)->onEvent($event);
-        }
+        app(FlowTriggers::class)->onEvent($event);
 
         return $event;
     }

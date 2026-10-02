@@ -44,7 +44,8 @@ final class ConsentService
             throw new InvalidArgumentException("Canal fără consimțământ: {$channel->value}");
         }
 
-        return DB::transaction(function () use ($contact, $channel, $purpose, $status, $source, $metadata, $ip, $userAgent, $recordedBy, $occurredAt): ContactConsent {
+        $wasGranted = $purpose === ConsentPurpose::Marketing && $this->current($contact, $channel, $purpose) === ConsentStatus::Granted;
+        $consent = DB::transaction(function () use ($contact, $channel, $purpose, $status, $source, $metadata, $ip, $userAgent, $recordedBy, $occurredAt): ContactConsent {
             $consent = ContactConsent::create([
                 'contact_id' => $contact->getKey(),
                 'channel' => $channel,
@@ -77,6 +78,12 @@ final class ConsentService
 
             return $consent;
         });
+        if ($purpose === ConsentPurpose::Marketing && $status === ConsentStatus::Granted && ! $wasGranted) {
+            // abonare nouă pe canal: intră în activitate și poate porni fluxul „Bun venit”
+            app(ContactActivity::class)->record($contact, 'subscribed', ['channel' => $channel->value, 'source' => $source]);
+        }
+
+        return $consent;
     }
 
     public function current(Contact $contact, Channel $channel, ConsentPurpose $purpose): ConsentStatus

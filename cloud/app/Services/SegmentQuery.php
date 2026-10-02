@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\ContactSource;
+use App\Models\Contact;
 use App\Models\ContactEvent;
+use App\Models\Segment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Carbon;
@@ -63,10 +65,31 @@ final class SegmentQuery
             'lead' => ($c['op'] ?? 'has') === 'has'
                 ? $q->whereExists(fn ($s) => self::leads($s, $c))
                 : $q->whereNotExists(fn ($s) => self::leads($s, $c)),
+            'segment' => self::nested($q, $c),
             'revenue' => $q->whereRaw('(select coalesce(sum(e.value), 0) from contact_events e where e.contact_id = contacts.id and e.type = ?'.(! empty($c['days']) ? ' and e.occurred_at >= ?' : '').') '.(($c['op'] ?? 'at_least') === 'at_least' ? '>=' : '<').' cast(? as decimal(12,2))',
                 array_values(array_filter(['placed_order', ! empty($c['days']) ? now()->subDays((int) $c['days']) : null, (float) ($c['value'] ?? 0)], fn ($v) => $v !== null))),
             default => $q->whereRaw('1 = 0'), // condiție necunoscută: nimeni (fail-closed)
         };
+    }
+
+    private static int $depth = 0;
+
+    /** „e în segmentul X” (folosit în condițiile automatizărilor); adâncime limitată, fără cicluri. @param array<string, mixed> $c */
+    private static function nested(Builder $q, array $c): void
+    {
+        $segment = self::$depth < 3 ? Segment::query()->find((int) ($c['segment_id'] ?? 0)) : null;
+        if (! $segment) {
+            $q->whereRaw('1 = 0');
+
+            return;
+        }
+        self::$depth++;
+        try {
+            $ids = self::apply(Contact::query(), $segment->definition)->select('contacts.id');
+            ($c['op'] ?? 'in') === 'in' ? $q->whereIn('contacts.id', $ids) : $q->whereNotIn('contacts.id', $ids);
+        } finally {
+            self::$depth--;
+        }
     }
 
     /** @param array<string, mixed> $c */
@@ -152,6 +175,7 @@ final class SegmentQuery
                     ? ['type' => 'property', 'field' => $c['field'], 'op' => $c['op'], 'value' => self::value($c)] : null,
                 'consent' => in_array($c['channel'] ?? '', ['email', 'sms', 'whatsapp'], true)
                     ? ['type' => 'consent', 'channel' => $c['channel'], 'op' => ($c['op'] ?? '') === 'not_granted' ? 'not_granted' : 'granted'] : null,
+                'segment' => (int) ($c['segment_id'] ?? 0) > 0 ? ['type' => 'segment', 'segment_id' => (int) $c['segment_id'], 'op' => ($c['op'] ?? '') === 'not_in' ? 'not_in' : 'in'] : null,
                 'list' => (int) ($c['list_id'] ?? 0) > 0 ? ['type' => 'list', 'list_id' => (int) $c['list_id'], 'op' => ($c['op'] ?? '') === 'not_in' ? 'not_in' : 'in'] : null,
                 'event' => isset(ContactEvent::TYPES[$c['event'] ?? '']) ? array_filter([
                     'type' => 'event', 'event' => $c['event'], 'op' => ($c['op'] ?? '') === 'zero' ? 'zero' : 'at_least',
@@ -198,6 +222,7 @@ final class SegmentQuery
                 'list' => ($c['op'] === 'in' ? 'e în' : 'nu e în').' lista „'.($lists[$c['list_id']] ?? '#'.$c['list_id']).'”',
                 'event' => mb_strtolower(ContactEvent::TYPES[$c['event']][0] ?? $c['event']).' '.($c['op'] === 'zero' ? 'niciodată' : 'de cel puțin '.($c['count'] ?? 1).' ori').(! empty($c['days']) ? ' în ultimele '.$c['days'].' zile' : ''),
                 'lead' => $c['op'] === 'has' ? 'a trimis o cerere' : 'nu a trimis nicio cerere',
+                'segment' => ($c['op'] === 'in' ? 'e în' : 'nu e în').' segmentul „'.(Segment::query()->whereKey($c['segment_id'])->value('name') ?? '#'.$c['segment_id']).'”',
                 'revenue' => 'a cheltuit '.($c['op'] === 'at_least' ? 'cel puțin' : 'mai puțin de').' '.$c['value'].' lei'.(! empty($c['days']) ? ' în ultimele '.$c['days'].' zile' : ''),
                 default => '?',
             };
