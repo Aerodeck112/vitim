@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\Channel;
-use App\Enums\ConsentPurpose;
-use App\Enums\MessageStatus;
 use App\Messaging\Accounts\AccountSender;
 use App\Messaging\Accounts\SmsLinkSender;
 use App\Messaging\Accounts\SmtpSender;
@@ -19,7 +17,9 @@ use App\Models\Campaign;
 use App\Models\CampaignRecipient;
 use App\Models\ChannelAccount;
 use App\Models\Contact;
+use App\Models\ContactList;
 use App\Models\Lead;
+use App\Models\Segment;
 use App\Models\User;
 use App\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,6 +43,7 @@ final class CampaignService
         private readonly TenantContext $context,
         private readonly AuditLogger $audit,
         private readonly UsageMeter $usage,
+        private readonly Deliverer $deliverer,
     ) {}
 
     public static function sender(Channel $channel): AccountSender
@@ -59,16 +60,49 @@ final class CampaignService
         return ChannelAccount::query()->where('channel', $channel->value)->first();
     }
 
-    /** Contactele care corespund filtrelor (înainte de verificarea acordului). @return Builder<Contact> */
+    /**
+     * Contactele publicului (înainte de verificarea acordului): listele și segmentele alese (oricare dintre ele),
+     * minus cele excluse. Fără nimic ales: toate contactele (acordul filtrează oricum).
+     *
+     * @return Builder<Contact>
+     */
     public function audienceQuery(Campaign $campaign): Builder
     {
         $a = (array) ($campaign->audience ?? []);
-
-        return Contact::query()
+        $query = Contact::query()
             ->when(! empty($a['sources']), fn ($q) => $q->whereIn('source', (array) $a['sources']))
             ->when(($a['leads'] ?? '') === 'with', fn ($q) => $q->whereIn('id', Lead::query()->select('contact_id')))
             ->when(($a['leads'] ?? '') === 'without', fn ($q) => $q->whereNotIn('id', Lead::query()->select('contact_id')))
             ->when(! empty($a['created_after']), fn ($q) => $q->where('created_at', '>=', $a['created_after']));
+        $include = $this->groups((array) ($a['include'] ?? []));
+        if ($include !== []) {
+            $query->where(function (Builder $w) use ($include): void {
+                foreach ($include as $definition) {
+                    $w->orWhere(fn (Builder $q) => SegmentQuery::apply($q, $definition));
+                }
+            });
+        }
+        foreach ($this->groups((array) ($a['exclude'] ?? [])) as $definition) {
+            $query->whereNot(fn (Builder $q) => SegmentQuery::apply($q, $definition));
+        }
+
+        return $query;
+    }
+
+    /** Listele / segmentele („list:3”, „segment:5”) ca definiții de segment. @return list<array<string, mixed>> */
+    private function groups(array $refs): array
+    {
+        $out = [];
+        foreach ($refs as $ref) {
+            [$type, $id] = array_pad(explode(':', (string) $ref, 2), 2, '0');
+            if ($type === 'list' && ContactList::query()->whereKey((int) $id)->exists()) {
+                $out[] = ['match' => 'all', 'conditions' => [['type' => 'list', 'list_id' => (int) $id, 'op' => 'in']]];
+            } elseif ($type === 'segment' && ($segment = Segment::query()->find((int) $id))) {
+                $out[] = $segment->definition + ['conditions' => []];
+            }
+        }
+
+        return $out;
     }
 
     /** Câți primesc și câți sunt excluși (și de ce), fără să salveze nimic. @return array{eligible: int, excluded: array<string, int>} */
@@ -189,34 +223,19 @@ final class CampaignService
                 ->where('sent_at', '>=', now()->subHour())->count();
             $budget = min($budget, max(0, $account->hourly_limit - $lastHour));
         }
-        $sender = self::sender($campaign->channel);
-        $organization = $this->context->organization();
+        $content = MessageContent::of($campaign);
         $sent = 0;
         $failedInRow = 0;
         $pending = CampaignRecipient::query()->where('campaign_id', $campaign->id)->where('status', 'pending')->with('contact')->orderBy('id')->limit($budget)->get();
         foreach ($pending as $recipient) {
             // acordul se verifică din nou la trimitere: între timp contactul s-a putut dezabona
-            [$ok, $address, $reason] = $recipient->contact ? $this->check($recipient->contact, $campaign->channel) : [false, null, 'Contact șters'];
-            if (! $ok) {
-                $recipient->forceFill(['status' => 'excluded', 'reason' => $reason])->save();
-
-                continue;
-            }
-            $rendered = $this->renderer->render($campaign, $organization, $recipient->contact, route('unsubscribe', $recipient->unsubscribe_code), (bool) $account->setting('ascii', true));
-            $result = $sender->send($account, $this->outbound($campaign, (string) $address, $rendered, $rendered['subject'], route('unsubscribe', $recipient->unsubscribe_code)));
-            $okSent = $result->status === MessageStatus::Sent;
-            $recipient->forceFill([
-                'status' => $okSent ? 'sent' : 'failed', 'reason' => $okSent ? null : $result->error,
-                'external_id' => $result->externalId, 'sent_at' => now(),
-            ])->save();
-            if ($okSent) {
+            if ($this->deliverer->deliver($recipient, $content, $account)) {
                 $sent++;
                 $failedInRow = 0;
-                $this->usage->increment('campaign_'.$campaign->channel->value);
-            } elseif (++$failedInRow >= 3) {
+            } elseif ($recipient->status === 'failed' && ++$failedInRow >= 3) {
                 // contul nu merge (parolă schimbată, credit epuizat): oprim, nu ardem toată lista
-                $campaign->forceFill(['status' => 'paused', 'last_error' => $result->error])->save();
-                $this->audit->record('campaign.auto_paused', $campaign, ['error' => Str::limit((string) $result->error, 200)]);
+                $campaign->forceFill(['status' => 'paused', 'last_error' => $recipient->reason])->save();
+                $this->audit->record('campaign.auto_paused', $campaign, ['error' => Str::limit((string) $recipient->reason, 200)]);
 
                 return $sent;
             }
@@ -229,13 +248,10 @@ final class CampaignService
         return $sent;
     }
 
-    /** @return array{0: bool, 1: ?string, 2: ?string} [poate primi, adresa, motivul excluderii] */
+    /** @return array{0: bool, 1: ?string, 2: ?string} */
     private function check(Contact $contact, Channel $channel): array
     {
-        $address = $this->messaging->recipientFor($contact, $channel);
-        $decision = $this->policy->decide($contact, $channel, ConsentPurpose::Marketing, $address);
-
-        return [$decision->allowed, $address, $decision->allowed ? null : $decision->reason];
+        return $this->deliverer->check($contact, $channel);
     }
 
     /** @param array{subject: ?string, body: string, html: ?string, template: ?array<string, mixed>} $rendered */

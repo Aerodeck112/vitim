@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Portal;
 
 use App\Enums\Channel;
-use App\Enums\ContactSource;
 use App\Enums\MessageStatus;
 use App\Models\Campaign;
 use App\Models\CampaignRecipient;
 use App\Models\ChannelAccount;
 use App\Models\Contact;
+use App\Models\ContactList;
+use App\Models\Segment;
 use App\Services\AuditLogger;
 use App\Services\CampaignRenderer;
 use App\Services\CampaignService;
@@ -62,7 +63,9 @@ final class CampaignController extends PortalController
             'recipients' => $model->editable() ? collect() : CampaignRecipient::query()->where('campaign_id', $model->id)->with('contact')
                 ->orderByRaw("case status when 'failed' then 0 when 'excluded' then 2 else 1 end")->orderBy('id')->paginate(50),
             'preview' => $preview,
-            'sources' => ContactSource::cases(),
+            'lists' => ContactList::query()->orderBy('name')->get(),
+            'segments' => Segment::query()->orderBy('name')->get(),
+            'engagement' => $model->editable() ? null : $model->engagement(),
             'smsParts' => $model->channel === Channel::Sms ? CampaignRenderer::smsParts($preview['body']) : null,
         ]);
     }
@@ -78,13 +81,12 @@ final class CampaignController extends PortalController
             'template_name' => ['nullable', 'string', 'max:120', 'regex:/^[a-z0-9_]+$/'],
             'template_language' => ['nullable', 'string', 'max:10'],
             'template_variables' => ['nullable', 'string', 'max:1000'],
-            'sources' => ['nullable', 'array'], 'sources.*' => [Rule::enum(ContactSource::class)],
-            'leads' => ['nullable', Rule::in(['', 'with', 'without'])],
-            'created_after' => ['nullable', 'date'],
+            'include' => ['nullable', 'array'], 'include.*' => ['regex:/^(list|segment):\d+$/'],
+            'exclude' => ['nullable', 'array'], 'exclude.*' => ['regex:/^(list|segment):\d+$/'],
         ], ['template_name.regex' => 'Numele șablonului are doar litere mici, cifre și „_”, exact ca în WhatsApp Manager.']);
         $model->fill([
             'name' => $data['name'], 'subject' => $data['subject'] ?? null, 'body' => $data['body'] ?? null,
-            'audience' => array_filter(['sources' => $data['sources'] ?? [], 'leads' => $data['leads'] ?? '', 'created_after' => $data['created_after'] ?? null]),
+            'audience' => array_filter(['include' => array_values($data['include'] ?? []), 'exclude' => array_values($data['exclude'] ?? [])]),
         ]);
         if ($model->channel === Channel::WhatsApp) {
             $model->template = [

@@ -14,6 +14,9 @@ use App\Enums\Permission;
 use App\Http\Validation\ContactRules;
 use App\Models\Contact;
 use App\Models\ContactConsent;
+use App\Models\ContactEvent;
+use App\Models\ContactList;
+use App\Models\ContactListMember;
 use App\Models\Lead;
 use App\Services\ConsentService;
 use App\Services\ContactService;
@@ -68,6 +71,9 @@ final class ContactController extends PortalController
             'consents' => $consents->matrix($model),
             'history' => ContactConsent::query()->where('contact_id', $model->id)->orderByDesc('occurred_at')->orderByDesc('id')->limit(30)->get(),
             'leads' => Lead::query()->where('contact_id', $model->id)->latest('id')->get(),
+            'timeline' => ContactEvent::query()->where('contact_id', $model->id)->orderByDesc('occurred_at')->orderByDesc('id')->limit(50)->get(),
+            'lists' => ContactList::query()->orderBy('name')->get(),
+            'memberOf' => ContactListMember::query()->where('contact_id', $model->id)->pluck('contact_list_id')->all(),
             'channels' => Channel::consentChannels(),
             'purposes' => ConsentPurpose::cases(),
             'statuses' => ConsentStatus::cases(),

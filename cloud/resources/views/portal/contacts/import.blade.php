@@ -11,6 +11,7 @@ Ion;Ionescu;;0733111222</pre>
   <form method="post" action="{{ route('portal.contacts.import.store', $organization->slug) }}" enctype="multipart/form-data">
     @csrf
     <div class="fl"><label for="file">Fișierul CSV</label><input id="file" type="file" name="file" accept=".csv,text/csv" required>@error('file')<div class="err">{{ $message }}</div>@enderror</div>
+    @if ($lists->isNotEmpty())<div class="fl"><label for="list_id">Adaugă și în lista (opțional)</label><select id="list_id" name="list_id"><option value="">—</option>@foreach ($lists as $id => $n)<option value="{{ $id }}">{{ $n }}</option>@endforeach</select></div>@endif
     <h2 style="margin-top:18px">Acord pentru mesaje de marketing (opțional)</h2>
     <p class="small muted" style="margin-top:-6px">Campaniile pleacă doar către contactele care și-au dat acordul pe acel canal (GDPR, Legea 506/2004). Bifează doar dacă ai acordul lor documentat; altfel importă fără bife și cere acordul separat.</p>
     @foreach (['email' => 'Email', 'sms' => 'SMS', 'whatsapp' => 'WhatsApp'] as $value => $label)

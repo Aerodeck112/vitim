@@ -158,6 +158,16 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/campanii/{campaign}/test', [Portal\CampaignController::class, 'test'])->middleware(['can:manage_campaigns', 'throttle:10,1'])->where('campaign', $id)->name('campaigns.test');
         Route::post('/campanii/{campaign}/aprobare', [Portal\CampaignController::class, 'approve'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.approve');
         Route::post('/campanii/{campaign}/actiune', [Portal\CampaignController::class, 'action'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.action');
+        Route::get('/audienta', [Portal\AudienceController::class, 'index'])->middleware('can:manage_campaigns')->name('audience');
+        Route::post('/audienta/liste', [Portal\AudienceController::class, 'storeList'])->middleware('can:manage_campaigns')->name('audience.lists.store');
+        Route::get('/audienta/liste/{list}', [Portal\AudienceController::class, 'showList'])->middleware('can:manage_campaigns')->where('list', $id)->name('audience.list');
+        Route::post('/audienta/liste/{list}/membri', [Portal\AudienceController::class, 'members'])->middleware('can:manage_campaigns')->where('list', $id)->name('audience.list.members');
+        Route::delete('/audienta/liste/{list}', [Portal\AudienceController::class, 'destroyList'])->middleware('can:manage_campaigns')->where('list', $id)->name('audience.list.destroy');
+        Route::get('/audienta/segmente/nou', [Portal\AudienceController::class, 'segment'])->middleware('can:manage_campaigns')->name('audience.segment.create');
+        Route::post('/audienta/segmente', [Portal\AudienceController::class, 'saveSegment'])->middleware('can:manage_campaigns')->name('audience.segment.store');
+        Route::get('/audienta/segmente/{segment}', [Portal\AudienceController::class, 'segment'])->middleware('can:manage_campaigns')->where('segment', $id)->name('audience.segment');
+        Route::put('/audienta/segmente/{segment}', [Portal\AudienceController::class, 'saveSegment'])->middleware('can:manage_campaigns')->where('segment', $id)->name('audience.segment.update');
+        Route::delete('/audienta/segmente/{segment}', [Portal\AudienceController::class, 'destroySegment'])->middleware('can:manage_campaigns')->where('segment', $id)->name('audience.segment.destroy');
         Route::get('/canale', [Portal\ChannelController::class, 'index'])->middleware('can:manage_campaigns')->name('channels');
         Route::put('/canale/{channel}', [Portal\ChannelController::class, 'save'])->middleware('can:manage_campaigns')->name('channels.save');
         Route::post('/canale/{channel}/test', [Portal\ChannelController::class, 'test'])->middleware(['can:manage_campaigns', 'throttle:10,1'])->name('channels.test');

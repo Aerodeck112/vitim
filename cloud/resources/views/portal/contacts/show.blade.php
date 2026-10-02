@@ -63,4 +63,35 @@
     </form>
   @endif
 </div>
+<div class="grid" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start;margin-top:18px">
+  <div class="card">
+    <h2>Activitate</h2>
+    @forelse ($timeline as $event)
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <span aria-hidden="true">{{ \App\Models\ContactEvent::TYPES[$event->type][1] ?? '•' }}</span>
+        <div style="flex:1"><strong>{{ $event->label() }}</strong>
+          @if ($event->data['subject'] ?? null)<span class="muted"> · {{ $event->data['subject'] }}</span>@endif
+          @if ($event->data['url'] ?? null)<span class="muted small"> · {{ \Illuminate\Support\Str::limit($event->data['url'], 60) }}</span>@endif
+          @if ($event->data['list'] ?? null)<span class="muted"> · {{ $event->data['list'] }}</span>@endif
+          @if ($event->data['product'] ?? null)<span class="muted"> · {{ $event->data['product'] }}</span>@endif
+          @if ($event->value !== null)<span class="badge ok">{{ number_format((float) $event->value, 2, ',', '.') }} {{ $event->data['currency'] ?? 'lei' }}</span>@endif
+          <div class="small muted">{{ $event->occurred_at->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') }}</div></div>
+      </div>
+    @empty
+      <p class="muted" style="margin:0">Nicio activitate încă. Aici apar emailurile primite, deschise și click-uite, formularele, cererile și comenzile.</p>
+    @endforelse
+  </div>
+  <div class="card">
+    <h2>Liste</h2>
+    @forelse ($lists as $list)
+      @php($in = in_array($list->id, $memberOf, true))
+      <form method="post" action="{{ route('portal.audience.list.members', [$organization->slug, $list->id]) }}" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">@csrf
+        <span>{{ $list->name }} @if ($in)<span class="badge ok">în listă</span>@endif</span>
+        @can('manage_campaigns')<input type="hidden" name="action" value="{{ $in ? 'remove' : 'add' }}"><input type="hidden" name="contact_id" value="{{ $contact->id }}"><button class="btn btn-s" type="submit">{{ $in ? 'Scoate' : 'Adaugă' }}</button>@endcan
+      </form>
+    @empty
+      <p class="muted" style="margin:0">Nicio listă creată. @can('manage_campaigns')<a href="{{ route('portal.audience', $organization->slug) }}">Creează una</a>@endcan</p>
+    @endforelse
+  </div>
+</div>
 @endsection

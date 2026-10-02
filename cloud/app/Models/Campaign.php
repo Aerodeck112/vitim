@@ -49,6 +49,17 @@ class Campaign extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    /** Deschideri și click-uri unice, raportate la mesajele trimise. @return array{sent: int, opened: int, clicked: int, open_rate: float, click_rate: float} */
+    public function engagement(): array
+    {
+        $row = CampaignRecipient::query()->where('campaign_id', $this->id)->whereNotNull('sent_at')->whereIn('status', ['sent', 'delivered', 'read', 'unsubscribed'])
+            ->selectRaw('count(*) as sent, sum(case when opened_at is not null then 1 else 0 end) as opened, sum(case when clicked_at is not null then 1 else 0 end) as clicked')->first();
+        $sent = (int) ($row->sent ?? 0);
+
+        return ['sent' => $sent, 'opened' => (int) ($row->opened ?? 0), 'clicked' => (int) ($row->clicked ?? 0),
+            'open_rate' => $sent ? round(100 * (int) $row->opened / $sent, 1) : 0.0, 'click_rate' => $sent ? round(100 * (int) $row->clicked / $sent, 1) : 0.0];
+    }
+
     /** @return array<string, int> numărul de destinatari pe status */
     public function stats(): array
     {

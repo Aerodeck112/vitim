@@ -9,12 +9,14 @@ use App\Enums\ConsentPurpose;
 use App\Enums\ConsentStatus;
 use App\Enums\ContactSource;
 use App\Enums\IdentityType;
+use App\Models\ContactList;
 use App\Models\Suppression;
 use App\Services\AuditLogger;
 use App\Services\ConsentService;
 use App\Services\ContactService;
 use App\Services\DuplicateContactException;
 use App\Services\IdentityNormalizer;
+use App\Services\ListService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -30,7 +32,7 @@ final class ContactImportController extends PortalController
 
     public function show(): View
     {
-        return view('portal.contacts.import', ['organization' => $this->organization()]);
+        return view('portal.contacts.import', ['organization' => $this->organization(), 'lists' => ContactList::query()->orderBy('name')->pluck('name', 'id')]);
     }
 
     public function store(Request $request, ContactService $contacts, ConsentService $consents, AuditLogger $audit): RedirectResponse
@@ -40,12 +42,14 @@ final class ContactImportController extends PortalController
             'consent' => ['nullable', 'array'], 'consent.*' => ['in:email,sms,whatsapp'],
             'evidence' => ['required_with:consent', 'nullable', 'string', 'max:300'],
             'declare' => ['required_with:consent', 'nullable', 'accepted'],
+            'list_id' => ['nullable', 'integer'],
         ], [
             'evidence.required_with' => 'Scrie de unde ai acordul contactelor (ex. „formular de abonare pe site, 2024–2026”).',
             'declare.required_with' => 'Confirmă că ai acordul documentat al acestor persoane.',
             'file.mimes' => 'Fișierul trebuie să fie CSV (în Excel: Fișier → Salvare ca → CSV).',
         ]);
         $channels = array_map(fn ($c) => Channel::from($c), (array) ($data['consent'] ?? []));
+        $list = ! empty($data['list_id']) ? ContactList::query()->findOrFail((int) $data['list_id']) : null;
         $rows = $this->rows((string) file_get_contents($request->file('file')->getRealPath()));
         if ($rows === null) {
             return back()->withErrors(['file' => 'Nu am găsit coloanele. Prima linie trebuie să aibă cel puțin „email” sau „telefon” (opțional „prenume”, „nume”, „firma”).']);
@@ -75,6 +79,9 @@ final class ContactImportController extends PortalController
                 $stats['skipped']++;
 
                 continue;
+            }
+            if ($list) {
+                app(ListService::class)->add($list, $contact, 'import');
             }
             foreach ($channels as $channel) {
                 $address = $channel === Channel::Email ? $email : $phone;

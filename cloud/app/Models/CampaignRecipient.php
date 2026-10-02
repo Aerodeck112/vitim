@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Un destinatar al campaniei: trimis, eșuat sau exclus (cu motivul: fără acord, dezabonat, fără adresă). */
-#[Fillable(['campaign_id', 'contact_id', 'address', 'status', 'reason', 'external_id', 'unsubscribe_code', 'sent_at'])]
+#[Fillable(['campaign_id', 'contact_id', 'address', 'status', 'reason', 'external_id', 'unsubscribe_code', 'sent_at', 'opened_at', 'clicked_at', 'open_count', 'click_count'])]
 class CampaignRecipient extends Model
 {
     use BelongsToOrganization;
 
     protected function casts(): array
     {
-        return ['sent_at' => 'datetime'];
+        return ['sent_at' => 'datetime', 'opened_at' => 'datetime', 'clicked_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Campaign, $this> */

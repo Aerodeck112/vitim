@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Campanii')
 @section('content')
+@include('partials.marketing-tabs')
 <div class="head"><div><h1>Campanii</h1><p>Email, SMS și WhatsApp către contactele care și-au dat acordul. Fiecare campanie trece prin test și aprobare înainte să plece.</p></div>
   <a class="btn" href="{{ route('portal.channels', $organization->slug) }}">Canale de trimitere</a></div>
 @php($labels = ['email' => 'Email', 'sms' => 'SMS', 'whatsapp' => 'WhatsApp'])

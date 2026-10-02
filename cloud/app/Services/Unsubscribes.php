@@ -49,5 +49,6 @@ final class Unsubscribes
     private function revoke(Contact $contact, Channel $channel, string $source, array $metadata, ?string $ip = null, ?string $userAgent = null): void
     {
         $this->consents->record($contact, $channel, ConsentPurpose::Marketing, ConsentStatus::Revoked, $source, $metadata, $ip, $userAgent);
+        app(ContactActivity::class)->record($contact, 'unsubscribed', ['channel' => $channel->value, 'source' => $source], null, $metadata['campaign_id'] ?? null);
     }
 }

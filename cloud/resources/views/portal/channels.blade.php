@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Canale de trimitere')
 @section('content')
+@include('partials.marketing-tabs')
 <div class="head"><div><h1>Canale de trimitere</h1><p>Campaniile pleacă din conturile firmei tale: emailul tău, contul tău SMSLink, numărul tău de WhatsApp Business.</p></div>
   <a class="btn" href="{{ route('portal.campaigns.index', $organization->slug) }}">Campanii</a></div>
 @php($titles = ['email' => ['Email (SMTP)', 'Folosește o adresă de email a firmei, de exemplu din cPanel → Email Accounts → Connect Devices (serverul, portul și utilizatorul sunt acolo).'],

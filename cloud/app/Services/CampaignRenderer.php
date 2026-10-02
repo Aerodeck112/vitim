@@ -18,13 +18,14 @@ final class CampaignRenderer
     public const VARIABLES = ['{{prenume}}' => 'prenumele contactului', '{{nume}}' => 'numele de familie', '{{firma}}' => 'numele firmei tale'];
 
     /** @return array{subject: ?string, body: string, html: ?string, template: ?array<string, mixed>} */
-    public function render(Campaign $campaign, Organization $organization, ?Contact $contact, string $unsubscribeUrl, bool $ascii = true): array
+    public function render(Campaign|MessageContent $content, Organization $organization, ?Contact $contact, string $unsubscribeUrl, bool $ascii = true, ?string $trackingCode = null, array $extra = []): array
     {
+        $campaign = $content instanceof Campaign ? MessageContent::of($content) : $content;
         $vars = [
             '{{prenume}}' => trim((string) ($contact?->first_name ?? '')),
             '{{nume}}' => trim((string) ($contact?->last_name ?? '')),
             '{{firma}}' => self::company($organization),
-        ];
+        ] + $extra;
         $fill = fn (?string $text) => $text === null ? null : self::tidy(strtr($text, $vars));
 
         if ($campaign->channel === Channel::Sms) {
@@ -43,7 +44,13 @@ final class CampaignRenderer
         $footer = self::footer($organization);
         $text = self::plain($body)."\n\n--\n".$footer."\nDezabonare: ".$unsubscribeUrl;
 
-        return ['subject' => $fill($campaign->subject), 'body' => $text, 'html' => self::html($body, $footer, $unsubscribeUrl), 'template' => null];
+        $html = self::html($body, $footer, $unsubscribeUrl);
+        if ($trackingCode !== null) {
+            // linkurile urmărite + pixelul de deschidere, doar în mesajele reale (nu în teste și previzualizări)
+            $html = str_replace('</body>', '<img src="'.e(Tracking::pixel($trackingCode)).'" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0"></body>', Tracking::rewrite($html, $trackingCode));
+        }
+
+        return ['subject' => $fill($campaign->subject), 'body' => $text, 'html' => $html, 'template' => null];
     }
 
     /** Câte SMS-uri înseamnă textul (GSM: 160 / 153 pe bucată; cu diacritice: 70 / 67). */

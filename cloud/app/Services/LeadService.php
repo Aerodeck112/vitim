@@ -47,6 +47,7 @@ final class LeadService
                 'closed_at' => $status->isClosed() ? now() : null,
             ]);
             $this->events->record('lead.created', $lead, ['contact_id' => $contact->getKey(), 'intent' => $lead->intent->value, 'source' => $lead->source]);
+            app(ContactActivity::class)->record($contact, 'lead_created', ['lead_id' => $lead->getKey(), 'intent' => $lead->intent->value, 'source' => $lead->source]);
             $this->usage->increment('leads_created');
 
             return $lead;

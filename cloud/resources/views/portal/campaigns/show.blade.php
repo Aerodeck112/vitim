@@ -5,6 +5,7 @@
 @php($ch = $campaign->channel->value)
 @php($labels = ['email' => 'Email', 'sms' => 'SMS', 'whatsapp' => 'WhatsApp'])
 @php($a = (array) $campaign->audience)
+@include('partials.marketing-tabs')
 <div class="head"><div><h1>{{ $campaign->name }}</h1>
   <p>{{ $labels[$ch] }} · <span class="badge">{{ \App\Models\Campaign::STATUSES[$campaign->status] }}</span>
     @if ($campaign->approved_at) · aprobată de {{ $campaign->approver?->name ?? '—' }} la {{ $campaign->approved_at->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') }}@endif
@@ -18,8 +19,11 @@
 @if (! $campaign->editable())
   @php($done = ($stats['sent'] ?? 0) + ($stats['delivered'] ?? 0) + ($stats['read'] ?? 0) + ($stats['unsubscribed'] ?? 0))
   <div class="grid" style="margin-bottom:18px">
-    @foreach ([['Trimise', $done], ['În așteptare', $stats['pending'] ?? 0], ['Livrate / citite (WhatsApp)', ($stats['delivered'] ?? 0) + ($stats['read'] ?? 0)], ['Eșuate', $stats['failed'] ?? 0], ['Excluse (fără acord etc.)', $stats['excluded'] ?? 0], ['Dezabonați', $stats['unsubscribed'] ?? 0]] as [$label, $value])
-      <div class="kpi"><small>{{ $label }}</small><b>{{ number_format($value, 0, ',', '.') }}</b></div>
+    @foreach (array_filter([['Trimise', $done, null], ['În așteptare', $stats['pending'] ?? 0, null],
+      $ch === 'email' ? ['Deschideri unice', $engagement['opened'], $engagement['open_rate'].'%'] : null, $ch === 'email' ? ['Click-uri unice', $engagement['clicked'], $engagement['click_rate'].'%'] : null,
+      $ch === 'whatsapp' ? ['Livrate / citite', ($stats['delivered'] ?? 0) + ($stats['read'] ?? 0), null] : null,
+      ['Eșuate', $stats['failed'] ?? 0, null], ['Excluse (fără acord etc.)', $stats['excluded'] ?? 0, null], ['Dezabonați', $stats['unsubscribed'] ?? 0, null]]) as [$label, $value, $rate])
+      <div class="kpi"><small>{{ $label }}</small><b>{{ number_format($value, 0, ',', '.') }}</b>@if ($rate)<span class="muted"> · {{ $rate }}</span>@endif</div>
     @endforeach
   </div>
   <div style="display:flex;gap:8px;margin-bottom:18px">
@@ -55,12 +59,15 @@
   <p class="small muted">Poți folosi: @foreach (\App\Services\CampaignRenderer::VARIABLES as $var => $desc)<span class="mono">{{ $var }}</span> ({{ $desc }})@if (! $loop->last), @endif @endforeach</p>
 
   <h2 style="margin-top:20px">Cui pleacă</h2>
-  <p class="small muted" style="margin-top:-6px">Doar contactele cu acord de marketing pe {{ $labels[$ch] }} și nedezabonate. Filtrele de mai jos restrâng lista.</p>
-  <div class="fl"><label>Sursa contactului (niciuna bifată = toate)</label>
-    <div style="display:flex;flex-wrap:wrap;gap:4px 14px">@foreach ($sources as $source)<label class="chk"><input type="checkbox" name="sources[]" value="{{ $source->value }}" @checked(in_array($source->value, $a['sources'] ?? [], true))> {{ ['website_ai' => 'asistentul de pe site', 'form' => 'formular', 'woocommerce' => 'magazin', 'manual' => 'adăugat manual', 'import' => 'import', 'email' => 'email', 'whatsapp' => 'WhatsApp', 'sms' => 'SMS', 'crm' => 'CRM', 'api' => 'API', 'ads' => 'reclame'][$source->value] ?? $source->value }}</label>@endforeach</div></div>
-  <div class="row">
-    <div class="fl"><label for="leads">Cereri (lead-uri)</label><select id="leads" name="leads"><option value="">oricare</option><option value="with" @selected(($a['leads'] ?? '') === 'with')>doar cei care au trimis o cerere</option><option value="without" @selected(($a['leads'] ?? '') === 'without')>doar cei fără cerere</option></select></div>
-    <div class="fl"><label for="ca">Adăugați după</label><input id="ca" type="date" name="created_after" value="{{ $a['created_after'] ?? '' }}"></div>
+  <p class="small muted" style="margin-top:-6px">Doar contactele cu acord de marketing pe {{ $labels[$ch] }} și nedezabonate. Nimic bifat la „Trimite către” = toate contactele cu acord.</p>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    @foreach (['include' => 'Trimite către', 'exclude' => 'Exclude'] as $key => $title)
+      <div><div class="lbl">{{ $title }}</div>
+        @foreach ($lists as $list)<label class="chk"><input type="checkbox" name="{{ $key }}[]" value="list:{{ $list->id }}" @checked(in_array('list:'.$list->id, $a[$key] ?? [], true))> 📋 {{ $list->name }}</label>@endforeach
+        @foreach ($segments as $segment)<label class="chk"><input type="checkbox" name="{{ $key }}[]" value="segment:{{ $segment->id }}" @checked(in_array('segment:'.$segment->id, $a[$key] ?? [], true))> ⚡ {{ $segment->name }}</label>@endforeach
+        @if ($lists->isEmpty() && $segments->isEmpty())<p class="small muted"><a href="{{ route('portal.audience', $slug) }}">Creează liste și segmente</a></p>@endif
+      </div>
+    @endforeach
   </div>
   @if ($campaign->editable())<button class="btn btn-p" type="submit">Salvează</button>@endif
   </fieldset>
@@ -111,13 +118,14 @@
 <div class="card">
   <h2>Destinatari</h2>
   <div class="table-wrap"><table>
-    <thead><tr><th>Contact</th><th>Adresă</th><th>Stare</th><th>Detalii</th><th>Trimis</th></tr></thead>
+    <thead><tr><th>Contact</th><th>Adresă</th><th>Stare</th><th>Detalii</th><th>Trimis</th>@if ($ch === 'email')<th>Deschis</th><th>Click</th>@endif</tr></thead>
     <tbody>
     @foreach ($recipients as $r)
       <tr><td>@if ($r->contact)<a href="{{ route('portal.contacts.show', [$slug, $r->contact_id]) }}">{{ $r->contact->displayName() }}</a>@else — @endif</td>
         <td class="small mono">{{ $r->address ?? '—' }}</td>
         <td><span class="badge {{ ['sent' => 'ok', 'delivered' => 'ok', 'read' => 'ok', 'failed' => 'err', 'unsubscribed' => 'warn'][$r->status] ?? '' }}">{{ ['pending' => 'în așteptare', 'sent' => 'trimis', 'delivered' => 'livrat', 'read' => 'citit', 'failed' => 'eșuat', 'excluded' => 'exclus', 'unsubscribed' => 'dezabonat'][$r->status] ?? $r->status }}</span></td>
-        <td class="small muted">{{ $r->reason }}</td><td class="small muted">{{ $r->sent_at?->setTimezone('Europe/Bucharest')->format('d.m H:i') }}</td></tr>
+        <td class="small muted">{{ $r->reason }}</td><td class="small muted">{{ $r->sent_at?->setTimezone('Europe/Bucharest')->format('d.m H:i') }}</td>
+        @if ($ch === 'email')<td>{{ $r->opened_at ? '✓' : '' }}</td><td>{{ $r->clicked_at ? '✓ '.$r->click_count : '' }}</td>@endif</tr>
     @endforeach
     </tbody>
   </table></div>

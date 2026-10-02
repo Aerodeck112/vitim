@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\UnsubscribeController;
 use App\Http\Controllers\Webhooks\WhatsAppWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -9,3 +10,5 @@ Route::get('/d/{code}', [UnsubscribeController::class, 'show'])->where('code', '
 Route::post('/d/{code}', [UnsubscribeController::class, 'confirm'])->where('code', '[A-Za-z0-9]{4,16}')->middleware('throttle:30,1')->name('unsubscribe.confirm');
 Route::get('/webhooks/whatsapp/{token}', [WhatsAppWebhookController::class, 'verify'])->middleware('throttle:60,1')->name('webhooks.whatsapp');
 Route::post('/webhooks/whatsapp/{token}', [WhatsAppWebhookController::class, 'receive'])->middleware('throttle:600,1');
+Route::get('/t/o/{code}.gif', [TrackingController::class, 'open'])->middleware('throttle:300,1')->name('track.open');
+Route::get('/t/c/{code}', [TrackingController::class, 'click'])->middleware('throttle:300,1')->name('track.click');
