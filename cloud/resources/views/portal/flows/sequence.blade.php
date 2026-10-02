@@ -28,8 +28,13 @@
               @break
             @case('email')
               <div class="fl"><label>Subiect</label><input type="text" name="subject" value="{{ $step->conf('subject') }}" maxlength="200"></div>
+              @if (! empty($step->conf('blocks')))
+                <input type="hidden" name="body" value="{{ $step->conf('body') }}">
+                <div class="alert" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">Construit cu editorul vizual ({{ count($step->conf('blocks')) }} blocuri).<a class="btn btn-s btn-p" href="{{ route('portal.flows.steps.design', [$organization->slug, $flow->id, $step->id]) }}">Deschide editorul vizual</a></div>
+              @else
               <div class="fl"><label>Textul emailului</label><textarea name="body" rows="8">{{ $step->conf('body') }}</textarea>
-                <div class="hint">Variabile: @{{prenume}}, @{{nume}}, @{{firma}}; din eveniment: @{{produse}}, @{{total}}, @{{link_cos}}, @{{produs}}, @{{link_produs}}.@if (\Illuminate\Support\Facades\Route::has('portal.flows.steps.design')) <a href="{{ route('portal.flows.steps.design', [$organization->slug, $flow->id, $step->id]) }}">Deschide editorul vizual</a>@endif</div></div>
+                <div class="hint">Variabile: @{{prenume}}, @{{nume}}, @{{firma}}; din eveniment: @{{produse}}, @{{total}}, @{{link_cos}}, @{{produs}}, @{{link_produs}}. Vrei imagini și butoane? <a href="{{ route('portal.flows.steps.design', [$organization->slug, $flow->id, $step->id]) }}">Deschide editorul vizual</a></div></div>
+              @endif
               <label class="chk"><input type="checkbox" name="ignore_smart_sending" value="1" @checked($step->conf('ignore_smart_sending'))> Trimite chiar dacă a primit alt email recent (fără smart sending)</label>
               @break
             @case('sms')

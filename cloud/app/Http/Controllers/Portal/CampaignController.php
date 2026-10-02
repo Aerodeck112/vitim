@@ -85,7 +85,7 @@ final class CampaignController extends PortalController
             'exclude' => ['nullable', 'array'], 'exclude.*' => ['regex:/^(list|segment):\d+$/'],
         ], ['template_name.regex' => 'Numele șablonului are doar litere mici, cifre și „_”, exact ca în WhatsApp Manager.']);
         $model->fill([
-            'name' => $data['name'], 'subject' => $data['subject'] ?? null, 'body' => $data['body'] ?? null,
+            'name' => $data['name'], 'subject' => $data['subject'] ?? null, 'body' => $request->has('body') ? ($data['body'] ?? null) : $model->body,
             'audience' => array_filter(['include' => array_values($data['include'] ?? []), 'exclude' => array_values($data['exclude'] ?? [])]),
         ]);
         if ($model->channel === Channel::WhatsApp) {

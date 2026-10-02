@@ -167,6 +167,15 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/automatizari/{flow}/pasi', [Portal\FlowController::class, 'addStep'])->middleware('can:manage_campaigns')->where('flow', $id)->name('flows.steps.store');
         Route::put('/automatizari/{flow}/pasi/{step}', [Portal\FlowController::class, 'updateStep'])->middleware('can:manage_campaigns')->where(['flow' => $id, 'step' => $id])->name('flows.steps.update');
         Route::delete('/automatizari/{flow}/pasi/{step}', [Portal\FlowController::class, 'deleteStep'])->middleware('can:manage_campaigns')->where(['flow' => $id, 'step' => $id])->name('flows.steps.destroy');
+        Route::get('/campanii/{campaign}/design', [Portal\DesignController::class, 'campaign'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('design.campaign');
+        Route::put('/campanii/{campaign}/design', [Portal\DesignController::class, 'saveCampaign'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('design.campaign.save');
+        Route::get('/automatizari/{flow}/pasi/{step}/design', [Portal\DesignController::class, 'step'])->middleware('can:manage_campaigns')->where(['flow' => $id, 'step' => $id])->name('flows.steps.design');
+        Route::put('/automatizari/{flow}/pasi/{step}/design', [Portal\DesignController::class, 'saveStep'])->middleware('can:manage_campaigns')->where(['flow' => $id, 'step' => $id])->name('flows.steps.design.save');
+        Route::post('/design/previzualizare', [Portal\DesignController::class, 'preview'])->middleware(['can:manage_campaigns', 'throttle:120,1'])->name('design.preview');
+        Route::post('/design/imagini', [Portal\DesignController::class, 'upload'])->middleware(['can:manage_campaigns', 'throttle:30,1'])->name('design.upload');
+        Route::post('/design/sabloane', [Portal\DesignController::class, 'saveTemplate'])->middleware('can:manage_campaigns')->name('design.templates.store');
+        Route::get('/brand', [Portal\DesignController::class, 'brand'])->middleware('can:manage_campaigns')->name('brand');
+        Route::put('/brand', [Portal\DesignController::class, 'saveBrand'])->middleware('can:manage_campaigns')->name('brand.save');
         Route::get('/audienta', [Portal\AudienceController::class, 'index'])->middleware('can:manage_campaigns')->name('audience');
         Route::post('/audienta/liste', [Portal\AudienceController::class, 'storeList'])->middleware('can:manage_campaigns')->name('audience.lists.store');
         Route::get('/audienta/liste/{list}', [Portal\AudienceController::class, 'showList'])->middleware('can:manage_campaigns')->where('list', $id)->name('audience.list');

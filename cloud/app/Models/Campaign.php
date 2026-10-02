@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** O campanie de marketing pe un canal: ciornă → (test) → aprobare → programată / în trimitere → încheiată. */
-#[Fillable(['name', 'channel', 'status', 'audience', 'subject', 'body', 'template', 'scheduled_at', 'approved_by', 'approved_at', 'started_at', 'completed_at', 'last_error', 'created_by'])]
+#[Fillable(['name', 'channel', 'status', 'audience', 'subject', 'preheader', 'body', 'blocks', 'template', 'scheduled_at', 'approved_by', 'approved_at', 'started_at', 'completed_at', 'last_error', 'created_by'])]
 class Campaign extends Model
 {
     use BelongsToOrganization;
@@ -25,6 +25,7 @@ class Campaign extends Model
             'channel' => Channel::class,
             'audience' => 'array',
             'template' => 'array',
+            'blocks' => 'array',
             'scheduled_at' => 'datetime',
             'approved_at' => 'datetime',
             'started_at' => 'datetime',

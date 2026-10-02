@@ -42,8 +42,12 @@
   <div class="fl"><label for="name">Numele campaniei (intern)</label><input id="name" type="text" name="name" value="{{ old('name', $campaign->name) }}" maxlength="160" required></div>
   @if ($ch === 'email')
     <div class="fl"><label for="subject">Subiect</label><input id="subject" type="text" name="subject" value="{{ old('subject', $campaign->subject) }}" maxlength="200" placeholder="ex. @{{prenume}}, 20% reducere până duminică">@error('subject')<div class="err">{{ $message }}</div>@enderror</div>
+    @if (! empty($campaign->blocks))
+      <div class="alert" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">Emailul e construit cu editorul vizual ({{ count($campaign->blocks) }} blocuri).<a class="btn btn-p btn-s" href="{{ route('portal.design.campaign', [$slug, $campaign->id]) }}">{{ $campaign->editable() ? 'Deschide editorul vizual' : 'Vezi designul' }}</a></div>
+    @else
     <div class="fl"><label for="body">Textul emailului</label><textarea id="body" name="body" rows="12" placeholder="Bună @{{prenume}},&#10;&#10;…">{{ old('body', $campaign->body) }}</textarea>
-      <div class="hint">Paragrafele se despart printr-un rând gol. **text** = îngroșat; linkurile https:// devin clicabile. Datele firmei și linkul de dezabonare se adaugă automat la final.</div></div>
+      <div class="hint">Paragrafele se despart printr-un rând gol. **text** = îngroșat; linkurile https:// devin clicabile. Datele firmei și linkul de dezabonare se adaugă automat la final.@if ($campaign->editable()) Vrei imagini, butoane și produse? <a href="{{ route('portal.design.campaign', [$slug, $campaign->id]) }}">Folosește editorul vizual</a> (după ce salvezi subiectul).@endif</div></div>
+    @endif
   @elseif ($ch === 'sms')
     <div class="fl"><label for="body">Textul SMS-ului</label><textarea id="body" name="body" rows="5" maxlength="900">{{ old('body', $campaign->body) }}</textarea>
       <div class="hint">Linkul de dezabonare se adaugă automat la final. Mesajul previzualizat are <strong>{{ mb_strlen($preview['body']) }}</strong> caractere = <strong>{{ $smsParts }} SMS</strong> per destinatar.</div></div>

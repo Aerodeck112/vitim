@@ -275,7 +275,7 @@ final class CampaignService
     private function validateContent(Campaign $campaign): void
     {
         $missing = match ($campaign->channel) {
-            Channel::Email => trim((string) $campaign->subject) === '' || trim((string) $campaign->body) === '',
+            Channel::Email => trim((string) $campaign->subject) === '' || (trim((string) $campaign->body) === '' && empty($campaign->blocks)),
             Channel::Sms => trim((string) $campaign->body) === '',
             default => trim((string) ($campaign->template['name'] ?? '')) === '',
         };

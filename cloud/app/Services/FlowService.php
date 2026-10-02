@@ -88,7 +88,7 @@ final class FlowService
         $config = match ($step->type) {
             'wait' => ['amount' => max(1, min(365, (int) ($input['amount'] ?? 1))), 'unit' => in_array($input['unit'] ?? '', ['minutes', 'hours', 'days'], true) ? $input['unit'] : 'days'],
             'email' => ['subject' => mb_substr(trim((string) ($input['subject'] ?? '')), 0, 200), 'body' => mb_substr((string) ($input['body'] ?? ''), 0, 20000),
-                'blocks' => $step->conf('blocks'), 'preheader' => mb_substr(trim((string) ($input['preheader'] ?? '')), 0, 150) ?: null,
+                'blocks' => $step->conf('blocks'), 'preheader' => array_key_exists('preheader', $input) ? (mb_substr(trim((string) $input['preheader']), 0, 150) ?: null) : $step->conf('preheader'),
                 'ignore_smart_sending' => ! empty($input['ignore_smart_sending'])],
             'sms' => ['body' => mb_substr((string) ($input['body'] ?? ''), 0, 900), 'ignore_smart_sending' => ! empty($input['ignore_smart_sending'])],
             'whatsapp' => ['template' => [

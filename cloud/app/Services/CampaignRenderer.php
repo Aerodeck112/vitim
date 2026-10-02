@@ -40,11 +40,17 @@ final class CampaignRenderer
             return ['subject' => null, 'body' => $fill((string) $campaign->body) ?? '', 'html' => null, 'template' => $template];
         }
 
-        $body = (string) $fill((string) $campaign->body);
         $footer = self::footer($organization);
-        $text = self::plain($body)."\n\n--\n".$footer."\nDezabonare: ".$unsubscribeUrl;
-
-        $html = self::html($body, $footer, $unsubscribeUrl);
+        if (! empty($campaign->blocks)) {
+            // design din editorul vizual, cu brandul firmei (logo, culoare, font, rețele)
+            $brand = (array) ($organization->branding ?? []) + ['name' => self::company($organization)];
+            $text = EmailBlocks::text($campaign->blocks, fn (string $t) => (string) $fill($t))."\n\n--\n".$footer."\nDezabonare: ".$unsubscribeUrl;
+            $html = EmailBlocks::html($campaign->blocks, $brand, fn (string $t) => (string) $fill($t), $footer, $unsubscribeUrl, $campaign->preheader);
+        } else {
+            $body = (string) $fill((string) $campaign->body);
+            $text = self::plain($body)."\n\n--\n".$footer."\nDezabonare: ".$unsubscribeUrl;
+            $html = self::html($body, $footer, $unsubscribeUrl);
+        }
         if ($trackingCode !== null) {
             // linkurile urmărite + pixelul de deschidere, doar în mesajele reale (nu în teste și previzualizări)
             $html = str_replace('</body>', '<img src="'.e(Tracking::pixel($trackingCode)).'" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0"></body>', Tracking::rewrite($html, $trackingCode));
