@@ -1,5 +1,15 @@
 # VITIM AI Cloud — versiuni
 
+## 0.13.0 — agentul funcționează și fără Claude; pagina agentului se salvează corect
+
+- **Agent fără AI extern (gratuit)**: dacă pe server nu e pusă cheia Claude, agentul răspunde din **„Informații despre firmă”**: istoria firmei, servicii, prețuri, program, adresă, întrebări frecvente. Caută propoziția sau secțiunea potrivită (fără diacritice, cu forme ca preț / prețul / prețurile și sinonime ca „cât costă” → prețuri, „unde sunteți” → adresă, „de când existați” → istoria firmei).
+- Tot fără AI: **salvează lead-uri** (ia numele, telefonul sau emailul din mesaj, cere acordul explicit cu „Da”, apoi trimite emailul către echipă), **anunță un om** când vizitatorul cere sau are o reclamație, răspunde la salut / mulțumesc, iar când nu știe cere datele de contact și spune la ce poate ajuta. Respectă tonul (formal = „dumneavoastră”), datele cerute pentru lead și regulile din pagina agentului.
+- Setare nouă **„Cum răspunde agentul”**: Automat (Claude dacă e cheia, altfel din informațiile firmei; și dacă Claude nu răspunde la un moment dat), Doar din informațiile firmei, Doar Claude. Răspunsurile fără AI nu consumă din plafonul de cost.
+- Câmpul „Informații despre firmă” acceptă acum până la 60.000 de caractere, cu numărător.
+- **Reparat: pagina agentului nu salva.** Avea două formulare cu două butoane (modificările dintr-o parte se pierdeau la apăsarea celuilalt buton), iar câmpurile „Limbă implicită” sau „Limbi” lăsate goale blocau salvarea. Acum e **un singur buton „Salvează”** (fix jos, cu avertisment „Ai modificări nesalvate”), câmpurile goale primesc valori implicite, erorile apar în română lângă câmpul greșit și ce ai scris rămâne în pagină.
+- Pagina „Testează agentul” spune clar cum răspunde agentul (din informațiile firmei sau cu Claude).
+- În chat, caseta „lasă-ne emailul” dispare după ce vizitatorul și-a lăsat datele.
+
 ## 0.12.0 — chat ca Tidio, în română, cu echipa live
 
 - **Widget nou**: buton rotund cu iconiță și bulină de mesaje necitite, fereastră cu antet colorat („Salut 👋 / Cu ce te putem ajuta azi?”), poză sau inițială, starea echipei (online / revine la ora X), bule de mesaj cu avatar și oră, animația „scrie…” (trei puncte), emoji, sunet la mesaj nou, meniu (oprește sunetul, conversație nouă, confidențialitate), „Oferit de VITIM”. Pe telefon, ecran complet.

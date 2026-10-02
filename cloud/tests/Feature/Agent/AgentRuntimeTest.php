@@ -259,9 +259,9 @@ final class AgentRuntimeTest extends TestCase
 
     public function test_refusal_errors_and_inactive_agent_give_safe_replies(): void
     {
-        $this->fake([FakeAiClient::refusal(), new AiUnavailable('unavailable')]);
+        $this->fake([FakeAiClient::refusal(), new AiUnavailable('unavailable'), new AiUnavailable('unavailable')]);
         $org = $this->makeOrganization('Service Auto', null, 'pro');
-        $agent = $this->agent($org);
+        $agent = $this->agent($org, ['engine' => 'claude']);
         $conversation = $this->conversation($org, $agent);
 
         $refused = $this->say($org, $conversation, 'ceva');
@@ -272,9 +272,16 @@ final class AgentRuntimeTest extends TestCase
         // tura goală a refuzului nu intră în istoric
         $this->tenant()->runAs($org, fn () => $this->assertSame(['user', 'user'], AiTurn::query()->orderBy('id')->pluck('role')->all()));
 
+        // modul automat: dacă Claude nu răspunde, răspunsul vine din informațiile firmei
+        $this->tenant()->runAs($org, fn () => app(AgentService::class)->update($agent, ['system_configuration' => ['engine' => 'auto'] + $agent->system_configuration]));
+        $auto = $this->conversation($org, $agent);
+        $fallback = $this->say($org, $auto, 'Cât costă schimbul de distribuție?');
+        $this->assertSame(['ok', 'local'], [$fallback->status, $fallback->engine]);
+        $this->assertStringContainsString('900 lei', $fallback->text);
+
         $draft = $this->conversation($org, $this->agent($org, status: 'draft'));
         $this->assertSame('inactive', $this->say($org, $draft, 'alo')->status);
-        $this->assertCount(2, $this->ai->requests);
+        $this->assertCount(3, $this->ai->requests);
     }
 
     public function test_agent_versions_and_templates(): void

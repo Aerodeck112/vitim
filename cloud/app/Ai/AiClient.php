@@ -17,4 +17,7 @@ interface AiClient
      * @throws AiUnavailable
      */
     public function create(array $request): array;
+
+    /** Există o cheie configurată (altfel agentul răspunde din informațiile firmei, fără model AI). */
+    public function configured(): bool;
 }

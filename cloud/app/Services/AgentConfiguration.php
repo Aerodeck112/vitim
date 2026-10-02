@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Http\Validation\Ro;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -21,6 +22,12 @@ final class AgentConfiguration
     public const LEAD_FIELDS = ['name', 'phone', 'email', 'company', 'requested_service', 'product', 'budget', 'preferred_date', 'notes'];
 
     public const FALLBACKS = ['collect_contact', 'handoff', 'apologize'];
+
+    /** auto = Claude dacă e configurată cheia, altfel răspunsuri din informațiile firmei; local = mereu fără AI; claude = doar Claude */
+    public const ENGINES = ['auto', 'local', 'claude'];
+
+    /** Informațiile despre firmă sunt și baza de cunoștințe a agentului local, deci pot fi lungi. */
+    public const MAX_FACTS = 60000;
 
     public const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -49,7 +56,7 @@ final class AgentConfiguration
             'languages.*' => ['string', 'size:2'],
             'greeting' => ['sometimes', 'nullable', 'string', 'max:500'],
             'instructions' => ['sometimes', 'nullable', 'string', 'max:4000'],
-            'business_facts' => ['sometimes', 'nullable', 'string', 'max:20000'],
+            'business_facts' => ['sometimes', 'nullable', 'string', 'max:'.self::MAX_FACTS],
             'contact_line' => ['sometimes', 'nullable', 'string', 'max:300'],
             'business_hours' => ['sometimes', 'array'],
             'business_hours.timezone' => ['sometimes', 'timezone:all'],
@@ -65,13 +72,14 @@ final class AgentConfiguration
             'knowledge_sources' => ['sometimes', 'array'],
             'knowledge_sources.*' => ['integer'],
             'fallback_behavior' => ['sometimes', Rule::in(self::FALLBACKS)],
+            'engine' => ['sometimes', Rule::in(self::ENGINES)],
         ];
         foreach (self::DAYS as $day) {
             $rules["business_hours.days.{$day}"] = ['sometimes', 'array', 'max:3'];
             $rules["business_hours.days.{$day}.*"] = ['array', 'size:2'];
             $rules["business_hours.days.{$day}.*.*"] = ['string', $time];
         }
-        $s = Validator::make($system, $rules)->validate();
+        $s = Validator::make($system, $rules, Ro::MESSAGES, Ro::ATTRIBUTES)->validate();
 
         $defaults = self::defaults();
         $model = array_replace($defaults[0], $m);
@@ -102,6 +110,7 @@ final class AgentConfiguration
                 'allowed_actions' => ['create_lead', 'request_human'],
                 'knowledge_sources' => [],
                 'fallback_behavior' => 'collect_contact',
+                'engine' => 'auto',
             ],
         ];
     }

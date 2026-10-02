@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Portal;
 
 use App\Ai\AgentRuntime;
+use App\Ai\AiClient;
 use App\Enums\Channel;
 use App\Enums\ConversationStatus;
 use App\Models\Agent;
@@ -34,7 +35,8 @@ final class AgentTestController extends PortalController
             'executions' => $conversation?->toolExecutions()->get()->keyBy('id') ?? collect(),
             'spentUsd' => $usage->thisMonth('ai_cost_micro_usd') / 1_000_000,
             'capUsd' => $cap,
-            'configured' => (string) config('vitim.ai.api_key') !== '',
+            'configured' => app(AiClient::class)->configured(),
+            'engine' => $model->system_configuration['engine'] ?? 'auto',
         ]);
     }
 

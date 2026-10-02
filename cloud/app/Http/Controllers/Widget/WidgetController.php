@@ -193,13 +193,13 @@ final class WidgetController extends Controller
         });
     }
 
-    /** @return array{messages: mixed, last_id: int} mesajele echipei/AI apărute după `after` (fără ale vizitatorului, deja afișate) */
+    /** @return array{messages: mixed, last_id: int, has_contact: bool} mesajele echipei/AI apărute după `after` (fără ale vizitatorului, deja afișate) */
     private function since(LiveChatService $live, Conversation $conversation, int $after): array
     {
         $messages = $live->forVisitor($conversation, $after, false);
         $last = (int) Message::query()->where('conversation_id', $conversation->id)->max('id');
 
-        return ['messages' => $messages, 'last_id' => $last];
+        return ['messages' => $messages, 'last_id' => $last, 'has_contact' => $conversation->fresh()?->contact_id !== null];
     }
 
     private function seen(Conversation $conversation): void

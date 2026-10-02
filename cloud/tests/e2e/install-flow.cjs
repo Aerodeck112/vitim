@@ -48,13 +48,13 @@ const ok = (c, m) => { console.log((c ? '✓ ' : '✗ ') + m); if (!c) process.e
   await p.goto(B + '/app/demo-auto-srl/contacte/nou'); await p.fill('#first_name', 'Andrei'); await p.fill('#email', 'andrei@example.test'); await p.fill('#phone', '0700 000 001');
   await p.click('main button[type=submit]'); ok(/\/contacte\/\d+$/.test(p.url()), 'contact creat');
   await p.fill('#summary', 'Schimb distribuție'); await p.click('text=Adaugă lead'); ok((await p.content()).includes('Schimb distribuție'), 'lead creat');
-  // agent din template + test din panou (fără cheie AI: răspuns sigur, cu datele de contact)
+  // agent din template + test din panou (fără cheie AI: răspunde din informațiile firmei)
   await p.goto(B + '/app/demo-auto-srl/agent'); await p.fill('#name', 'Asistent Demo'); await p.selectOption('#template', 'auto_service');
   await p.click('text=Creează agentul'); ok(/\/agent\/\d+$/.test(p.url()), 'agent creat din template');
   await p.fill('#business_facts', 'Schimb distribuție: de la 900 lei.'); await p.fill('#contact_line', '0265 000 000'); await p.click('main button[type=submit]');
   ok((await p.content()).includes('versiunea 2'), 'configurație salvată, versiunea 2');
   await p.click('text=Testează agentul'); await p.fill('textarea[name=message]', 'Cât costă distribuția?'); await p.click('button:has-text("Trimite")');
-  ok((await p.textContent('.chat')).includes('0265 000 000'), 'test agent: fără cheie AI răspunde cu datele de contact');
+  ok((await p.textContent('.chat')).includes('de la 900 lei'), 'test agent: fără cheie AI răspunde din informațiile firmei');
   await p.screenshot({ path: require('os').tmpdir() + '/vitim-ai-' + Date.now() + '.png', fullPage: true });
   await p.goto(B + '/app/demo-auto-srl/in-curand/campanii'); ok((await p.content()).includes('În dezvoltare'), 'secțiune viitoare marcată');
   await p.screenshot({ path: require('os').tmpdir() + '/vitim-ai-' + Date.now() + '.png', fullPage: true });

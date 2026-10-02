@@ -15,6 +15,11 @@ use Anthropic\Core\Exceptions\RateLimitException;
 /** Implementarea cu SDK-ul oficial. Cache pe prefixul stabil (instrucțiuni + tool-uri) și fallback la refuz. */
 final class AnthropicAiClient implements AiClient
 {
+    public function configured(): bool
+    {
+        return (string) config('vitim.ai.api_key') !== '';
+    }
+
     public function create(array $request): array
     {
         $key = (string) config('vitim.ai.api_key');

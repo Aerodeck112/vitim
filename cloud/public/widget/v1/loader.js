@@ -433,6 +433,7 @@
         if (!shown && !j.reply && j.status !== 'human') add('agent', 'Momentan nu pot răspunde. Te rugăm să ne contactezi direct.');
         if (j.last_id && j.last_id > state.lastId) state.lastId = j.last_id;
         state.pending = [];
+        if (j.has_contact) { state.hasContact = true; var card = list.querySelector('.card'); if (card) card.parentNode.removeChild(card); }
         markSeen();
         if (state.sent >= 2 || j.status === 'human') emailCard();
       }).catch(function () {

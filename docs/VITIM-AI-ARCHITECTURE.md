@@ -570,6 +570,7 @@ Limitări de urmărit (motive de mutare pe VPS mai târziu, fără schimbări de
 
 ## 23. Phase 2
 
+- ✅ Agent fără AI extern (0.13.0): `App\Ai\Local` — căutare lexicală în informațiile firmei (română, sinonime), lead cu acord și transfer la om prin aceleași tool-uri; setarea `engine` (auto / local / claude).
 - ✅ Handoff live (0.12.0): mod AI/HUMAN, preluare de către operator din dashboard, polling în widget.
 - Follow-up Engine: secvențe configurabile (ziua 0/1/3/7), doar email, cu consimțământ, opt-out, ore liniștite și log complet.
 - Programări: Google Calendar.

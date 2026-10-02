@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Ai;
 
+use App\Ai\Local\LocalAgent;
 use App\Ai\Tools\Tool;
 use App\Ai\Tools\ToolContext;
 use App\Ai\Tools\ToolRegistry;
@@ -11,6 +12,7 @@ use App\Ai\Tools\ToolResult;
 use App\Enums\Channel;
 use App\Enums\MessageStatus;
 use App\Enums\SenderType;
+use App\Models\Agent;
 use App\Models\AiTurn;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -32,6 +34,7 @@ final class AgentRuntime
         private readonly ToolRegistry $registry,
         private readonly UsageMeter $usage,
         private readonly TenantContext $context,
+        private readonly LocalAgent $local,
     ) {}
 
     public function reply(Conversation $conversation, string $text, ?string $ip = null, ?string $userAgent = null): AgentReply
@@ -42,10 +45,13 @@ final class AgentRuntime
         $contact = $this->contactLine($conversation);
 
         $this->message($conversation, SenderType::Contact, $text);
+        // fără cheie Claude (sau la alegere): răspunsuri din informațiile firmei, fără cost AI
+        $engine = $agent?->system_configuration['engine'] ?? 'auto';
+        $useLocal = $engine === 'local' || ($engine === 'auto' && ! $this->client->configured());
         $blocked = match (true) {
             $agent === null || (! $agent->isActive() && ! $conversation->is_test) => new AgentReply('Asistentul nu este disponibil momentan. '.$contact, 'inactive'),
             ! $organization->isActive() || ! $organization->subscription?->isServiceable() => new AgentReply('Asistentul nu este disponibil momentan. '.$contact, 'inactive'),
-            $this->overCap($conversation) => new AgentReply('Asistentul nu poate răspunde acum. '.$contact, 'capped'),
+            $this->overCap($conversation, $useLocal) => new AgentReply('Asistentul nu poate răspunde acum. '.$contact, 'capped'),
             default => null,
         };
         if ($blocked) {
@@ -54,6 +60,9 @@ final class AgentRuntime
 
         $tools = $this->registry->forAgent($agent);
         $toolContext = new ToolContext($agent, $conversation, $ip, $userAgent);
+        if ($useLocal) {
+            return $this->local($agent, $conversation, $text, $tools, $toolContext);
+        }
         $model = $agent->model_configuration;
         $system = $this->prompts->build($organization, $agent);
         $definitions = array_values(array_map(fn ($t) => $t->definition($agent), $tools));
@@ -104,6 +113,10 @@ final class AgentRuntime
             }
         } catch (AiUnavailable $e) {
             Log::warning('AI indisponibil', ['reason' => $e->reason, 'organization_id' => $organization->id, 'conversation_id' => $conversation->id]);
+            if ($engine === 'auto') {
+                // Claude nu răspunde acum: vizitatorul primește totuși un răspuns din informațiile firmei
+                return $this->local($agent, $conversation, $text, $tools, $toolContext, $executions, $cost);
+            }
 
             return $this->finish($conversation, new AgentReply('Momentan nu pot răspunde automat. '.$contact, 'unavailable', $executions, $cost));
         }
@@ -114,6 +127,18 @@ final class AgentRuntime
         }
 
         return $this->finish($conversation, new AgentReply($reply, $status, $executions, $cost));
+    }
+
+    /**
+     * @param  array<string, Tool>  $tools
+     * @param  list<ToolExecution>  $executions
+     */
+    private function local(Agent $agent, Conversation $conversation, string $text, array $tools, ToolContext $context, array $executions = [], int $cost = 0): AgentReply
+    {
+        [$answer, $more] = $this->local->reply($agent, $conversation, $text, $tools,
+            fn (string $name, array $input) => $this->runTool($tools, $context, ['name' => $name, 'input' => $input]));
+
+        return $this->finish($conversation, new AgentReply($answer, 'ok', [...$executions, ...$more], $cost, 'local'));
     }
 
     /**
@@ -150,15 +175,16 @@ final class AgentRuntime
         return [$result, $execution];
     }
 
-    /** Plafonul lunar de cost AI și, pentru conversațiile noi, numărul de conversații din plan. */
-    private function overCap(Conversation $conversation): bool
+    /** Plafonul lunar de cost AI (doar pentru Claude) și, pentru conversațiile noi, numărul de conversații din plan. */
+    private function overCap(Conversation $conversation, bool $local = false): bool
     {
         $subscription = $this->context->organization()->subscription;
         $costCap = $subscription?->limit('ai_cost_cap_usd');
-        if ($costCap !== null && $this->usage->thisMonth('ai_cost_micro_usd') >= $costCap * 1_000_000) {
+        if (! $local && $costCap !== null && $this->usage->thisMonth('ai_cost_micro_usd') >= $costCap * 1_000_000) {
             return true;
         }
-        if ($conversation->is_test || AiTurn::query()->where('conversation_id', $conversation->getKey())->exists()) {
+        // conversație deja începută: are ture AI sau stare a agentului local
+        if ($conversation->is_test || $conversation->bot_state !== null || AiTurn::query()->where('conversation_id', $conversation->getKey())->exists()) {
             return false;
         }
         $conversations = $subscription?->limit('conversations_per_month');
@@ -218,6 +244,7 @@ final class AgentRuntime
     {
         $this->message($conversation, $reply->answeredByAi() ? SenderType::Ai : SenderType::System, $reply->text, array_filter([
             'status' => $reply->status,
+            'engine' => $reply->engine,
             'tools' => array_map(fn (ToolExecution $e) => $e->id, $reply->tools),
             'cost_micro_usd' => $reply->costMicroUsd,
         ]));

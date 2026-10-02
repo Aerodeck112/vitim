@@ -18,6 +18,7 @@ final readonly class AgentReply
         public string $status = 'ok',
         public array $tools = [],
         public int $costMicroUsd = 0,
+        public ?string $engine = null, // 'local' = răspuns din informațiile firmei, fără model AI
     ) {}
 
     public function answeredByAi(): bool

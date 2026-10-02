@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /** Fundația VITIM Inbox: aceeași structură pentru web chat, email, WhatsApp și SMS. */
-#[Fillable(['contact_id', 'site_id', 'agent_id', 'channel', 'status', 'mode', 'is_test', 'visitor_token_hash', 'visitor_page', 'visitor_seen_at', 'staff_read_at', 'assigned_to', 'subject', 'last_message_at', 'closed_at'])]
+#[Fillable(['contact_id', 'site_id', 'agent_id', 'channel', 'status', 'mode', 'is_test', 'visitor_token_hash', 'visitor_page', 'visitor_seen_at', 'staff_read_at', 'bot_state', 'assigned_to', 'subject', 'last_message_at', 'closed_at'])]
 class Conversation extends Model
 {
     use BelongsToOrganization;
@@ -29,6 +29,7 @@ class Conversation extends Model
             'closed_at' => 'datetime',
             'visitor_seen_at' => 'datetime',
             'staff_read_at' => 'datetime',
+            'bot_state' => 'array',
         ];
     }
 

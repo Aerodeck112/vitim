@@ -2,12 +2,14 @@
 @section('title', 'Test: '.$agent->name)
 @section('content')
 <div class="head"><div><h1>Testează: {{ $agent->name }}</h1>
-  <p>Răspunsuri reale ale agentului. În test nu se creează lead-uri și nu se trimit notificări.</p></div>
+  <p>Răspunsuri reale ale agentului, exact ca pe site. În test nu se creează lead-uri și nu se trimit notificări.</p></div>
   <div style="display:flex;gap:8px"><a class="btn" href="{{ route('portal.agents.edit', [$organization->slug, $agent->id]) }}">Configurație</a>
   @if ($conversation)<a class="btn" href="{{ route('portal.agents.test', [$organization->slug, $agent->id]) }}">Conversație nouă</a>@endif</div></div>
 
-@if (! $configured)
-  <div class="alert alert-warn">Cheia AI nu este configurată pe server (<span class="mono">ANTHROPIC_API_KEY</span> în <span class="mono">.env</span>). Agentul va răspunde doar cu mesajul de indisponibilitate.</div>
+@if ($engine === 'local' || ($engine === 'auto' && ! $configured))
+  <div class="alert alert-ok">Agentul răspunde <strong>din informațiile firmei</strong> (fără AI extern, fără cost). Dacă un răspuns lipsește sau nu e bun, completează textul din <a href="{{ route('portal.agents.edit', [$organization->slug, $agent->id]) }}">Configurație</a> → „Informații despre firmă” și încearcă din nou.</div>
+@elseif (! $configured)
+  <div class="alert alert-warn">Agentul e setat pe „Doar Claude”, dar cheia nu este configurată pe server (<span class="mono">ANTHROPIC_API_KEY</span> în <span class="mono">.env</span>). Alege „Automat” în Configurație ca să răspundă din informațiile firmei.</div>
 @endif
 <p class="muted small">Consum AI luna aceasta: <strong>${{ number_format($spentUsd, 2) }}</strong>@if ($capUsd !== null) din plafonul de ${{ $capUsd }}@endif.@if ($conversation) Conversația aceasta: ${{ number_format($conversation->ai_cost_micro_usd / 1_000_000, 4) }}.@endif</p>
 

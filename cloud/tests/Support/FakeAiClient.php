@@ -16,6 +16,13 @@ final class FakeAiClient implements AiClient
     /** @param list<array<string, mixed>|AiUnavailable> $responses */
     public function __construct(private array $responses = []) {}
 
+    public bool $configured = true;
+
+    public function configured(): bool
+    {
+        return $this->configured;
+    }
+
     public function create(array $request): array
     {
         $this->requests[] = $request;
