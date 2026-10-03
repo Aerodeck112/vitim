@@ -47,7 +47,13 @@ final class FlowTemplates
                 'shop' => true,
                 'steps' => [
                     ['wait', ['amount' => 1, 'unit' => 'hours']],
-                    ['email', ['subject' => '{{prenume}}, ai uitat ceva în coș', 'body' => "Bună {{prenume}},\n\nProdusele tale te așteaptă: {{produse}} ({{total}}).\n\nFinalizează comanda aici: {{link_cos}}"]],
+                    ['email', ['subject' => '{{prenume}}, ai uitat ceva în coș', 'body' => "Bună {{prenume}},\n\nProdusele tale te așteaptă: {{produse}} ({{total}}).\n\nFinalizează comanda aici: {{link_cos}}", 'blocks' => [
+                        ['type' => 'logo', 'align' => 'center'],
+                        ['type' => 'heading', 'text' => 'Ai uitat ceva în coș, {{prenume}}?', 'size' => 'h1', 'align' => 'center'],
+                        ['type' => 'text', 'text' => 'Ți-am păstrat produsele. Comanda e la un click distanță.', 'align' => 'center'],
+                        ['type' => 'cart', 'title' => 'Coșul tău ({{total}})', 'label' => 'Finalizează comanda'],
+                        ['type' => 'text', 'text' => 'Ai întrebări despre produse sau livrare? Răspunde la acest email.', 'align' => 'center'],
+                    ]]],
                     ['wait', ['amount' => 1, 'unit' => 'days']],
                     ['condition', ['match' => 'all', 'conditions' => [['type' => 'since_start', 'event' => 'email_opened', 'op' => 'did']]], [
                         'yes' => [['email', ['subject' => 'Încă te gândești?', 'body' => "Bună {{prenume}},\n\nComanda ta e aproape gata: {{produse}}.\n\nAi întrebări despre produse sau livrare? Răspunde la acest email.\n\nFinalizează aici: {{link_cos}}"]]],

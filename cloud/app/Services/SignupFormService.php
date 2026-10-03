@@ -69,7 +69,7 @@ final class SignupFormService
                 'devices' => 'all',
                 'frequency_days' => 7,
                 'include' => '',
-                'exclude' => '',
+                'exclude' => "/checkout\n/cart\n/cos\n/finalizare", // nu peste coș și finalizarea comenzii
             ],
         ];
     }
@@ -237,8 +237,12 @@ final class SignupFormService
 
     private function contactFor(string $email, ?string $phone, string $name): Contact
     {
-        $contact = $this->contacts->findByIdentity(IdentityType::Email, $email)
-            ?? ($phone ? $this->contacts->findByIdentity(IdentityType::Phone, $phone) : null);
+        $contact = $this->contacts->findByIdentity(IdentityType::Email, $email);
+        $owner = $phone ? $this->contacts->findByIdentity(IdentityType::Phone, $phone) : null;
+        if ($owner && $contact && $owner->id !== $contact->id) {
+            $phone = null; // telefonul e al altui contact: nu îl mutăm
+        }
+        $contact ??= $owner;
         if (! $contact) {
             return $this->contacts->create(array_filter(['first_name' => $name ?: null, 'email' => $email, 'phone' => $phone]), ContactSource::Form);
         }

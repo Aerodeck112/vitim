@@ -21,6 +21,12 @@ final class FlowTriggers
 {
     public function onEvent(ContactEvent $event): void
     {
+        // ieșirea din flux la eveniment (ex. a comandat) se aplică imediat, nu abia la următorul pas
+        FlowRun::query()->where('contact_id', $event->contact_id)->where('status', 'active')->with('flow')->get()
+            ->filter(fn (FlowRun $run) => $run->flow && in_array($event->type, (array) $run->flow->setting('exit_on', []), true))
+            ->each(fn (FlowRun $run) => $run->forceFill(['status' => 'exited', 'step_id' => null, 'wake_at' => null, 'finished_at' => now(),
+                'note' => 'A ieșit: '.mb_strtolower(ContactEvent::TYPES[$event->type][0] ?? $event->type)])->save());
+
         $flows = Flow::query()->where('status', 'live')->get()->filter(function (Flow $flow) use ($event): bool {
             $t = (array) $flow->trigger;
 

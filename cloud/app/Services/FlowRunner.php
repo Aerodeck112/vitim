@@ -142,15 +142,15 @@ final class FlowRunner
         return $this->after($step);
     }
 
-    /** Variabile din evenimentul care a pornit fluxul (ex. produsele din coș, linkul de finalizare). @return array<string, string> */
+    /** Variabile din evenimentul care a pornit fluxul (ex. produsele din coș, linkul de finalizare). @return array<string, mixed> */
     private function variables(FlowRun $run): array
     {
         $data = (array) ($run->trigger_data['data'] ?? []);
         $items = array_map(fn ($i) => (string) ($i['name'] ?? ''), (array) ($data['items'] ?? []));
 
-        return array_filter([
+        return ['__items' => array_values(array_filter((array) ($data['items'] ?? []), 'is_array'))] + array_filter([
             '{{produse}}' => implode(', ', array_filter($items)),
-            '{{total}}' => isset($run->trigger_data['value']) ? number_format((float) $run->trigger_data['value'], 2, ',', '.').' '.($data['currency'] ?? 'lei') : '',
+            '{{total}}' => isset($run->trigger_data['value']) ? number_format((float) $run->trigger_data['value'], 2, ',', '.').' '.(in_array($data['currency'] ?? 'RON', ['RON', 'lei'], true) ? 'lei' : $data['currency']) : '',
             '{{link_cos}}' => (string) ($data['checkout_url'] ?? ''),
             '{{produs}}' => (string) ($data['product'] ?? ''),
             '{{link_produs}}' => (string) ($data['url'] ?? ''),

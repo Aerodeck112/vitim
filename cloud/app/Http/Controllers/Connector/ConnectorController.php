@@ -10,6 +10,7 @@ use App\Models\Site;
 use App\Models\WorkLog;
 use App\Services\BackupMonitor;
 use App\Services\ScanPayload;
+use App\Services\ShopEvents;
 use App\Services\SiteKeyService;
 use App\Services\SiteScanService;
 use App\Services\WorkLogService;
@@ -118,6 +119,65 @@ final class ConnectorController extends Controller
         });
 
         return response()->json(['ok' => true, 'saved' => $saved, 'skipped' => $skipped]);
+    }
+
+    /** Evenimentele magazinului WooCommerce (produs văzut, coș, comandă începută / plasată). Retrimiterea nu dublează. */
+    public function events(Request $request, ShopEvents $shop): JsonResponse
+    {
+        $site = $this->authenticate($request);
+        if (! $site) {
+            return $this->unauthorized();
+        }
+        $data = Validator::make($request->json()->all(), [
+            'events' => ['required', 'array', 'min:1', 'max:100'],
+            'events.*.id' => ['required', 'string', 'max:80'],
+            'events.*.type' => ['required', Rule::in(ShopEvents::TYPES)],
+            'events.*.email' => ['nullable', 'string', 'max:190'],
+            'events.*.phone' => ['nullable', 'string', 'max:40'],
+            'events.*.first_name' => ['nullable', 'string', 'max:80'],
+            'events.*.last_name' => ['nullable', 'string', 'max:80'],
+            'events.*.contact_token' => ['nullable', 'string', 'max:60'],
+            'events.*.value' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
+            'events.*.occurred_at' => ['nullable', 'integer', 'min:0'],
+            'events.*.marketing_consent' => ['nullable', 'boolean'],
+            'events.*.consent_text' => ['nullable', 'string', 'max:300'],
+            'events.*.data' => ['nullable', 'array'],
+            'events.*.data.items' => ['nullable', 'array', 'max:50'],
+            'events.*.data.items.*.name' => ['nullable', 'string', 'max:200'],
+            'events.*.data.items.*.product_id' => ['nullable', 'max:40'],
+            'events.*.data.items.*.qty' => ['nullable', 'integer', 'min:1', 'max:10000'],
+            'events.*.data.items.*.price' => ['nullable', 'numeric', 'min:0'],
+            'events.*.data.items.*.url' => ['nullable', 'string', 'max:500'],
+            'events.*.data.items.*.image' => ['nullable', 'string', 'max:500'],
+            'events.*.data.*' => ['nullable'],
+        ])->validate();
+        $result = $this->context->runAs($site->organization, fn () => $shop->ingest($site, $data['events']));
+
+        return response()->json(['ok' => true] + $result);
+    }
+
+    /** Catalogul de produse (pe bucăți de cel mult 100). */
+    public function products(Request $request, ShopEvents $shop): JsonResponse
+    {
+        $site = $this->authenticate($request);
+        if (! $site) {
+            return $this->unauthorized();
+        }
+        $data = Validator::make($request->json()->all(), [
+            'products' => ['required', 'array', 'min:1', 'max:100'],
+            'products.*.id' => ['required', 'max:40'],
+            'products.*.deleted' => ['nullable', 'boolean'],
+            'products.*.name' => ['required_unless:products.*.deleted,true', 'nullable', 'string', 'max:200'],
+            'products.*.price' => ['nullable', 'numeric', 'min:0'],
+            'products.*.currency' => ['nullable', 'string', 'max:3'],
+            'products.*.url' => ['nullable', 'string', 'max:500'],
+            'products.*.image' => ['nullable', 'string', 'max:500'],
+            'products.*.categories' => ['nullable', 'array', 'max:20'],
+            'products.*.in_stock' => ['nullable', 'boolean'],
+        ])->validate();
+        $result = $this->context->runAs($site->organization, fn () => $shop->syncProducts($site, $data['products']));
+
+        return response()->json(['ok' => true] + $result);
     }
 
     /** Rezultatul scanării de securitate / sănătate făcute de plugin. */

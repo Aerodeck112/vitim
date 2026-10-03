@@ -17,7 +17,7 @@
         <h2>Blocuri</h2>
         <div class="ed-palette">
           @foreach ($types as $type => $label)
-            <button type="button" class="ed-pal" draggable="true" data-add="{{ $type }}" @disabled(! $editable)>{{ ['logo' => '🏷️', 'heading' => '🔠', 'text' => '¶', 'image' => '🖼️', 'button' => '🔘', 'columns' => '◫', 'product' => '🛍️', 'divider' => '—', 'spacer' => '↕', 'social' => '🔗'][$type] ?? '' }} {{ $label }}</button>
+            <button type="button" class="ed-pal" draggable="true" data-add="{{ $type }}" @disabled(! $editable)>{{ ['logo' => '🏷️', 'heading' => '🔠', 'text' => '¶', 'image' => '🖼️', 'button' => '🔘', 'columns' => '◫', 'product' => '🛍️', 'divider' => '—', 'spacer' => '↕', 'social' => '🔗', 'cart' => '🛒'][$type] ?? '' }} {{ $label }}</button>
           @endforeach
         </div>
       </div>
@@ -71,7 +71,7 @@
     image: {url: '', alt: '', link: '', width: 100}, button: {label: 'Vezi oferta', url: '', align: 'center', color: ''},
     columns: {left_image: '', left_text: '**Titlu**\nText scurt.', left_link: '', right_image: '', right_text: '**Titlu**\nText scurt.', right_link: ''},
     product: {product_id: null, name: 'Numele produsului', price: '', image: '', url: '', label: 'Cumpără acum', description: ''},
-    divider: {}, spacer: {height: 24}, social: {}
+    divider: {}, spacer: {height: 24}, social: {}, cart: {title: 'Produsele tale', label: 'Finalizează comanda'}
   };
   var fields = {
     logo: [['align', 'Aliniere', 'align']],
@@ -83,7 +83,8 @@
       ['right_image', 'Dreapta: imagine', 'image'], ['right_text', 'Dreapta: text', 'area'], ['right_link', 'Dreapta: link', 'url']],
     product: [['product_id', 'Produs din catalog', 'product'], ['name', 'Nume', 'text'], ['price', 'Preț', 'text'], ['image', 'Imagine', 'image'],
       ['url', 'Link (https://…)', 'url'], ['label', 'Textul butonului', 'text'], ['description', 'Descriere', 'area']],
-    divider: [], spacer: [['height', 'Înălțime (px)', 'number']], social: []
+    divider: [], spacer: [['height', 'Înălțime (px)', 'number']], social: [],
+    cart: [['title', 'Titlu', 'text'], ['label', 'Textul butonului (duce la coșul salvat)', 'text']]
   };
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
@@ -92,6 +93,7 @@
     if (b.type === 'spacer') s = b.height + ' px';
     if (b.type === 'social') s = 'linkurile din Brand';
     if (b.type === 'logo') s = 'logo-ul din Brand';
+    if (b.type === 'cart') s = 'se completează din coșul / comanda contactului';
     if ((b.type === 'image' || b.type === 'columns') && !b.url && !b.left_image) s = s || 'fără imagine încă';
     return String(s).replace(/\*\*/g, '').slice(0, 90);
   }

@@ -22,6 +22,7 @@
     @foreach (array_filter([['Trimise', $done, null], ['În așteptare', $stats['pending'] ?? 0, null],
       $ch === 'email' ? ['Deschideri unice', $engagement['opened'], $engagement['open_rate'].'%'] : null, $ch === 'email' ? ['Click-uri unice', $engagement['clicked'], $engagement['click_rate'].'%'] : null,
       $ch === 'whatsapp' ? ['Livrate / citite', ($stats['delivered'] ?? 0) + ($stats['read'] ?? 0), null] : null,
+      ($revenue['orders'] ?? 0) > 0 ? ['Comenzi atribuite', $revenue['orders'], number_format($revenue['revenue'], 2, ',', '.').' lei'] : null,
       ['Eșuate', $stats['failed'] ?? 0, null], ['Excluse (fără acord etc.)', $stats['excluded'] ?? 0, null], ['Dezabonați', $stats['unsubscribed'] ?? 0, null]]) as [$label, $value, $rate])
       <div class="kpi"><small>{{ $label }}</small><b>{{ number_format($value, 0, ',', '.') }}</b>@if ($rate)<span class="muted"> · {{ $rate }}</span>@endif</div>
     @endforeach

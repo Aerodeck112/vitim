@@ -67,7 +67,9 @@ final class DesignController extends PortalController
     {
         $blocks = EmailBlocks::clean(json_decode((string) $request->input('blocks', '[]'), true));
         $content = new MessageContent(Channel::Email, (string) $request->input('subject', ''), '', null, $blocks, (string) $request->input('preheader', '') ?: null);
-        $rendered = $renderer->render($content, $this->organization(), new Contact(['first_name' => 'Maria', 'last_name' => 'Popescu']), route('unsubscribe', 'TEST'));
+        $sample = ['__items' => [['name' => 'Produs exemplu', 'qty' => 2, 'price' => 149.9], ['name' => 'Alt produs', 'qty' => 1, 'price' => 89]],
+            '{{produse}}' => 'Produs exemplu, Alt produs', '{{total}}' => '388,80 lei', '{{link_cos}}' => 'https://exemplu.ro/cos', '{{produs}}' => 'Produs exemplu', '{{link_produs}}' => 'https://exemplu.ro/produs'];
+        $rendered = $renderer->render($content, $this->organization(), new Contact(['first_name' => 'Maria', 'last_name' => 'Popescu']), route('unsubscribe', 'TEST'), true, null, $sample);
 
         return response()->json(['html' => $rendered['html']]);
     }

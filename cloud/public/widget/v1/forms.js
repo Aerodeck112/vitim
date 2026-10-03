@@ -88,7 +88,7 @@
       if (ctx.preview) { setTimeout(function () { done(ctx.previewStatus || 'confirm'); }, 300); return; }
       ctx.call('forms/submit', { form: f.id, email: v('email'), first_name: v('first_name'), phone: v('phone'), sms: v('sms') === true, website: v('website'), page: location.href.slice(0, 255) })
         .then(function (j) {
-          if (j && j.status) done(j.status);
+          if (j && j.status) { if (j.contact) ctx.identify(j.contact); done(j.status); }
           else { err.textContent = (j && j.error) || 'Nu am putut trimite. Încearcă din nou.'; err.hidden = false; btn.disabled = false; }
         }, function () { err.textContent = 'Nu am putut trimite. Verifică conexiunea și încearcă din nou.'; err.hidden = false; btn.disabled = false; });
     });

@@ -12,6 +12,7 @@ use App\Models\FlowStep;
 use App\Models\Segment;
 use App\Services\FlowService;
 use App\Services\FlowTemplates;
+use App\Services\ShopEvents;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -50,6 +51,7 @@ final class FlowController extends PortalController
             'flow' => $model,
             'steps' => $steps->groupBy(fn (FlowStep $s) => ($s->parent_id ?? 0).':'.($s->branch ?? '')),
             'stats' => $flows->stats($model),
+            'revenue' => ShopEvents::revenue(null, $model->id),
             'lists' => ContactList::query()->orderBy('name')->pluck('name', 'id'),
             'segments' => Segment::query()->orderBy('name')->pluck('name', 'id'),
             'events' => ContactEvent::TYPES,

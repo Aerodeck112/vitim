@@ -177,7 +177,8 @@ final class FlowTest extends TestCase
         $this->tick();
         $this->assertSame(['Ana, ai uitat ceva în coș', 'Bob, ai uitat ceva în coș'], $this->subjects());
         $body = $this->mails[0]->getTextBody();
-        $this->assertStringContainsString('Cabană 60 mp (22.500,00 lei)', $body);
+        $this->assertStringContainsString('- Cabană 60 mp', $body);
+        $this->assertStringContainsString('Coșul tău (22.500,00 lei)', (string) $this->mails[0]->getHtmlBody());
         $this->assertStringContainsString('https://podreg.ro/checkout', $body);
 
         // Ana deschide emailul, Bob nu

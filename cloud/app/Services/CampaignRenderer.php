@@ -21,6 +21,8 @@ final class CampaignRenderer
     public function render(Campaign|MessageContent $content, Organization $organization, ?Contact $contact, string $unsubscribeUrl, bool $ascii = true, ?string $trackingCode = null, array $extra = []): array
     {
         $campaign = $content instanceof Campaign ? MessageContent::of($content) : $content;
+        $items = is_array($extra['__items'] ?? null) ? $extra['__items'] : []; // produsele din evenimentul fluxului (blocul „Produsele din coș”)
+        unset($extra['__items']);
         $vars = [
             '{{prenume}}' => trim((string) ($contact?->first_name ?? '')),
             '{{nume}}' => trim((string) ($contact?->last_name ?? '')),
@@ -44,8 +46,8 @@ final class CampaignRenderer
         if (! empty($campaign->blocks)) {
             // design din editorul vizual, cu brandul firmei (logo, culoare, font, rețele)
             $brand = (array) ($organization->branding ?? []) + ['name' => self::company($organization)];
-            $text = EmailBlocks::text($campaign->blocks, fn (string $t) => (string) $fill($t))."\n\n--\n".$footer."\nDezabonare: ".$unsubscribeUrl;
-            $html = EmailBlocks::html($campaign->blocks, $brand, fn (string $t) => (string) $fill($t), $footer, $unsubscribeUrl, $campaign->preheader);
+            $text = EmailBlocks::text($campaign->blocks, fn (string $t) => (string) $fill($t), $items)."\n\n--\n".$footer."\nDezabonare: ".$unsubscribeUrl;
+            $html = EmailBlocks::html($campaign->blocks, $brand, fn (string $t) => (string) $fill($t), $footer, $unsubscribeUrl, $campaign->preheader, $items);
         } else {
             $body = (string) $fill((string) $campaign->body);
             $text = self::plain($body)."\n\n--\n".$footer."\nDezabonare: ".$unsubscribeUrl;

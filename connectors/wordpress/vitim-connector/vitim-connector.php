@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       VITIM Connector
- * Description:       Conectează site-ul la panoul VITIM: asistentul AI pe site, starea site-ului, scanarea problemelor, remedieri, backup și jurnalul automat al lucrărilor.
- * Version:           1.4.0
+ * Description:       Conectează site-ul la panoul VITIM: asistentul AI pe site, formulare de abonare, magazinul WooCommerce (coș abandonat, comenzi), starea site-ului, scanarea problemelor, remedieri, backup și jurnalul automat al lucrărilor.
+ * Version:           1.5.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            VITIM
@@ -15,9 +15,10 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('VITIM_CONNECTOR_VERSION', '1.4.0');
+define('VITIM_CONNECTOR_VERSION', '1.5.0');
 require_once __DIR__.'/includes-backup.php';
 require_once __DIR__.'/includes-seo.php';
+require_once __DIR__.'/includes-shop.php';
 
 final class Vitim_Connector
 {
@@ -37,6 +38,7 @@ final class Vitim_Connector
     public static function boot()
     {
         Vitim_Connector_Seo::boot();
+        Vitim_Connector_Shop::boot();
         add_action('admin_menu', [__CLASS__, 'menu']);
         add_action('admin_post_vitim_connector_seo_reset', [__CLASS__, 'seoReset']);
         add_action('admin_post_vitim_connector_save', [__CLASS__, 'save']);
@@ -74,6 +76,7 @@ final class Vitim_Connector
         wp_clear_scheduled_hook(self::CRON);
         wp_clear_scheduled_hook(self::FLUSH);
         wp_clear_scheduled_hook(Vitim_Connector_Backup::HOOK);
+        wp_clear_scheduled_hook(Vitim_Connector_Shop::HOOK);
     }
 
     /** @return array{url?: string, key?: string, secret?: string, last?: array} */
@@ -126,12 +129,19 @@ final class Vitim_Connector
             }
             $queue = get_option(self::QUEUE, []);
             printf('<tr><th>Lucrări în așteptare</th><td>%d</td></tr>', is_array($queue) ? count($queue) : 0);
+            if (Vitim_Connector_Shop::active()) {
+                $p = Vitim_Connector_Shop::pending();
+                printf('<tr><th>Magazin WooCommerce</th><td>conectat · %d evenimente și %d produse în așteptare</td></tr>', $p['events'], $p['products']);
+            }
             echo '</table>';
             echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'" style="margin:12px 0">';
             wp_nonce_field('vitim_connector_options');
             echo '<input type="hidden" name="action" value="vitim_connector_options">';
             printf('<label><input type="checkbox" name="remote_fixes" value="1" %s> Permite echipei VITIM să aplice remedieri din panou (actualizări, securizare). Scanarea rămâne activă oricum.</label><br>', checked(self::remoteFixes(), true, false));
             printf('<label><input type="checkbox" name="widget" value="1" %s> Afișează asistentul AI pe site (apare doar dacă agentul e activ în panoul VITIM)</label><br> ', checked(self::widgetEnabled(), true, false));
+            if (Vitim_Connector_Shop::active()) {
+                printf('<label><input type="checkbox" name="shop_consent" value="1" %s> WooCommerce: bifă „Vreau să primesc oferte pe email” la finalizarea comenzii (nebifată implicit)</label><br>', checked(Vitim_Connector_Shop::settings()['consent'], true, false));
+            }
             submit_button('Salvează', 'secondary', 'submit', false);
             echo '</form>';
             $seo = array_intersect_key(Vitim_Connector_Seo::FIXES, Vitim_Connector_Seo::modules());
@@ -218,6 +228,7 @@ final class Vitim_Connector
         $s = self::settings();
         $s['remote_fixes'] = ! empty($_POST['remote_fixes']);
         $s['widget'] = ! empty($_POST['widget']);
+        $s['shop_consent'] = ! empty($_POST['shop_consent']);
         update_option(self::OPTION, $s, false);
         self::run();
         wp_safe_redirect(admin_url('options-general.php?page=vitim-connector&vitim=sent'));
@@ -269,14 +280,17 @@ final class Vitim_Connector
         return ! isset($s['widget']) || (bool) $s['widget'];
     }
 
-    /** Scriptul widgetului în subsolul paginilor publice (se afișează doar dacă panoul spune că agentul e activ). */
+    /**
+     * Scriptul VITIM în subsolul paginilor publice: chatul (doar dacă e bifat aici și agentul e activ în panou),
+     * formularele de abonare publicate în panou și recunoașterea abonaților veniți din emailuri.
+     */
     public static function widget()
     {
-        if (is_admin() || ! self::connected() || ! self::widgetEnabled()) {
+        if (is_admin() || ! self::connected()) {
             return;
         }
         $s = self::settings();
-        printf('<script src="%s" data-site="%s" async></script>'."\n", esc_url(rtrim($s['url'], '/').'/widget/v1/loader.js'), esc_attr($s['key']));
+        printf('<script src="%s" data-site="%s"%s async></script>'."\n", esc_url(rtrim($s['url'], '/').'/widget/v1/loader.js'), esc_attr($s['key']), self::widgetEnabled() ? '' : ' data-chat="0"');
     }
 
     private static function remoteFixes()
@@ -349,6 +363,7 @@ final class Vitim_Connector
             if (empty($s['last_scan']) || $s['last_scan'] < time() - DAY_IN_SECONDS) {
                 self::sendScan();
             }
+            Vitim_Connector_Shop::sync();
         }
     }
 
@@ -431,7 +446,7 @@ final class Vitim_Connector
     }
 
     /** @return array{ok: bool, message: string} */
-    private static function post($endpoint, array $payload)
+    public static function post($endpoint, array $payload)
     {
         $s = self::settings();
         $body = wp_json_encode($payload);

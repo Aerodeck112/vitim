@@ -19,8 +19,10 @@ final class ContactActivity
             'contact_id' => $id, 'type' => $type, 'data' => $data ?: null, 'value' => $value,
             'campaign_id' => $campaignId, 'flow_id' => $flowId, 'recipient_id' => $recipientId, 'occurred_at' => $at ?? now(),
         ]);
-        Contact::query()->whereKey($id)->update(['last_activity_at' => $at ?? now()]);
-        app(FlowTriggers::class)->onEvent($event);
+        Contact::query()->whereKey($id)->where(fn ($q) => $q->whereNull('last_activity_at')->orWhere('last_activity_at', '<', $at ?? now()))->update(['last_activity_at' => $at ?? now()]);
+        if ($at === null || $at->gt(now()->subDay())) {
+            app(FlowTriggers::class)->onEvent($event); // istoricul importat (ex. comenzi vechi) nu pornește automatizări
+        }
 
         return $event;
     }

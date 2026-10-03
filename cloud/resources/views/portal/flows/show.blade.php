@@ -5,7 +5,7 @@
 @php($t = (array) $flow->trigger)
 <div class="head"><div><h1>{{ $flow->name }}</h1>
   <p><span class="badge {{ ['live' => 'ok', 'paused' => 'warn'][$flow->status] ?? '' }}">{{ \App\Models\Flow::STATUSES[$flow->status] }}</span> · {{ $flow->describeTrigger($lists->all(), $segments->all()) }}
-    · în flux acum: <strong>{{ $stats['runs']['active'] ?? 0 }}</strong> · au terminat: {{ $stats['runs']['completed'] ?? 0 }} · au ieșit: {{ $stats['runs']['exited'] ?? 0 }}</p></div>
+    · în flux acum: <strong>{{ $stats['runs']['active'] ?? 0 }}</strong> · au terminat: {{ $stats['runs']['completed'] ?? 0 }} · au ieșit: {{ $stats['runs']['exited'] ?? 0 }}@if (($revenue['orders'] ?? 0) > 0) · venit atribuit: <strong>{{ number_format($revenue['revenue'], 2, ',', '.') }} lei</strong> ({{ $revenue['orders'] }} comenzi)@endif</p></div>
   <div style="display:flex;gap:8px">
     <form method="post" action="{{ route('portal.flows.status', [$slug, $flow->id]) }}">@csrf<input type="hidden" name="status" value="{{ $flow->status === 'live' ? 'paused' : 'live' }}">
       <button class="btn {{ $flow->status === 'live' ? '' : 'btn-p' }}" type="submit">{{ $flow->status === 'live' ? 'Oprește' : 'Pornește automatizarea' }}</button></form>

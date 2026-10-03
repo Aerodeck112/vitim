@@ -476,6 +476,17 @@
     document.addEventListener('visibilitychange', function () { if (!document.hidden && state.open) { markSeen(); poll(); } });
   }
 
+  // identificarea în magazin: tokenul din linkurile emailurilor (?vtm=) sau de la abonare ajunge într-un cookie al site-ului,
+  // pe care pluginul VITIM Connector îl citește la evenimentele WooCommerce (produs văzut, coș, comandă)
+  function identify(token) {
+    if (!/^\d+\.\d+\.[a-f0-9]{16}$/.test(token || '')) return;
+    document.cookie = 'vitim_ct=' + token + '; path=/; max-age=31536000; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+  }
+  try {
+    var qs = new URLSearchParams(location.search), vtm = qs.get('vtm');
+    if (vtm) { identify(vtm); qs.delete('vtm'); history.replaceState(history.state, '', location.pathname + (qs.toString() ? '?' + qs : '') + location.hash); }
+  } catch (e) {}
+
   function init() {
     call('config').then(function (cfg) {
       if (!cfg) return;
@@ -486,7 +497,7 @@
 
   // formularele de abonare se încarcă doar dacă firma are cel puțin unul activ pe site
   function forms(list) {
-    var start = function () { window.VitimForms.start({ forms: list, call: call }); };
+    var start = function () { window.VitimForms.start({ forms: list, call: call, identify: identify }); };
     if (window.VitimForms) return start();
     var s = document.createElement('script'); s.src = API + '/forms.js?v=1'; s.async = true; s.onload = start; document.head.appendChild(s);
   }

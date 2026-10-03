@@ -22,6 +22,7 @@ final class EmailBlocks
         'divider' => 'Linie',
         'spacer' => 'Spațiu',
         'social' => 'Rețele sociale',
+        'cart' => 'Produsele din coș (automat)',
     ];
 
     private const MAX_BLOCKS = 60;
@@ -46,6 +47,7 @@ final class EmailBlocks
                 'divider' => [],
                 'spacer' => ['height' => max(8, min(80, (int) ($b['height'] ?? 24)))],
                 'social' => [],
+                'cart' => ['title' => self::str($b['title'] ?? 'Produsele tale', 120), 'label' => self::str($b['label'] ?? 'Finalizează comanda', 40)],
                 default => null,
             };
             if ($clean !== null) {
@@ -61,8 +63,9 @@ final class EmailBlocks
      * @param  array<string, mixed>  $brand  logo_url, color, font, facebook, instagram, website
      * @param  callable(string): string  $fill  completează variabilele într-un text
      */
-    public static function html(array $blocks, array $brand, callable $fill, string $footer, string $unsubscribeUrl, ?string $preheader = null): string
+    public static function html(array $blocks, array $brand, callable $fill, string $footer, string $unsubscribeUrl, ?string $preheader = null, array $items = []): string
     {
+        $brand['__items'] = $items;
         $color = self::color($brand['color'] ?? '') ?? '#2f6bff';
         $font = in_array($brand['font'] ?? '', ['Georgia, serif', 'Verdana, sans-serif', 'Trebuchet MS, sans-serif'], true) ? $brand['font'] : 'Arial, Helvetica, sans-serif';
         $rows = '';
@@ -82,7 +85,7 @@ final class EmailBlocks
     }
 
     /** Varianta text (pentru clienții de email fără HTML și pentru filtrele anti-spam). @param list<array<string, mixed>> $blocks */
-    public static function text(array $blocks, callable $fill): string
+    public static function text(array $blocks, callable $fill, array $items = []): string
     {
         $lines = [];
         foreach ($blocks as $b) {
@@ -93,6 +96,8 @@ final class EmailBlocks
                 'image' => $b['link'] ? (string) $b['link'] : '',
                 'product' => trim($fill((string) $b['name']).' '.$b['price'])."\n".($b['url'] ?? ''),
                 'columns' => trim($fill((string) $b['left_text'])."\n\n".$fill((string) $b['right_text'])),
+                'cart' => implode("\n", array_map(fn ($i) => '- '.($i['name'] ?? '').(! empty($i['qty']) && $i['qty'] > 1 ? ' × '.$i['qty'] : ''), $items))
+                    .(($link = $fill('{{link_cos}}')) !== '{{link_cos}}' ? "\n".$fill((string) $b['label']).': '.$link : ''),
                 default => '',
             };
         }
@@ -126,8 +131,31 @@ final class EmailBlocks
             'divider' => '<hr style="border:0;border-top:1px solid #e5e8f0;margin:18px 0">',
             'spacer' => '<div style="height:'.(int) $b['height'].'px;line-height:'.(int) $b['height'].'px">&nbsp;</div>',
             'social' => self::social($brand, $color),
+            'cart' => self::cart($b, (array) ($brand['__items'] ?? []), $color, $fill),
             default => '',
         };
+    }
+
+    /** Produsele din coș / comandă (din evenimentul care a pornit fluxul); fără produse, blocul nu apare. @param array<string, mixed> $b */
+    private static function cart(array $b, array $items, string $color, callable $fill): string
+    {
+        if ($items === []) {
+            return '';
+        }
+        $rows = '';
+        foreach (array_slice($items, 0, 10) as $i) {
+            $img = self::url($i['image'] ?? '') ?? (str_starts_with((string) ($i['image'] ?? ''), 'http://') ? (string) $i['image'] : null);
+            $price = isset($i['price']) ? number_format((float) $i['price'], 2, ',', '.').' lei' : '';
+            $rows .= '<tr>'.($img ? '<td width="72" style="padding:8px 0"><img src="'.e($img).'" alt="" width="64" style="width:64px;height:auto;border:0;border-radius:6px"></td>' : '')
+                .'<td style="padding:8px 10px;font-size:15px">'.e((string) ($i['name'] ?? '')).((int) ($i['qty'] ?? 1) > 1 ? ' <span style="color:#64748b">× '.(int) $i['qty'].'</span>' : '').'</td>'
+                .'<td align="right" style="padding:8px 0;font-size:15px;white-space:nowrap">'.e($price).'</td></tr>';
+        }
+        $link = $fill('{{link_cos}}');
+        $button = $link !== '{{link_cos}}' && preg_match('#^https?://#', $link)
+            ? '<div style="text-align:center;margin-top:14px"><a href="'.e($link).'" style="display:inline-block;background:'.$color.';color:#ffffff;text-decoration:none;font-weight:bold;padding:13px 26px;border-radius:8px">'.e($fill((string) $b['label'])).'</a></div>' : '';
+
+        return '<div style="margin:8px 0 18px;border:1px solid #e5e8f0;border-radius:10px;padding:12px 16px"><div style="font-weight:bold;margin-bottom:4px">'.e($fill((string) $b['title'])).'</div>'
+            .'<table role="presentation" width="100%" cellpadding="0" cellspacing="0">'.$rows.'</table>'.$button.'</div>';
     }
 
     private static function column(?string $image, string $text, ?string $link, callable $fill, string $color): string

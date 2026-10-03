@@ -15,6 +15,7 @@ use App\Models\Segment;
 use App\Services\AuditLogger;
 use App\Services\CampaignRenderer;
 use App\Services\CampaignService;
+use App\Services\ShopEvents;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -66,6 +67,7 @@ final class CampaignController extends PortalController
             'lists' => ContactList::query()->orderBy('name')->get(),
             'segments' => Segment::query()->orderBy('name')->get(),
             'engagement' => $model->editable() ? null : $model->engagement(),
+            'revenue' => $model->editable() ? null : ShopEvents::revenue($model->id),
             'smsParts' => $model->channel === Channel::Sms ? CampaignRenderer::smsParts($preview['body']) : null,
         ]);
     }

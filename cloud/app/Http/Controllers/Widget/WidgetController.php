@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Widget;
 use App\Ai\AgentRuntime;
 use App\Enums\Channel;
 use App\Enums\ConversationStatus;
+use App\Enums\IdentityType;
 use App\Enums\SenderType;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
@@ -14,8 +15,10 @@ use App\Models\Message;
 use App\Models\SignupForm;
 use App\Models\Site;
 use App\Models\User;
+use App\Services\ContactService;
 use App\Services\IdentityNormalizer;
 use App\Services\LiveChatService;
+use App\Services\ShopEvents;
 use App\Services\SignupFormService;
 use App\Services\SiteKeyService;
 use App\Services\WidgetSettings;
@@ -238,7 +241,10 @@ final class WidgetController extends Controller
                 return $this->json($origin, ['error' => collect($e->errors())->flatten()->first()], 422);
             }
 
-            return $this->json($origin, ['status' => $status]);
+            $contact = app(ContactService::class)->findByIdentity(IdentityType::Email, (string) IdentityNormalizer::email((string) ($body['email'] ?? '')));
+
+            // tokenul ajunge în cookie-ul site-ului: magazinul recunoaște abonatul (coș abandonat, produse văzute)
+            return $this->json($origin, ['status' => $status, 'contact' => $contact ? ShopEvents::token($contact) : null]);
         });
     }
 

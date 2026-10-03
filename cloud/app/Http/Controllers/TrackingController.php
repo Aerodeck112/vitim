@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\CampaignRecipient;
+use App\Models\Contact;
+use App\Models\Site;
+use App\Services\ShopEvents;
 use App\Services\Tracking;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
@@ -36,10 +39,27 @@ final class TrackingController extends Controller
         }
         $recipient = $this->recipient($code);
         if ($recipient) {
-            $this->context->runAs($recipient->organization, fn () => $this->tracking->clicked($recipient, $url));
+            $url = $this->context->runAs($recipient->organization, function () use ($recipient, $url): string {
+                $this->tracking->clicked($recipient, $url);
+
+                return $this->identify($recipient, $url);
+            });
         }
 
         return redirect()->away($url);
+    }
+
+    /** Linkurile către site-urile firmei primesc tokenul contactului: magazinul îl recunoaște (coș, comenzi, venit atribuit). */
+    private function identify(CampaignRecipient $recipient, string $url): string
+    {
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $contact = $recipient->contact_id ? Contact::query()->find($recipient->contact_id) : null;
+        if (! $contact || ! Site::query()->whereIn('domain', [$host, preg_replace('/^www\./', '', $host)])->exists()) {
+            return $url;
+        }
+        [$base, $fragment] = array_pad(explode('#', $url, 2), 2, null);
+
+        return $base.(str_contains($base, '?') ? '&' : '?').'vtm='.rawurlencode(ShopEvents::token($contact)).($fragment !== null ? '#'.$fragment : '');
     }
 
     private function recipient(string $code): ?CampaignRecipient
