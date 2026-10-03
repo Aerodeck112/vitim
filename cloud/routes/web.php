@@ -176,6 +176,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/design/sabloane', [Portal\DesignController::class, 'saveTemplate'])->middleware('can:manage_campaigns')->name('design.templates.store');
         Route::get('/brand', [Portal\DesignController::class, 'brand'])->middleware('can:manage_campaigns')->name('brand');
         Route::put('/brand', [Portal\DesignController::class, 'saveBrand'])->middleware('can:manage_campaigns')->name('brand.save');
+        Route::get('/analiza', [Portal\AnalyticsController::class, 'index'])->middleware('can:manage_campaigns')->name('analytics');
         Route::get('/formulare', [Portal\SignupFormController::class, 'index'])->middleware('can:manage_campaigns')->name('forms.index');
         Route::post('/formulare', [Portal\SignupFormController::class, 'store'])->middleware('can:manage_campaigns')->name('forms.store');
         Route::get('/formulare/{form}', [Portal\SignupFormController::class, 'show'])->middleware('can:manage_campaigns')->where('form', $id)->name('forms.show');

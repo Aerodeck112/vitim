@@ -21,6 +21,17 @@
     <dt>Identități</dt><dd>@forelse ($contact->identities as $i)<span class="badge">{{ $i->type->value }}{{ $i->provider ? ':'.$i->provider : '' }}</span> <span class="mono">{{ $i->normalized_value }}</span><br>@empty — @endforelse</dd>
   </dl>
 </div>
+@if ($contact->predicted_at)
+<div class="card">
+  <h2>Predicții</h2>
+  <div class="grid">
+    <div class="kpi"><small>Valoare estimată (cheltuit + următoarele 12 luni)</small><b>{{ number_format((float) $contact->predicted_clv, 0, ',', '.') }} lei</b></div>
+    <div class="kpi"><small>Următoarea comandă estimată</small><b>{{ $contact->predicted_next_order_at ? $contact->predicted_next_order_at->format('d.m.Y') : '—' }}</b></div>
+    <div class="kpi"><small>Risc de pierdere</small><b><span class="badge {{ ['low' => 'ok', 'medium' => 'warn', 'high' => 'err'][$contact->churn_risk] ?? '' }}" style="font-size:16px">{{ \App\Services\Predictions::RISKS[$contact->churn_risk] ?? '—' }}</span></b></div>
+  </div>
+  <p class="small muted" style="margin-bottom:0">Estimări din comenzile lui și ale celorlalți clienți ai firmei, recalculate în fiecare noapte. Riscul crește când a trecut mai mult decât intervalul lui obișnuit între comenzi.</p>
+</div>
+@endif
 <div class="card">
   <h2>Consimțământ</h2>
   <div class="table-wrap"><table>

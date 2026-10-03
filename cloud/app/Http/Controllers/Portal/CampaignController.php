@@ -15,6 +15,7 @@ use App\Models\Segment;
 use App\Services\AuditLogger;
 use App\Services\CampaignRenderer;
 use App\Services\CampaignService;
+use App\Services\SendTime;
 use App\Services\ShopEvents;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,6 +69,8 @@ final class CampaignController extends PortalController
             'segments' => Segment::query()->orderBy('name')->get(),
             'engagement' => $model->editable() ? null : $model->engagement(),
             'revenue' => $model->editable() ? null : ShopEvents::revenue($model->id),
+            'ab' => $model->ab && ! $model->editable() ? $model->abResults() : null,
+            'sendTime' => $model->editable() ? SendTime::best() : null,
             'smsParts' => $model->channel === Channel::Sms ? CampaignRenderer::smsParts($preview['body']) : null,
         ]);
     }
@@ -85,11 +88,19 @@ final class CampaignController extends PortalController
             'template_variables' => ['nullable', 'string', 'max:1000'],
             'include' => ['nullable', 'array'], 'include.*' => ['regex:/^(list|segment):\d+$/'],
             'exclude' => ['nullable', 'array'], 'exclude.*' => ['regex:/^(list|segment):\d+$/'],
-        ], ['template_name.regex' => 'Numele șablonului are doar litere mici, cifre și „_”, exact ca în WhatsApp Manager.']);
+            'ab_enabled' => ['nullable', 'boolean'], 'subject_b' => ['nullable', 'required_if:ab_enabled,1', 'string', 'max:200'], 'preheader_b' => ['nullable', 'string', 'max:150'],
+            'ab_percent' => ['nullable', 'integer', 'min:10', 'max:100'], 'ab_metric' => ['nullable', 'in:open,click'], 'ab_wait' => ['nullable', 'integer', 'min:1', 'max:48'],
+        ], ['template_name.regex' => 'Numele șablonului are doar litere mici, cifre și „_”, exact ca în WhatsApp Manager.', 'subject_b.required_if' => 'Scrie subiectul variantei B.']);
         $model->fill([
             'name' => $data['name'], 'subject' => $data['subject'] ?? null, 'body' => $request->has('body') ? ($data['body'] ?? null) : $model->body,
             'audience' => array_filter(['include' => array_values($data['include'] ?? []), 'exclude' => array_values($data['exclude'] ?? [])]),
         ]);
+        if ($model->channel === Channel::Email) {
+            $model->ab = ! empty($data['ab_enabled']) ? [
+                'subject_b' => trim((string) $data['subject_b']), 'preheader_b' => trim((string) ($data['preheader_b'] ?? '')) ?: null,
+                'test_percent' => (int) ($data['ab_percent'] ?? 20), 'metric' => $data['ab_metric'] ?? 'open', 'wait_hours' => (int) ($data['ab_wait'] ?? 4),
+            ] : null;
+        }
         if ($model->channel === Channel::WhatsApp) {
             $model->template = [
                 'name' => $data['template_name'] ?? '', 'language' => $data['template_language'] ?: 'ro',

@@ -23,6 +23,7 @@ use App\Models\Segment;
 use App\Models\User;
 use App\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -33,6 +34,8 @@ use Illuminate\Validation\ValidationException;
  */
 final class CampaignService
 {
+    public const AB_MIN = 10;
+
     /** Câte mesaje pleacă la o rulare (în fiecare minut). */
     private const PER_RUN = ['email' => 40, 'sms' => 60, 'whatsapp' => 60];
 
@@ -165,6 +168,13 @@ final class CampaignService
             CampaignRecipient::query()->where('campaign_id', $campaign->id)->delete();
             throw ValidationException::withMessages(['campaign' => 'Niciun contact nu poate primi campania: nu există contacte cu acord de marketing pe acest canal (vezi Contacte → import cu acord).']);
         }
+        if (self::abEnabled($campaign)) {
+            if ($eligible < self::AB_MIN) {
+                CampaignRecipient::query()->where('campaign_id', $campaign->id)->delete();
+                throw ValidationException::withMessages(['campaign' => 'Testul A/B are nevoie de cel puțin '.self::AB_MIN.' destinatari. Dezactivează testul sau adaugă contacte.']);
+            }
+            $this->splitAb($campaign, $eligible);
+        }
         $campaign->forceFill([
             'status' => 'scheduled', 'approved_by' => $user->id, 'approved_at' => now(),
             'scheduled_at' => $at ?? now(), 'last_error' => null,
@@ -223,13 +233,20 @@ final class CampaignService
                 ->where('sent_at', '>=', now()->subHour())->count();
             $budget = min($budget, max(0, $account->hourly_limit - $lastHour));
         }
-        $content = MessageContent::of($campaign);
+        $ab = self::abEnabled($campaign);
+        if ($ab && ! $campaign->ab_winner) {
+            $this->decideAb($campaign);
+        }
+        $contents = ['a' => MessageContent::of($campaign), 'b' => $ab ? $this->variantB($campaign) : null];
+        $contents['h'] = $campaign->ab_winner === 'b' ? $contents['b'] : $contents['a'];
         $sent = 0;
         $failedInRow = 0;
-        $pending = CampaignRecipient::query()->where('campaign_id', $campaign->id)->where('status', 'pending')->with('contact')->orderBy('id')->limit($budget)->get();
+        $pending = CampaignRecipient::query()->where('campaign_id', $campaign->id)->where('status', 'pending')
+            ->when($ab && ! $campaign->ab_winner, fn ($q) => $q->where(fn ($w) => $w->whereNull('variant')->orWhere('variant', '!=', 'h'))) // restul așteaptă câștigătorul
+            ->with('contact')->orderBy('id')->limit($budget)->get();
         foreach ($pending as $recipient) {
             // acordul se verifică din nou la trimitere: între timp contactul s-a putut dezabona
-            if ($this->deliverer->deliver($recipient, $content, $account)) {
+            if ($this->deliverer->deliver($recipient, $contents[$recipient->variant ?? 'a'] ?? $contents['a'], $account)) {
                 $sent++;
                 $failedInRow = 0;
             } elseif ($recipient->status === 'failed' && ++$failedInRow >= 3) {
@@ -241,11 +258,60 @@ final class CampaignService
             }
         }
         if (! CampaignRecipient::query()->where('campaign_id', $campaign->id)->where('status', 'pending')->exists()) {
+            if ($ab && ! $campaign->ab_winner) {
+                $this->decideAb($campaign, true);
+            }
             $campaign->forceFill(['status' => 'completed', 'completed_at' => now()])->save();
             $this->audit->record('campaign.completed', $campaign, ['stats' => $campaign->stats()]);
         }
 
         return $sent;
+    }
+
+    public static function abEnabled(Campaign $campaign): bool
+    {
+        return $campaign->channel === Channel::Email && trim((string) ($campaign->ab['subject_b'] ?? '')) !== '';
+    }
+
+    /** Grupele de test A și B (aleatoriu, câte jumătate din procentul ales); restul („h”) primește câștigătorul. */
+    private function splitAb(Campaign $campaign, int $eligible): void
+    {
+        $percent = max(10, min(100, (int) ($campaign->ab['test_percent'] ?? 20)));
+        $half = max(1, intdiv((int) round($eligible * $percent / 100), 2));
+        $ids = CampaignRecipient::query()->where('campaign_id', $campaign->id)->where('status', 'pending')->pluck('id')->shuffle()->values();
+        if ($percent === 100) {
+            $half = intdiv($ids->count() + 1, 2);
+        }
+        CampaignRecipient::query()->whereIn('id', $ids->slice(0, $half)->all())->update(['variant' => 'a']);
+        CampaignRecipient::query()->whereIn('id', $ids->slice($half, $percent === 100 ? null : $half)->all())->update(['variant' => 'b']);
+        if ($percent < 100) {
+            CampaignRecipient::query()->whereIn('id', $ids->slice(2 * $half)->all())->update(['variant' => 'h']);
+        }
+    }
+
+    private function variantB(Campaign $campaign): MessageContent
+    {
+        $a = MessageContent::of($campaign);
+
+        return new MessageContent($a->channel, (string) $campaign->ab['subject_b'], $a->body, $a->template, $a->blocks,
+            trim((string) ($campaign->ab['preheader_b'] ?? '')) ?: $a->preheader);
+    }
+
+    /** După ce grupele de test au primit emailul și a trecut timpul de așteptare, alege varianta cu rata mai bună. */
+    private function decideAb(Campaign $campaign, bool $force = false): void
+    {
+        $testPending = CampaignRecipient::query()->where('campaign_id', $campaign->id)->whereIn('variant', ['a', 'b'])->where('status', 'pending')->exists();
+        $lastSent = CampaignRecipient::query()->where('campaign_id', $campaign->id)->whereIn('variant', ['a', 'b'])->max('sent_at');
+        $wait = max(1, min(48, (int) ($campaign->ab['wait_hours'] ?? 4)));
+        if (! $force && ($testPending || ! $lastSent || Carbon::parse($lastSent)->gt(now()->subHours($wait)))) {
+            return;
+        }
+        $r = $campaign->abResults();
+        $metric = ($campaign->ab['metric'] ?? 'open') === 'click' ? 'click_rate' : 'open_rate';
+        $other = $metric === 'click_rate' ? 'open_rate' : 'click_rate';
+        $winner = $r['b'][$metric] > $r['a'][$metric] || ($r['b'][$metric] === $r['a'][$metric] && $r['b'][$other] > $r['a'][$other]) ? 'b' : 'a';
+        $campaign->forceFill(['ab_winner' => $winner, 'ab_decided_at' => now()])->save();
+        $this->audit->record('campaign.ab_decided', $campaign, ['winner' => $winner, 'a' => $r['a'][$metric], 'b' => $r['b'][$metric], 'metric' => $metric]);
     }
 
     /** @return array{0: bool, 1: ?string, 2: ?string} */

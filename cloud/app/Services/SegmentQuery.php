@@ -66,6 +66,11 @@ final class SegmentQuery
                 ? $q->whereExists(fn ($s) => self::leads($s, $c))
                 : $q->whereNotExists(fn ($s) => self::leads($s, $c)),
             'segment' => self::nested($q, $c),
+            'prediction' => match ($c['metric'] ?? '') {
+                'churn_risk' => $q->where('contacts.churn_risk', (string) ($c['value'] ?? '')),
+                'predicted_clv' => $q->whereNotNull('contacts.predicted_clv')->whereRaw('contacts.predicted_clv '.(($c['op'] ?? 'at_least') === 'at_least' ? '>=' : '<').' cast(? as decimal(12,2))', [(float) ($c['value'] ?? 0)]),
+                default => $q->whereBetween('contacts.predicted_next_order_at', [now(), now()->addDays(max(1, (int) ($c['value'] ?? 30)))]),
+            },
             'revenue' => $q->whereRaw('(select coalesce(sum(e.value), 0) from contact_events e where e.contact_id = contacts.id and e.type = ?'.(! empty($c['days']) ? ' and e.occurred_at >= ?' : '').') '.(($c['op'] ?? 'at_least') === 'at_least' ? '>=' : '<').' cast(? as decimal(12,2))',
                 array_values(array_filter(['placed_order', ! empty($c['days']) ? now()->subDays((int) $c['days']) : null, (float) ($c['value'] ?? 0)], fn ($v) => $v !== null))),
             default => $q->whereRaw('1 = 0'), // condiție necunoscută: nimeni (fail-closed)
@@ -184,6 +189,7 @@ final class SegmentQuery
                 ], fn ($v) => $v !== null) : null,
                 'lead' => ['type' => 'lead', 'op' => ($c['op'] ?? '') === 'none' ? 'none' : 'has', 'status' => preg_match('/^[a-z_]{1,20}$/', (string) ($c['status'] ?? '')) ? $c['status'] : null],
                 'revenue' => ['type' => 'revenue', 'op' => ($c['op'] ?? '') === 'less_than' ? 'less_than' : 'at_least', 'value' => max(0, (float) ($c['value'] ?? 0)), 'days' => (int) ($c['days'] ?? 0) ?: null],
+                'prediction' => self::prediction($c),
                 default => null,
             };
             if ($clean !== null) {
@@ -192,6 +198,24 @@ final class SegmentQuery
         }
 
         return ['match' => ($input['match'] ?? 'all') === 'any' ? 'any' : 'all', 'conditions' => $out];
+    }
+
+    /** Condiția pe predicții, din formular („pick”: churn_high, clv_at_least, next_order...) sau din API. @param array<string, mixed> $c */
+    private static function prediction(array $c): ?array
+    {
+        $pick = (string) ($c['pick'] ?? match ($c['metric'] ?? '') {
+            'churn_risk' => 'churn_'.($c['value'] ?? ''),
+            'predicted_clv' => 'clv_'.(($c['op'] ?? '') === 'less_than' ? 'less_than' : 'at_least'),
+            'next_order' => 'next_order',
+            default => '',
+        });
+
+        return match (true) {
+            in_array($pick, ['churn_low', 'churn_medium', 'churn_high'], true) => ['type' => 'prediction', 'pick' => $pick, 'metric' => 'churn_risk', 'value' => substr($pick, 6)],
+            in_array($pick, ['clv_at_least', 'clv_less_than'], true) => ['type' => 'prediction', 'pick' => $pick, 'metric' => 'predicted_clv', 'op' => substr($pick, 4), 'value' => max(0, (float) ($c['value'] ?? 0))],
+            $pick === 'next_order' => ['type' => 'prediction', 'pick' => $pick, 'metric' => 'next_order', 'value' => max(1, min(365, (int) ($c['value'] ?? 30)))],
+            default => null,
+        };
     }
 
     /** @param array<string, mixed> $c */
@@ -224,6 +248,11 @@ final class SegmentQuery
                 'lead' => $c['op'] === 'has' ? 'a trimis o cerere' : 'nu a trimis nicio cerere',
                 'segment' => ($c['op'] === 'in' ? 'e în' : 'nu e în').' segmentul „'.(Segment::query()->whereKey($c['segment_id'])->value('name') ?? '#'.$c['segment_id']).'”',
                 'revenue' => 'a cheltuit '.($c['op'] === 'at_least' ? 'cel puțin' : 'mai puțin de').' '.$c['value'].' lei'.(! empty($c['days']) ? ' în ultimele '.$c['days'].' zile' : ''),
+                'prediction' => match ($c['metric']) {
+                    'churn_risk' => 'risc de pierdere '.(Predictions::RISKS[$c['value']] ?? $c['value']),
+                    'predicted_clv' => 'valoare estimată '.($c['op'] === 'at_least' ? 'de cel puțin' : 'sub').' '.$c['value'].' lei',
+                    default => 'următoarea comandă estimată în '.$c['value'].' zile',
+                },
                 default => '?',
             };
         }

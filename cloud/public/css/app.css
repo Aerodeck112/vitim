@@ -95,3 +95,7 @@ input[type=number],input[type=datetime-local]{width:100%;padding:10px 12px;borde
 .vf-popup span{left:28%;right:28%;top:18%;bottom:18%}.vf-flyout span{right:8px;bottom:8px;width:34%;height:44%}.vf-bar span{left:0;right:0;top:0;height:14px;border-radius:0}.vf-embed span{left:12%;right:12%;bottom:10px;height:30%;opacity:.5}
 .vf-stage{position:relative;height:460px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:repeating-linear-gradient(0deg,var(--panel-2) 0 22px,var(--panel) 22px 44px)}
 .vf-stage.vf-emb{height:auto;min-height:200px;padding:16px;background:var(--panel-2)}.vf-browser{height:26px;background:var(--hover);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px;padding:0 10px}.vf-browser i{width:9px;height:9px;border-radius:50%;background:var(--border-2)}
+.viz{--s1:#2a78d6;--s2:#eb6834}.viz .s1{fill:var(--s1)}.viz .s2{fill:var(--s2)}.viz .s1.dim{opacity:.45}.viz .hit{fill:transparent}.viz .bar:hover .s1,.viz .bar:hover .s2{filter:brightness(1.15)}.viz .bar:hover .hit{fill:var(--hover)}
+.viz .grid-line{stroke:var(--border);stroke-width:1}.viz .base-line{stroke:var(--border-2);stroke-width:1}.viz .axis{fill:var(--text-3);font:9px var(--font)}
+.viz-legend{display:flex;gap:16px;margin:-4px 0 10px;color:var(--text-2)}.viz-legend span{display:inline-flex;align-items:center;gap:6px}.sw{width:10px;height:10px;border-radius:3px;display:inline-block}.sw-1{background:var(--s1)}.sw-2{background:var(--s2)}
+@media (prefers-color-scheme:dark){.viz{--s1:#3987e5;--s2:#d95926}}

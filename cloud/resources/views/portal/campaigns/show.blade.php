@@ -34,6 +34,23 @@
   </div>
 @endif
 
+@if ($ab)
+  @php($metric = ($campaign->ab['metric'] ?? 'open') === 'click' ? 'click_rate' : 'open_rate')
+  <div class="card">
+    <h2>Test A/B @if ($campaign->ab_winner)<span class="badge ok">a câștigat varianta {{ strtoupper($campaign->ab_winner) }}</span>@else<span class="badge warn">în desfășurare</span>@endif</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Variantă</th><th>Subiect</th><th>Trimise</th><th>Deschideri</th><th>Click-uri</th></tr></thead>
+      <tbody>
+      @foreach (['a' => $campaign->subject, 'b' => $campaign->ab['subject_b']] as $v => $subj)
+        <tr @if ($campaign->ab_winner === $v) style="font-weight:600" @endif><td>{{ strtoupper($v) }}@if ($campaign->ab_winner === $v) 🏆@endif</td><td>{{ $subj }}</td><td>{{ $ab[$v]['sent'] }}</td>
+          <td>{{ $ab[$v]['open_rate'] }}% <span class="muted small">({{ $ab[$v]['opened'] }})</span></td><td>{{ $ab[$v]['click_rate'] }}% <span class="muted small">({{ $ab[$v]['clicked'] }})</span></td></tr>
+      @endforeach
+      </tbody>
+    </table></div>
+    <p class="small muted" style="margin-bottom:0">@if ($campaign->ab_winner)Decis la {{ $campaign->ab_decided_at?->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') }} după {{ $metric === 'open_rate' ? 'rata de deschidere' : 'rata de click' }}; restul destinatarilor au primit varianta câștigătoare.@else Restul destinatarilor primesc varianta câștigătoare la {{ $campaign->ab['wait_hours'] }} ore după trimiterea grupelor de test.@endif</p>
+  </div>
+@endif
+
 <div class="grid" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start">
 <div>
 <form method="post" action="{{ route('portal.campaigns.update', [$slug, $campaign->id]) }}" class="card">
@@ -60,6 +77,21 @@
     </div>
     <div class="fl"><label for="tv">Valorile variabilelor (câte una pe rând: prima = @{{1}}, a doua = @{{2}}…)</label><textarea id="tv" name="template_variables" rows="3">{{ old('template_variables', implode("\n", $campaign->template['variables'] ?? [])) }}</textarea></div>
     <div class="fl"><label for="body">Textul șablonului (doar ca notă internă / previzualizare)</label><textarea id="body" name="body" rows="4">{{ old('body', $campaign->body) }}</textarea></div>
+  @endif
+  @if ($ch === 'email')
+    @php($abc = (array) ($campaign->ab ?? []))
+    <details class="ab-box" @if ($abc) open @endif style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:6px 0 14px">
+      <summary style="cursor:pointer;font-weight:600">Test A/B pe subiect @if ($abc)<span class="badge ok">activ</span>@endif</summary>
+      <p class="small muted">O parte din destinatari primește subiectul A, o parte subiectul B. După câteva ore, varianta cu rezultate mai bune pleacă automat la restul.</p>
+      <label class="chk"><input type="checkbox" name="ab_enabled" value="1" @checked($abc)> Activează testul</label>
+      <div class="fl"><label for="subject_b">Subiectul B</label><input id="subject_b" type="text" name="subject_b" maxlength="200" value="{{ old('subject_b', $abc['subject_b'] ?? '') }}" placeholder="ex. Doar până duminică: -20% la cabane">@error('subject_b')<div class="err">{{ $message }}</div>@enderror</div>
+      <div class="fl"><label for="preheader_b">Textul de previzualizare B (opțional)</label><input id="preheader_b" type="text" name="preheader_b" maxlength="150" value="{{ old('preheader_b', $abc['preheader_b'] ?? '') }}"></div>
+      <div class="row">
+        <div class="fl"><label for="ab_percent">Grupul de test</label><select id="ab_percent" name="ab_percent">@foreach ([10 => '10% (5% A + 5% B)', 20 => '20% (10% + 10%)', 30 => '30%', 50 => '50%', 100 => 'toți (jumătate A, jumătate B)'] as $k => $l)<option value="{{ $k }}" @selected(($abc['test_percent'] ?? 20) == $k)>{{ $l }}</option>@endforeach</select></div>
+        <div class="fl"><label for="ab_metric">Câștigă varianta cu mai multe</label><select id="ab_metric" name="ab_metric"><option value="open" @selected(($abc['metric'] ?? 'open') === 'open')>deschideri</option><option value="click" @selected(($abc['metric'] ?? '') === 'click')>click-uri</option></select></div>
+        <div class="fl"><label for="ab_wait">Decizia după</label><select id="ab_wait" name="ab_wait">@foreach ([2, 4, 6, 12, 24] as $h)<option value="{{ $h }}" @selected(($abc['wait_hours'] ?? 4) == $h)>{{ $h }} ore</option>@endforeach</select></div>
+      </div>
+    </details>
   @endif
   <p class="small muted">Poți folosi: @foreach (\App\Services\CampaignRenderer::VARIABLES as $var => $desc)<span class="mono">{{ $var }}</span> ({{ $desc }})@if (! $loop->last), @endif @endforeach</p>
 
@@ -108,7 +140,11 @@
     <div class="card" style="border-color:var(--brand)">
       <h2>2. Aprobă și trimite</h2>
       <form method="post" action="{{ route('portal.campaigns.approve', [$slug, $campaign->id]) }}">@csrf
-        <div class="fl"><label for="when">Când pleacă (gol = acum)</label><input id="when" type="datetime-local" name="when" value="{{ old('when') }}">@error('when')<div class="err">{{ $message }}</div>@enderror</div>
+        <div class="fl"><label for="when">Când pleacă (gol = acum)</label><input id="when" type="datetime-local" name="when" value="{{ old('when') }}">@error('when')<div class="err">{{ $message }}</div>@enderror
+          @if ($ch === 'email' && $sendTime)<div class="hint">Ora recomandată: <strong>{{ sprintf('%02d:00', $sendTime['hour']) }}</strong>
+            {{ $sendTime['reliable'] ? '(când abonații tăi deschid cel mai des emailurile, din '.$sendTime['sample'].' deschideri)' : '(implicit; se calculează după primele '.\App\Services\SendTime::MIN_SAMPLE.' deschideri)' }}
+            · <a href="#" onclick="document.getElementById('when').value='{{ $sendTime['next'] }}';return false">programează la această oră</a></div>@endif</div>
+        @if ($campaign->ab)<p class="small">Test A/B activ: {{ $campaign->ab['test_percent'] }}% din destinatari în grupele de test, câștigătorul după {{ $campaign->ab['wait_hours'] }} ore.</p>@endif
         <label class="chk"><input type="checkbox" name="confirm" value="1"> Am verificat testul. Trimite către {{ number_format($estimate['eligible'], 0, ',', '.') }} contacte.</label>@error('confirm')<div class="err">{{ $message }}</div>@enderror
         @if ($ch === 'email' && $account->hourly_limit)<p class="small muted">Pleacă maximum {{ $account->hourly_limit }} emailuri pe oră (limita contului): {{ $estimate['eligible'] > $account->hourly_limit ? 'aproximativ '.ceil($estimate['eligible'] / $account->hourly_limit).' ore în total.' : 'toate în prima oră.' }}</p>@endif
         <button class="btn btn-p" type="submit" @disabled($estimate['eligible'] === 0)>Aprobă campania</button>

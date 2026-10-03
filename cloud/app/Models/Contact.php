@@ -26,6 +26,9 @@ class Contact extends Model
             'source' => ContactSource::class,
             'custom_fields' => 'array',
             'last_activity_at' => 'datetime',
+            'predicted_clv' => 'decimal:2',
+            'predicted_next_order_at' => 'datetime',
+            'predicted_at' => 'datetime',
         ];
     }
 

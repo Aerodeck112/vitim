@@ -18,7 +18,7 @@
     <div class="cond" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
       <select data-k="type" aria-label="Tip condiție">
         <option value="consent">Acord de marketing</option><option value="event">Ce a făcut</option><option value="property">Date din profil</option>
-        <option value="list">Listă</option><option value="lead">Cereri</option><option value="revenue">Bani cheltuiți</option></select>
+        <option value="list">Listă</option><option value="lead">Cereri</option><option value="revenue">Bani cheltuiți</option><option value="prediction">Predicții</option></select>
       <span data-for="consent"><select data-k="op"><option value="granted">are acord pe</option><option value="not_granted">nu are acord pe</option></select>
         <select data-k="channel"><option value="email">Email</option><option value="sms">SMS</option><option value="whatsapp">WhatsApp</option></select></span>
       <span data-for="event"><select data-k="event">@foreach ($events as $k => [$label])<option value="{{ $k }}">{{ $label }}</option>@endforeach</select>
@@ -31,6 +31,9 @@
       <span data-for="list"><select data-k="op"><option value="in">e în lista</option><option value="not_in">nu e în lista</option></select>
         <select data-k="list_id">@foreach ($lists as $id => $n)<option value="{{ $id }}">{{ $n }}</option>@endforeach</select></span>
       <span data-for="lead"><select data-k="op"><option value="has">a trimis cel puțin o cerere</option><option value="none">nu a trimis nicio cerere</option></select></span>
+      <span data-for="prediction"><select data-k="pick"><option value="churn_high">risc de pierdere mare</option><option value="churn_medium">risc de pierdere mediu</option><option value="churn_low">risc de pierdere mic</option>
+        <option value="clv_at_least">valoare estimată de cel puțin (lei)</option><option value="clv_less_than">valoare estimată sub (lei)</option><option value="next_order">următoarea comandă estimată în (zile)</option></select>
+        <input data-k="value" type="number" min="0" step="1" style="width:110px" placeholder="valoare"></span>
       <span data-for="revenue"><select data-k="op"><option value="at_least">cel puțin</option><option value="less_than">mai puțin de</option></select>
         <input data-k="value" type="number" min="0" step="1" style="width:110px"> lei, în ultimele <input data-k="days" type="number" min="0" placeholder="oricând" style="width:90px"> zile</span>
       <button class="btn btn-s btn-d" type="button" data-remove aria-label="Șterge condiția">×</button>

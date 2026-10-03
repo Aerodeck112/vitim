@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** O campanie de marketing pe un canal: ciornă → (test) → aprobare → programată / în trimitere → încheiată. */
-#[Fillable(['name', 'channel', 'status', 'audience', 'subject', 'preheader', 'body', 'blocks', 'template', 'scheduled_at', 'approved_by', 'approved_at', 'started_at', 'completed_at', 'last_error', 'created_by'])]
+#[Fillable(['name', 'channel', 'status', 'audience', 'subject', 'preheader', 'body', 'blocks', 'template', 'scheduled_at', 'approved_by', 'approved_at', 'started_at', 'completed_at', 'last_error', 'created_by', 'ab'])]
 class Campaign extends Model
 {
     use BelongsToOrganization;
@@ -26,6 +26,8 @@ class Campaign extends Model
             'audience' => 'array',
             'template' => 'array',
             'blocks' => 'array',
+            'ab' => 'array',
+            'ab_decided_at' => 'datetime',
             'scheduled_at' => 'datetime',
             'approved_at' => 'datetime',
             'started_at' => 'datetime',
@@ -59,6 +61,21 @@ class Campaign extends Model
 
         return ['sent' => $sent, 'opened' => (int) ($row->opened ?? 0), 'clicked' => (int) ($row->clicked ?? 0),
             'open_rate' => $sent ? round(100 * (int) $row->opened / $sent, 1) : 0.0, 'click_rate' => $sent ? round(100 * (int) $row->clicked / $sent, 1) : 0.0];
+    }
+
+    /** Rezultatele testului A/B pe variante (destinatari trimiși, deschideri, click-uri, rate). @return array<string, array<string, float|int>> */
+    public function abResults(): array
+    {
+        $out = [];
+        foreach (['a', 'b'] as $v) {
+            $row = CampaignRecipient::query()->where('campaign_id', $this->id)->where('variant', $v)->whereNotNull('sent_at')
+                ->selectRaw('count(*) as sent, sum(case when opened_at is not null then 1 else 0 end) as opened, sum(case when clicked_at is not null then 1 else 0 end) as clicked')->first();
+            $sent = (int) ($row->sent ?? 0);
+            $out[$v] = ['sent' => $sent, 'opened' => (int) ($row->opened ?? 0), 'clicked' => (int) ($row->clicked ?? 0),
+                'open_rate' => $sent ? round(100 * (int) $row->opened / $sent, 1) : 0.0, 'click_rate' => $sent ? round(100 * (int) $row->clicked / $sent, 1) : 0.0];
+        }
+
+        return $out;
     }
 
     /** @return array<string, int> numărul de destinatari pe status */
