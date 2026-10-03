@@ -1,5 +1,40 @@
 # VITIM AI Cloud — versiuni
 
+## 0.17.0 — marketing complet: automatizări, editor vizual, formulare, magazin, analiză (plugin 1.5.0)
+
+Tot ce trebuie ca o firmă să-și facă singură marketingul, ca în Klaviyo, din panoul VITIM. Meniu nou: **Automatizări**, **Audiență**, **Analiză**; în Campanii, filele Formulare, Brand și Canale.
+
+**Audiență și urmărire**
+- **Activitatea fiecărui contact** pe fișa lui: emailuri primite / deschise / click-uri, SMS, abonări, formulare, cereri, produse văzute, coșuri, comenzi.
+- **Deschideri și click-uri** în fiecare email (campanii și automatizări), pe destinatar.
+- **Liste** (statice) și **segmente** (dinamice, se actualizează singure): „a deschis în ultimele 30 de zile”, „are acord SMS”, „a cheltuit peste 500 lei”, „nu e în lista X”, „risc de pierdere mare” etc. Campaniile se trimit către liste / segmente, cu excluderi.
+
+**Automatizări (fluxuri)**
+- Pornesc la un eveniment (abonare, cerere, comandă începută, comandă, produs văzut), la intrarea într-o listă sau într-un segment ori la ziua de naștere.
+- Pași: așteptare, email, SMS, WhatsApp, condiție da / nu, adăugare în listă. Ies singure la comandă; „smart sending” (nu trimite dacă a primit alt mesaj în ultimele 16 ore); SMS / WhatsApp doar între 9 și 20.
+- 7 șabloane gata făcute: Bun venit, Follow-up după cerere, Coș abandonat, Produs văzut, După comandă, Recâștigare clienți inactivi, La mulți ani.
+
+**Editor vizual de email**
+- Trage blocurile în email: logo, titlu, text, imagine, buton, două coloane, produs (din catalog), linie, spațiu, rețele sociale, **produsele din coș** (automat). Previzualizare live pe calculator și telefon, încărcare imagini, 5 designuri gata făcute și designuri salvate de firmă. Merge și pentru emailurile din automatizări.
+- **Brand**: logo, culoare, font și linkuri, aplicate automat în toate emailurile.
+
+**Formulare de abonare pe site**
+- Popup, casetă în colț (flyout), bară sus / jos, formular în pagină. Apar după câteva secunde, la derulare sau când vizitatorul vrea să plece; pe ce pagini și dispozitive vrei; nu mai apar celor abonați.
+- **Dublă confirmare** prin emailul firmei (recomandat), cod de reducere după abonare, bifă separată pentru SMS, dovada acordului păstrată. Abonații intră în listă și pornesc fluxul „Bun venit”. Afișări, înscrieri și rata de conversie pe fiecare formular.
+
+**Magazin WooCommerce (pluginul VITIM Connector 1.5.0)**
+- Produse văzute, adăugări în coș, comenzi începute și comenzi plasate ajung în profilul clientului; catalogul de produse se sincronizează; istoricul comenzilor din ultimele 12 luni se importă o dată.
+- **Coș abandonat** cu produsele, prețurile și un link care **reface coșul** dintr-un click; bifă „Vreau oferte pe email” la finalizarea comenzii (checkout clasic și pe blocuri).
+- Clienții veniți din emailuri sunt recunoscuți pe site. **Veniturile se atribuie** emailului cu click (sau deschis) în ultimele 5 zile și apar la campanii, automatizări și în Analiză.
+
+**Analiză și optimizare**
+- Pagina **Analiză**: venitul adus de marketing față de total, pe zile; emailuri trimise, deschideri, click-uri; abonați noi; campaniile și automatizările cu venitul lor.
+- **Test A/B** pe subiect: o parte primește A, o parte B, iar câștigătoarea pleacă automat la restul.
+- **Ora recomandată** de trimitere, din orele la care abonații deschid emailurile, cu programare dintr-un click.
+- **Predicții** pe fiecare client (recalculate noaptea): valoare estimată, data probabilă a următoarei comenzi, risc de pierdere; se pot folosi în segmente.
+
+**Actualizare:** după instalarea zip-ului, actualizează pluginul pe site-urile WordPress la 1.5.0 (se oferă automat în Module).
+
 ## 0.16.0 — campanii pe email, SMS și WhatsApp
 
 - **Campanii** (meniu nou în panoul clientului): email, SMS și WhatsApp, trimise **din conturile firmei**: emailul ei (SMTP, de exemplu din cPanel), contul ei SMSLink.ro și numărul ei de WhatsApp Business (API-ul oficial Meta). Costurile le plătește direct firma.

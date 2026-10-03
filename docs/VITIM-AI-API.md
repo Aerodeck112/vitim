@@ -99,6 +99,8 @@ Fără sesiune. Fiecare cerere are antetele `X-Vitim-Key` (cheia publică `pk_�
 | POST | `/scan` | `issues[{code, severity (critical/warning/info), title, details?, fix?}]` (max. 300) | Deschide / actualizează problemele site-ului; cele care lipsesc se închid. `fix` se păstrează doar dacă e în lista permisă (`App\Services\Remediation`) |
 | POST | `/backup` | `status` (ok/failed), `verified`, `started_at`, `finished_at`, `db_bytes`, `files_bytes`, `files_count`, `location`, `kept`, `error` | Înregistrează backup-ul, reevaluează problemele de backup, o intrare săptămânală în jurnal |
 | GET | `/plugin` | — (public) | Versiunea curentă a pluginului și adresa pachetului, pentru actualizarea din WordPress |
+| POST | `/events` (0.17.0) | `events[{id, type (viewed_product/added_to_cart/started_checkout/placed_order), email? / contact_token?, phone?, first_name?, last_name?, value?, occurred_at?, marketing_consent?, consent_text?, data{order_id, currency, items[{name, product_id, qty, price, url, image}], product, url, image, checkout_url, coupon}}]` (max. 100) | Evenimente WooCommerce în activitatea contactului; `id` deduplică retrimiterile; comenzile se atribuie emailului cu click / deschis în ultimele 5 zile; istoricul mai vechi de o zi nu pornește automatizări; `marketing_consent` = bifa de abonare de la checkout |
+| POST | `/products` (0.17.0) | `products[{id, name, price?, currency?, url?, image?, categories?, in_stock?, deleted?}]` (max. 100) | Catalogul site-ului (creare / actualizare / ștergere), pentru blocurile de produs din emailuri |
 | POST | `/worklog` | `entries[{ref, category, title, description?, performed_at?}]` (max. 50) | Lucrări vizibile clientului, sursa `plugin`; același `ref` pe același site nu se dublează |
 
 ### În sens invers: panou → plugin
@@ -123,7 +125,12 @@ Cereri `POST` cu corp JSON trimis ca `text/plain` (fără preflight CORS). Fieca
 
 Panou (sesiune, permisiunea `handle_conversations` pentru scriere): `GET /app/{firma}/conversatii/{id}/mesaje?after=` (mesaje noi, HTML escapat), `POST …/raspuns` (`message`; preia conversația), `POST …/actiune` (`take` / `release` / `close`), `POST …/scrie` (indicatorul „scrie…” la vizitator, 6 s).
 
-Scriptul: `<script src="https://ai.vitim.ro/widget/v1/loader.js" data-site="pk_…" async></script>`.
+| `/config` → `forms[]` (0.17.0) | — | Formularele de abonare publicate pentru site: `id`, `type`, `content`, `behavior`, `consent` (textul acordului), `sms_consent`, `privacy_url` |
+| `/forms/view` (0.17.0) | `key`, `form` | `{ok}` — contorul de afișări (3 / oră / IP / formular) |
+| `/forms/submit` (0.17.0) | `key`, `form`, `email`, `first_name?`, `phone?`, `sms?` (bifa separată), `page?`, `website` (capcană anti-roboți) | `status`: `confirm` (s-a trimis emailul de dublă confirmare) sau `subscribed`; `contact` (tokenul pentru cookie-ul `vitim_ct`). 10 / oră / IP |
+
+Scriptul: `<script src="https://ai.vitim.ro/widget/v1/loader.js" data-site="pk_…" async></script>` (`data-chat="0"` = fără chat, doar formulare).
+Formularele încorporate: `<div data-vitim-form="ID"></div>`. Parametrul `?vtm=` din linkurile emailurilor spre site-ul firmei devine cookie-ul `vitim_ct` (identificarea în magazin).
 
 ## Pagini publice pentru campanii (0.16.0)
 
@@ -132,6 +139,9 @@ Scriptul: `<script src="https://ai.vitim.ro/widget/v1/loader.js" data-site="pk_�
 | `GET /d/{cod}` | Pagina de dezabonare (cod aleator de 10 caractere, din linkul campaniei) |
 | `POST /d/{cod}` | Dezabonare; cu `List-Unsubscribe=One-Click` în corp (RFC 8058), răspunde 200 fără conținut. Fără CSRF |
 | `GET /webhooks/whatsapp/{token}` | Verificarea Meta (`hub.mode`, `hub.verify_token`, `hub.challenge`) |
+| `GET /t/o/{cod}.gif`, `GET /t/c/{cod}?u=&s=` (0.17.0) | Pixelul de deschidere și redirectul semnat (HMAC) al click-urilor; spre site-urile firmei adaugă `vtm` (tokenul contactului) |
+| `GET/POST /confirmare/{cod}` (0.17.0) | Dubla confirmare a abonării: GET arată butonul, POST confirmă (scannerele de linkuri nu pot confirma) |
+| `GET /m/{firma}/{fișier}` (0.17.0) | Imaginile încărcate în editorul de email (nume aleatoare de 32 de caractere, fără listare) |
 | `POST /webhooks/whatsapp/{token}` | Statusuri (`sent`/`delivered`/`read`/`failed`) și mesaje primite („STOP” dezabonează); semnătura `X-Hub-Signature-256` obligatorie |
 
 ## Evenimente de domeniu emise (pentru automatizările viitoare)

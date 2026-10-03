@@ -7,7 +7,7 @@
 
 ---
 
-## 0. Stare și direcție (actualizat la Phase 2 — VITIM AI Cloud 0.3.0)
+## 0. Stare și direcție (actualizat la VITIM AI Cloud 0.17.0)
 
 **Direcția: VITIM AI Business Platform.** Nu doar un agent pe site, ci sistemul central al unei firme:
 agent AI, contacte, lead-uri, CRM light, inbox unificat (web, email, WhatsApp, SMS), campanii, automatizări,
@@ -27,8 +27,9 @@ vizitator → agent AI → contact → lead → conversație → email / WhatsAp
 | Interfață | Dashboard VITIM (cifre reale) și dashboardul firmei (prezentare, agent AI, contacte, lead-uri, setări). Inbox, campanii, automatizări, analytics și integrări apar marcate „în dezvoltare” |
 | Operare | cPanel: un cron la minut (deploy, coadă, evenimente, backup zilnic pe email) |
 | **Agent (Phase 2)** | `AgentRuntime` (`app/Ai`): prompt determinist cu informațiile firmei (cache), buclă de tool-uri (max. 4 runde), istoric append-only (`ai_turns`), fallback la refuz, mesaje sigure la erori. Tool-uri `create_lead` (contact deduplicat + consimțământ + lead legat de conversație, doar cu acord explicit) și `request_human` (conversație „în așteptare” + eveniment), jurnal în `tool_executions`. Cost per răspuns din tokeni, plafon lunar de cost și de conversații din plan (peste plafon nu se apelează modelul). Template-uri (general, service auto, clinică, magazin online), versiuni de configurație, pagina „Testează agentul” (fără date reale), set de evaluare de 30 de întrebări (`php artisan vitim:eval`) |
+| **Marketing (0.16.0–0.17.0)** | Campanii email / SMS / WhatsApp din conturile firmei; activitatea contactelor (`contact_events`), liste și segmente dinamice (`SegmentQuery`); automatizări (`FlowTriggers` + `FlowRunner`, din minut în minut); editor vizual de email (`EmailBlocks`), brand; formulare de abonare cu dublă confirmare (`forms.js`, `SignupFormService`); magazin WooCommerce (`ShopEvents`: evenimente semnate, catalog, coș refăcut, atribuirea veniturilor); analiză, teste A/B, ora optimă (`SendTime`), predicții (`Predictions`, noaptea) |
 
-**Ce NU există încă:** agentul pe site-ul clientului (widget, Faza 4), knowledge / RAG din pagini și documente (Faza 3; până atunci, „Informații despre firmă” din configurația agentului), widgetul și pluginul, furnizorii reali de email / SMS / WhatsApp, segmente, campanii, automatizări, programări, facturare. Schema lor e proiectată în [DATABASE](VITIM-AI-DATABASE.md#proiectat-neimplementat-fazele-următoare), ca să se lege de fundație fără restructurări.
+**Ce NU există încă:** knowledge / RAG din pagini și documente (până atunci, „Informații despre firmă” din configurația agentului), programări, facturare, integrări cu alte CRM-uri. Schema lor e proiectată în [DATABASE](VITIM-AI-DATABASE.md#proiectat-neimplementat-fazele-următoare).
 
 **Reguli de produs fixate în cod:**
 - AI-ul nu poate trimite campanii în masă. Campaniile vor avea DRAFT → PREVIEW → APPROVAL → SEND, iar trimiterea trece obligatoriu prin `MessagingService`.
