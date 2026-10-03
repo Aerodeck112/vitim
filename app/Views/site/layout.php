@@ -75,6 +75,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
             <div class="mega-foot"><span>Nu știi exact de ce ai nevoie? Îți recomandăm noi soluția potrivită, gratuit.</span><a class="btn btn-primary btn-sm" href="<?= e(url('/contact')) ?>">Discută cu un specialist <?= icon('arrow-right', 'ico ico-move') ?></a></div>
           </div>
         </li>
+        <li><a href="<?= e(url('/vitim-ai')) ?>"<?= $cur('/vitim-ai') ?>>VITIM AI</a></li>
         <li><a href="<?= e(url('/zone')) ?>"<?= $cur('/zone') ?>>Zone</a></li>
         <?php if (Site::hasProjects()): ?><li><a href="<?= e(url('/proiecte')) ?>"<?= $cur('/proiecte') ?>>Proiecte</a></li><?php endif; ?>
         <li><a href="<?= e(url('/blog')) ?>"<?= $cur('/blog') ?>>Blog</a></li>
@@ -104,6 +105,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
   <a href="<?= e(url('/zone')) ?>">Zone deservite</a>
   <?php if (Site::hasProjects()): ?><a href="<?= e(url('/proiecte')) ?>">Proiecte</a><?php endif; ?>
   <a href="<?= e(url('/blog')) ?>">Blog</a>
+  <a href="<?= e(url('/vitim-ai')) ?>">VITIM AI</a>
   <a href="<?= e(url('/despre-noi')) ?>">Despre noi</a>
   <a href="<?= e(url('/contact')) ?>">Contact</a>
   <a class="btn btn-primary btn-lg btn-block" href="<?= e(url('/contact')) ?>">Cere o ofertă gratuită</a>

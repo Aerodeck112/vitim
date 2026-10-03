@@ -1,5 +1,17 @@
 # VITIM AI Cloud — versiuni
 
+## 0.18.0 — cookie-uri pe site-urile clienților (plugin 1.6.0)
+
+- **Meniu nou „Cookie-uri”** în panoul firmei: bannerul de consimțământ pentru fiecare site, conform Legii 506/2004 și GDPR. Se activează dintr-o bifă.
+- **Bannerul**: bandă jos sau casetă în colț, în culorile firmei, cu „Accept toate”, „Refuz toate” și „Setări” la fel de vizibile. În setări, vizitatorul alege pe categorii (strict necesare, preferințe, statistici, marketing) și vede fiecare cookie: serviciu, furnizor, durată, scop. Un buton mic 🍪 și orice link `#vitim-cookies` redeschid setările.
+- **Lista cookie-urilor se face singură**: cookie-urile VITIM (chat, formulare, recunoașterea abonaților), WordPress și WooCommerce, plus serviciile bifate de firmă (Google Analytics, Google Ads, Meta Pixel, TikTok, LinkedIn, Hotjar, Clarity, YouTube, Google Maps, reCAPTCHA) sau adăugate de mână.
+- **Nimic nu pornește fără acord**: Google Consent Mode v2 (pluginul îl pune singur în `<head>`), scripturile și iframe-urile marcate `data-vitim-consent` așteaptă alegerea, iar la retragerea acordului cookie-urile categoriei se șterg.
+- **Registrul consimțămintelor**: fiecare alegere se păstrează ca dovadă (când, ce, pe ce pagină, pentru ce versiune a politicii; IP-ul doar criptografic), cu statistici și export CSV pentru un control. „Întreabă din nou toți vizitatorii” după ce adaugi un serviciu nou.
+- **Politica de cookie-uri** completată automat: `[vitim_cookies]` în WordPress sau `<div data-vitim-cookie-policy></div>` pe orice site.
+- Marketingul VITIM respectă alegerea: recunoașterea abonaților (cookie-ul `vitim_ct`) și urmărirea produselor văzute / coșului în magazin doar cu acord de marketing; formularele de abonare apar după ce vizitatorul a ales.
+
+**Actualizare:** pluginul VITIM Connector 1.6.0 pe site-urile WordPress (se oferă automat în Module).
+
 ## 0.17.0 — marketing complet: automatizări, editor vizual, formulare, magazin, analiză (plugin 1.5.0)
 
 Tot ce trebuie ca o firmă să-și facă singură marketingul, ca în Klaviyo, din panoul VITIM. Meniu nou: **Automatizări**, **Audiență**, **Analiză**; în Campanii, filele Formulare, Brand și Canale.

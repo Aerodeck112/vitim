@@ -165,7 +165,7 @@ $all = Site::services();
       </ul>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="<?= e(url('/servicii/agenti-ai-software-personalizat')) ?>">Descoperă agenții AI <?= icon('arrow-right', 'ico ico-move') ?></a>
-        <a class="btn btn-ghost" href="#demo-ai">Testează pe site-ul tău</a>
+        <a class="btn btn-ghost" href="<?= e(url('/vitim-ai')) ?>">Platforma VITIM AI</a>
       </div>
     </div>
     <div class="flow" data-reveal data-delay="120" aria-label="Exemplu de flux automatizat">

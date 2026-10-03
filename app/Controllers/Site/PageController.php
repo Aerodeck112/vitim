@@ -38,6 +38,40 @@ final class PageController extends SiteController
         ], $seo);
     }
 
+    /** Pagina produsului VITIM AI: platforma, beneficiile pentru client și cum o administrează echipa VITIM. */
+    public function platform(): string
+    {
+        $url = abs_url('/vitim-ai');
+        $faq = self::platformFaq();
+        $seo = $this->seo('VITIM AI – asistent AI, CRM și marketing automat pentru firma ta',
+            'VITIM AI: asistent AI pe site care răspunde clienților 24/7, contacte și cereri într-un singur loc, campanii pe email, SMS și WhatsApp, automatizări, magazin online și site administrat de echipa VITIM.',
+            [['VITIM AI', '/vitim-ai']]);
+        $seo->schema[] = [
+            '@type' => 'SoftwareApplication', '@id' => $url . '#produs', 'name' => 'VITIM AI', 'url' => $url,
+            'applicationCategory' => 'BusinessApplication', 'operatingSystem' => 'Web', 'inLanguage' => 'ro',
+            'description' => 'Platformă pentru firme: asistent AI pe site, CRM, inbox, campanii email / SMS / WhatsApp, automatizări, formulare, integrare WooCommerce, administrare și rapoarte lunare.',
+            'provider' => ['@id' => \App\Core\Seo::orgId()],
+        ];
+        if ($f = \App\Core\Seo::faqSchema($faq, $url)) {
+            $seo->schema[] = $f;
+        }
+
+        return $this->view('platform', ['faq' => $faq], $seo);
+    }
+
+    /** @return list<array{q: string, a: string}> */
+    public static function platformFaq(): array
+    {
+        return [
+            ['q' => 'Trebuie să mă pricep la tehnologie ca să folosesc VITIM AI?', 'a' => 'Nu. Noi configurăm totul: asistentul, site-ul, conturile de trimitere, primele campanii și automatizări. Tu intri în panou ca să vezi cererile, să răspunzi clienților și să urmărești rezultatele, cu ecrane în limba română, gândite pentru oameni ocupați.'],
+            ['q' => 'Asistentul AI poate spune lucruri greșite despre firma mea?', 'a' => 'Asistentul răspunde din informațiile pe care le aprobi tu (servicii, prețuri orientative, program, zone, condiții). Când nu știe, nu inventează: preia datele clientului și îți trimite cererea. Poți prelua oricând conversația în timp real.'],
+            ['q' => 'Funcționează cu site-ul meu actual?', 'a' => 'Da. Pe WordPress și WooCommerce se conectează printr-un modul VITIM, instalat de noi. Pe orice alt site se adaugă o singură linie de cod. Nu trebuie să schimbi site-ul.'],
+            ['q' => 'Cât costă trimiterea campaniilor?', 'a' => 'Emailurile pleacă din adresa firmei tale, iar SMS-urile și mesajele WhatsApp din conturile tale. Plătești direct furnizorului doar ce trimiți, fără taxe pe numărul de contacte cum au platformele străine.'],
+            ['q' => 'Ce se întâmplă cu datele clienților mei?', 'a' => 'Datele fiecărei firme sunt separate de ale celorlalți clienți VITIM și nu sunt folosite în alt scop. Acordurile de marketing și de cookie-uri se înregistrează cu dovadă (când, unde, ce a acceptat), dezabonarea e automată, iar parolele conturilor tale sunt criptate.'],
+            ['q' => 'Pot începe doar cu o parte din platformă?', 'a' => 'Da. Mulți clienți încep cu asistentul AI pe site și cu inboxul de cereri, apoi adaugă campaniile, automatizările sau administrarea site-ului. Îți recomandăm ce merită pentru firma ta.'],
+        ];
+    }
+
     public function contact(): string
     {
         $page = DB::row("SELECT * FROM pages WHERE slug = 'contact'") ?? ['title' => 'Contact', 'subtitle' => '', 'body' => '', 'slug' => 'contact'];

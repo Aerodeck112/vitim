@@ -57,6 +57,7 @@ final class SeoController extends SiteController
                 $add('/zone', DB::val('SELECT MAX(updated_at) FROM locations'), 'monthly', '0.8');
                 $add('/contact', DB::val("SELECT updated_at FROM pages WHERE slug='contact'"), 'yearly', '0.8');
                 $add('/despre-noi', DB::val("SELECT updated_at FROM pages WHERE slug='despre-noi'"), 'yearly', '0.7');
+                $add('/vitim-ai', null, 'monthly', '0.9');
                 if (Site::hasPosts()) {
                     $add('/blog', DB::val("SELECT MAX(published_at) FROM posts WHERE status='published'"), 'weekly', '0.7');
                 }
@@ -203,6 +204,7 @@ XSL;
             }
             $out .= "\n";
         }
+        $out .= "## VITIM AI\n\n- [Platforma VITIM AI](" . abs_url('/vitim-ai') . "): asistent AI pe site 24/7, contacte și cereri într-un singur loc, campanii email / SMS / WhatsApp, automatizări, formulare, integrare WooCommerce, site administrat și raport lunar, configurate și administrate de echipa VITIM.\n\n";
         $out .= "## Optional\n\n- [Despre noi](" . abs_url('/despre-noi') . ")\n- [Sitemap](" . abs_url('/sitemap.xml') . ")\n";
         return $out;
     }

@@ -126,11 +126,13 @@ Cereri `POST` cu corp JSON trimis ca `text/plain` (fără preflight CORS). Fieca
 Panou (sesiune, permisiunea `handle_conversations` pentru scriere): `GET /app/{firma}/conversatii/{id}/mesaje?after=` (mesaje noi, HTML escapat), `POST …/raspuns` (`message`; preia conversația), `POST …/actiune` (`take` / `release` / `close`), `POST …/scrie` (indicatorul „scrie…” la vizitator, 6 s).
 
 | `/config` → `forms[]` (0.17.0) | — | Formularele de abonare publicate pentru site: `id`, `type`, `content`, `behavior`, `consent` (textul acordului), `sms_consent`, `privacy_url` |
+| `/config` → `cookies` (0.18.0) | — | Bannerul de cookie-uri, dacă e activ: `version`, `days`, `layout`, `position`, `color`, `title`, `text`, `policy_url`, `privacy_url`, `reopen`, `gcm`, `company`, `categories[{key, label, description, cookies[{name, provider, cookies, duration, purpose}]}]` |
+| `/consent` (0.18.0) | `key`, `consent_id`, `action` (accept_all/reject_all/custom), `preferences`, `statistics`, `marketing`, `version`, `page?` | `{ok}` — se adaugă în registrul consimțămintelor. 30 / oră / IP |
 | `/forms/view` (0.17.0) | `key`, `form` | `{ok}` — contorul de afișări (3 / oră / IP / formular) |
 | `/forms/submit` (0.17.0) | `key`, `form`, `email`, `first_name?`, `phone?`, `sms?` (bifa separată), `page?`, `website` (capcană anti-roboți) | `status`: `confirm` (s-a trimis emailul de dublă confirmare) sau `subscribed`; `contact` (tokenul pentru cookie-ul `vitim_ct`). 10 / oră / IP |
 
 Scriptul: `<script src="https://ai.vitim.ro/widget/v1/loader.js" data-site="pk_…" async></script>` (`data-chat="0"` = fără chat, doar formulare).
-Formularele încorporate: `<div data-vitim-form="ID"></div>`. Parametrul `?vtm=` din linkurile emailurilor spre site-ul firmei devine cookie-ul `vitim_ct` (identificarea în magazin).
+Formularele încorporate: `<div data-vitim-form="ID"></div>`. Cookie-uri (0.18.0): cookie-ul `vitim_consent` = `v{versiune}.{preferințe}{statistici}{marketing}.{id}`; `<script type="text/plain" data-vitim-consent="marketing">` și `<iframe data-vitim-consent data-src>` pornesc după acord; `window.VitimConsent.get() / open() / on(fn)`, evenimentul DOM `vitim:consent`, `dataLayer` `vitim_consent_update`; politica: `<div data-vitim-cookie-policy></div>`. Heartbeat-ul conectorului întoarce `cookie_banner`. Parametrul `?vtm=` din linkurile emailurilor spre site-ul firmei devine cookie-ul `vitim_ct` (identificarea în magazin).
 
 ## Pagini publice pentru campanii (0.16.0)
 

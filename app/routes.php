@@ -26,6 +26,7 @@ $router->get('/proiecte', [PageController::class, 'projects']);
 $router->get('/proiecte/{slug:[a-z0-9-]+}', [PageController::class, 'project']);
 $router->get('/contact', [PageController::class, 'contact']);
 $router->get('/despre-noi', [PageController::class, 'about']);
+$router->get('/vitim-ai', [PageController::class, 'platform']);
 
 $router->get('/api/form-token', [FormController::class, 'token']);
 $router->post('/api/contact', [FormController::class, 'contact']);

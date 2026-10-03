@@ -1,5 +1,10 @@
 # Istoric versiuni
 
+## 1.5.0
+
+- **Pagină nouă: „VITIM AI”** (`/vitim-ai`, în meniul principal și pe mobil): ce este platforma, ce primește firma (asistent AI pe site 24/7, chat live, contacte și cereri, campanii email / SMS / WhatsApp, automatizări, editor de email, formulare, magazin online, analiză, site administrat, conformitate GDPR și cookie-uri, echipă cu roluri), cum o configurăm și o administrăm noi, de ce e unică, demo-ul pe site-ul clientului și întrebări frecvente.
+- Date structurate pentru Google (produs software + întrebări frecvente), pagina e în sitemap și în `llms.txt`. Pe prima pagină, secțiunea despre agenți AI trimite la noua pagină.
+
 ## 1.4.0
 
 - **„Testează un agent AI pentru firma ta”** pe prima pagină. Vizitatorul scrie adresa site-ului său și emailul, apoi apasă „Creează demo AI”. Cererea intră în CRM ca oportunitate „Demo agent AI” și primești notificare pe email, ca la formularul de contact. Butonul „Testează pe site-ul tău” din secțiunea despre agenți AI duce direct la formular.
