@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       VITIM Connector
  * Description:       Conectează site-ul la panoul VITIM: asistentul AI pe site, formulare de abonare, magazinul WooCommerce (coș abandonat, comenzi), starea site-ului, scanarea problemelor, remedieri, backup și jurnalul automat al lucrărilor.
- * Version:           1.5.0
+ * Version:           1.6.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            VITIM
@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('VITIM_CONNECTOR_VERSION', '1.5.0');
+define('VITIM_CONNECTOR_VERSION', '1.6.0');
 require_once __DIR__.'/includes-backup.php';
 require_once __DIR__.'/includes-seo.php';
 require_once __DIR__.'/includes-shop.php';
@@ -52,6 +52,8 @@ final class Vitim_Connector
         add_filter('pre_set_site_transient_update_plugins', [__CLASS__, 'selfUpdate']);
         add_action(Vitim_Connector_Backup::HOOK, [__CLASS__, 'backup']);
         add_action('wp_footer', [__CLASS__, 'widget']);
+        add_action('wp_head', [__CLASS__, 'consentDefaults'], 1);
+        add_shortcode('vitim_cookies', [__CLASS__, 'cookiePolicy']);
         add_action('admin_post_vitim_connector_backup_settings', [__CLASS__, 'saveBackupSettings']);
         self::harden();
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), function ($links) {
@@ -293,6 +295,50 @@ final class Vitim_Connector
         printf('<script src="%s" data-site="%s"%s async></script>'."\n", esc_url(rtrim($s['url'], '/').'/widget/v1/loader.js'), esc_attr($s['key']), self::widgetEnabled() ? '' : ' data-chat="0"');
     }
 
+    /** Bannerul VITIM de cookie-uri e activ pentru acest site (aflat din panou la fiecare heartbeat). */
+    public static function cookieBanner()
+    {
+        $s = self::settings();
+
+        return self::connected() && ! empty($s['cookie_banner']);
+    }
+
+    /**
+     * Google Consent Mode v2, cât mai sus în <head>: totul refuzat până la alegerea vizitatorului
+     * (sau alegerea deja salvată în cookie-ul vitim_consent), ca Google Analytics / Ads să o respecte din prima secundă.
+     */
+    public static function consentDefaults()
+    {
+        if (is_admin() || ! self::cookieBanner()) {
+            return;
+        }
+        echo '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}'
+            .'(function(){var m=document.cookie.match(/(?:^|; )vitim_consent=v\\d+\\.([01])([01])([01])\\./),g=function(i){return m&&m[i]==="1"?"granted":"denied"};'
+            .'gtag("consent","default",{ad_storage:g(3),ad_user_data:g(3),ad_personalization:g(3),analytics_storage:g(2),functionality_storage:g(1),personalization_storage:g(1),security_storage:"granted",wait_for_update:500});'
+            .'gtag("set","ads_data_redaction",true);gtag("set","url_passthrough",true);})();</script>'."\n";
+    }
+
+    /** [vitim_cookies] — lista cookie-urilor site-ului și butonul de schimbare a setărilor, completate de scriptul VITIM. */
+    public static function cookiePolicy()
+    {
+        return '<div data-vitim-cookie-policy></div>';
+    }
+
+    /** Acordul vizitatorului pentru o categorie (marketing, statistics, preferences), din cookie-ul bannerului VITIM. */
+    public static function consented($category)
+    {
+        if (! self::cookieBanner()) {
+            return true; // firma folosește alt banner sau niciunul: pluginul nu decide în locul lui
+        }
+        $v = isset($_COOKIE['vitim_consent']) ? (string) wp_unslash($_COOKIE['vitim_consent']) : '';
+        if (! preg_match('/^v\d+\.([01])([01])([01])\./', $v, $m)) {
+            return false;
+        }
+        $i = ['preferences' => 1, 'statistics' => 2, 'marketing' => 3][$category] ?? 3;
+
+        return $m[$i] === '1';
+    }
+
     private static function remoteFixes()
     {
         $s = self::settings();
@@ -357,6 +403,11 @@ final class Vitim_Connector
         }
         $result = self::post('heartbeat', self::health());
         self::remember($result);
+        if ($result['ok'] && isset($result['body']['cookie_banner'])) {
+            $s = self::settings();
+            $s['cookie_banner'] = (bool) $result['body']['cookie_banner'];
+            update_option(self::OPTION, $s, false);
+        }
         if ($result['ok']) {
             self::flush();
             $s = self::settings();
@@ -475,7 +526,9 @@ final class Vitim_Connector
             return ['ok' => false, 'message' => $message];
         }
 
-        return ['ok' => true, 'message' => 'OK'];
+        $json = json_decode(wp_remote_retrieve_body($response), true);
+
+        return ['ok' => true, 'message' => 'OK', 'body' => is_array($json) ? $json : []];
     }
 
     private static function remember(array $result)

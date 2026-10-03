@@ -477,19 +477,40 @@
   }
 
   // identificarea în magazin: tokenul din linkurile emailurilor (?vtm=) sau de la abonare ajunge într-un cookie al site-ului,
-  // pe care pluginul VITIM Connector îl citește la evenimentele WooCommerce (produs văzut, coș, comandă)
+  // pe care pluginul VITIM Connector îl citește la evenimentele WooCommerce (produs văzut, coș, comandă).
+  // Cu bannerul VITIM de cookie-uri activ, cookie-ul se pune doar după acordul pentru marketing.
+  var consent = { managed: false, marketing: false, decided: false };
+  function valid(token) { return /^\d+\.\d+\.[a-f0-9]{16}$/.test(token || ''); }
+  function setCt(token) { document.cookie = 'vitim_ct=' + token + '; path=/; max-age=31536000; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : ''); }
   function identify(token) {
-    if (!/^\d+\.\d+\.[a-f0-9]{16}$/.test(token || '')) return;
-    document.cookie = 'vitim_ct=' + token + '; path=/; max-age=31536000; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+    if (!valid(token)) return;
+    if (consent.managed && !consent.marketing) { try { sessionStorage.setItem('vitim_vtm', token); } catch (e) {} return; }
+    setCt(token);
   }
+  var waitingForms = null;
+  function onConsent(c) {
+    consent.marketing = !!c.marketing; consent.decided = !!c.decided;
+    if (consent.decided && waitingForms) { var f = waitingForms; waitingForms = null; forms(f); } // formularele nu apar peste bannerul de cookie-uri
+    if (c.marketing) { var p = null; try { p = sessionStorage.getItem('vitim_vtm'); sessionStorage.removeItem('vitim_vtm'); } catch (e) {} if (valid(p)) setCt(p); }
+    else if (c.decided) { document.cookie = 'vitim_ct=; path=/; max-age=0'; }
+  }
+  var pendingVtm = null;
   try {
     var qs = new URLSearchParams(location.search), vtm = qs.get('vtm');
-    if (vtm) { identify(vtm); qs.delete('vtm'); history.replaceState(history.state, '', location.pathname + (qs.toString() ? '?' + qs : '') + location.hash); }
+    if (vtm) { pendingVtm = vtm; qs.delete('vtm'); history.replaceState(history.state, '', location.pathname + (qs.toString() ? '?' + qs : '') + location.hash); }
   } catch (e) {}
+
+  function cookies(c) {
+    consent.managed = true;
+    var start = function () { window.VitimCookies.start(c, { call: call, onChange: onConsent }); if (pendingVtm) identify(pendingVtm); };
+    if (window.VitimCookies) return start();
+    var s = document.createElement('script'); s.src = API + '/cookies.js?v=1'; s.async = true; s.onload = start; document.head.appendChild(s);
+  }
 
   function init() {
     call('config').then(function (cfg) {
       if (!cfg) return;
+      if (cfg.cookies) cookies(cfg.cookies); else if (pendingVtm) identify(pendingVtm);
       if (cfg.enabled && script.getAttribute('data-chat') !== '0') build(cfg);
       if (cfg.forms && cfg.forms.length) forms(cfg.forms);
     }).catch(function () {});
@@ -497,6 +518,7 @@
 
   // formularele de abonare se încarcă doar dacă firma are cel puțin unul activ pe site
   function forms(list) {
+    if (consent.managed && !consent.decided) { waitingForms = list; return; }
     var start = function () { window.VitimForms.start({ forms: list, call: call, identify: identify }); };
     if (window.VitimForms) return start();
     var s = document.createElement('script'); s.src = API + '/forms.js?v=1'; s.async = true; s.onload = start; document.head.appendChild(s);

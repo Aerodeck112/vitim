@@ -11,11 +11,13 @@ use App\Enums\IdentityType;
 use App\Enums\SenderType;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
+use App\Models\CookieConsent;
 use App\Models\Message;
 use App\Models\SignupForm;
 use App\Models\Site;
 use App\Models\User;
 use App\Services\ContactService;
+use App\Services\CookieSettings;
 use App\Services\IdentityNormalizer;
 use App\Services\LiveChatService;
 use App\Services\ShopEvents;
@@ -72,6 +74,7 @@ final class WidgetController extends Controller
                 'email_capture' => $settings['email_capture'],
                 'sound' => $settings['sound'],
                 'notice' => 'Răspunsurile sunt date de un asistent virtual (AI) al firmei '.($site->organization->company_name ?: $site->organization->name).', iar la cerere de un coleg din echipă. Nu trimite date sensibile (CNP, card).',
+                'cookies' => CookieSettings::for($site)['enabled'] ? CookieSettings::publicPayload($site) : null,
                 'forms' => $site->organization->subscription?->isServiceable()
                     ? SignupForm::query()->where('status', 'live')->where(fn ($q) => $q->whereNull('site_id')->orWhere('site_id', $site->id))->orderBy('id')->limit(10)->get()
                         ->map(fn (SignupForm $form) => SignupFormService::publicPayload($form, $site->organization, $settings['privacy_url'] ?? null))->values()
@@ -201,6 +204,32 @@ final class WidgetController extends Controller
 
             return $this->json($origin, ['ok' => true]);
         });
+    }
+
+    /** Alegerea vizitatorului în bannerul de cookie-uri: se păstrează ca dovadă (fără IP în clar). */
+    public function consent(Request $request): JsonResponse
+    {
+        [$site, $origin, $body] = $this->site($request);
+        if (! $site) {
+            return $this->deny($origin);
+        }
+        $id = (string) ($body['consent_id'] ?? '');
+        if (! preg_match('/^[a-f0-9-]{16,36}$/', $id) || ! in_array($body['action'] ?? '', array_keys(CookieConsent::ACTIONS), true)) {
+            return $this->json($origin, ['error' => 'invalid'], 422);
+        }
+        if (! RateLimiter::attempt('cookie-consent:'.$request->ip(), 30, fn () => true, 3600)) {
+            return $this->json($origin, ['error' => 'rate_limited'], 429);
+        }
+        $this->context->runAs($site->organization, fn () => CookieConsent::create([
+            'site_id' => $site->id, 'consent_id' => $id, 'action' => $body['action'],
+            'preferences' => ($body['preferences'] ?? false) === true, 'statistics' => ($body['statistics'] ?? false) === true, 'marketing' => ($body['marketing'] ?? false) === true,
+            'policy_version' => max(1, min(10000, (int) ($body['version'] ?? 1))),
+            'ip_hash' => substr(hash_hmac('sha256', (string) $request->ip(), (string) config('app.key')), 0, 32),
+            'user_agent' => mb_substr((string) $request->userAgent(), 0, 255) ?: null,
+            'page' => mb_substr((string) ($body['page'] ?? ''), 0, 255) ?: null, 'created_at' => now(),
+        ]));
+
+        return $this->json($origin, ['ok' => true]);
     }
 
     /** Formularul a fost afișat (pentru rata de conversie din panou). */

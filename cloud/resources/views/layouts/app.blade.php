@@ -42,6 +42,7 @@
       @can('manage_campaigns')<a href="{{ route('portal.flows.index', $slug) }}" @class(['on' => request()->routeIs('portal.flows.*')])>Automatizări</a>
       <a href="{{ route('portal.audience', $slug) }}" @class(['on' => request()->routeIs('portal.audience*')])>Audiență</a>@endcan
       @can('manage_campaigns')<a href="{{ route('portal.analytics', $slug) }}" @class(['on' => request()->routeIs('portal.analytics')])>Analiză</a>@endcan
+      @can('manage_sites')<a href="{{ route('portal.cookies', $slug) }}" @class(['on' => request()->routeIs('portal.cookies')])>Cookie-uri</a>@endcan
       <a href="{{ route('portal.upcoming', [$slug, 'integrari']) }}" @class(['on' => request()->is('*/in-curand/integrari')])>Integrări <span class="soon">curând</span></a>
       <a href="{{ route('portal.settings', $slug) }}" @class(['on' => request()->routeIs('portal.settings')])>Setări</a>
     @endisset

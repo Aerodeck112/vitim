@@ -95,7 +95,7 @@ final class Vitim_Connector_Shop
             ],
         ];
         if (! $historical) {
-            $event['contact_token'] = self::cookie();
+            $event['contact_token'] = Vitim_Connector::consented('marketing') ? self::cookie() : null;
             $block = $order->get_meta('_wc_other/vitim/marketing') ?: $order->get_meta('_wc_additional/vitim/marketing');
             if ($order->get_meta('_vitim_marketing') === 'yes' || ($block && $block !== 'no' && $block !== '0')) {
                 $event['marketing_consent'] = true;
@@ -123,6 +123,9 @@ final class Vitim_Connector_Shop
 
     private static function capture($email, $first, $last, $phone)
     {
+        if (! Vitim_Connector::consented('marketing')) {
+            return; // fără acord de marketing în bannerul de cookie-uri: nu urmărim comportamentul pe site
+        }
         if (! self::active() || ! WC()->cart || WC()->cart->is_empty() || ! is_email($email)) {
             return;
         }
@@ -150,6 +153,9 @@ final class Vitim_Connector_Shop
 
     public static function addedToCart($key, $productId, $qty, $variationId)
     {
+        if (! Vitim_Connector::consented('marketing')) {
+            return; // fără acord de marketing în bannerul de cookie-uri: nu urmărim comportamentul pe site
+        }
         $who = self::identity();
         if (! $who || ! self::active()) {
             return;
@@ -168,6 +174,9 @@ final class Vitim_Connector_Shop
 
     public static function viewedProduct()
     {
+        if (! Vitim_Connector::consented('marketing')) {
+            return; // fără acord de marketing în bannerul de cookie-uri: nu urmărim comportamentul pe site
+        }
         if (! self::active() || ! function_exists('is_product') || ! is_product()) {
             return;
         }

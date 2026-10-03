@@ -205,6 +205,9 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/leaduri', [Portal\LeadController::class, 'store'])->middleware('can:manage_leads')->name('leads.store');
         Route::put('/leaduri/{lead}', [Portal\LeadController::class, 'update'])->middleware('can:manage_leads')->where('lead', $id)->name('leads.update');
 
+        Route::get('/cookie-uri', [Portal\CookieController::class, 'show'])->middleware('can:manage_sites')->name('cookies');
+        Route::put('/cookie-uri/{site}', [Portal\CookieController::class, 'update'])->middleware('can:manage_sites')->where('site', $id)->name('cookies.update');
+        Route::get('/cookie-uri/{site}/registru', [Portal\CookieController::class, 'export'])->middleware(['can:manage_sites', 'throttle:10,1'])->where('site', $id)->name('cookies.export');
         Route::get('/setari', [Portal\SettingsController::class, 'show'])->middleware('can:view_reports')->name('settings');
         Route::put('/setari/firma', [Portal\SettingsController::class, 'updateProfile'])->middleware('can:manage_organization')->name('settings.profile');
         Route::post('/setari/utilizatori', [Portal\SettingsController::class, 'invite'])->middleware('can:manage_users')->name('settings.invite');

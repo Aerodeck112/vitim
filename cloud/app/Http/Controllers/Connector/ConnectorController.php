@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Site;
 use App\Models\WorkLog;
 use App\Services\BackupMonitor;
+use App\Services\CookieSettings;
 use App\Services\ScanPayload;
 use App\Services\ShopEvents;
 use App\Services\SiteKeyService;
@@ -74,7 +75,8 @@ final class ConnectorController extends Controller
             app(BackupMonitor::class)->evaluate($site);
         });
 
-        return response()->json(['ok' => true, 'site' => $site->domain, 'verified' => $matches, 'next_heartbeat_seconds' => 3600]);
+        return response()->json(['ok' => true, 'site' => $site->domain, 'verified' => $matches, 'next_heartbeat_seconds' => 3600,
+            'cookie_banner' => (bool) CookieSettings::for($site)['enabled']]);
     }
 
     /** Lucrări înregistrate automat pe site (ex. actualizări făcute din WordPress). Retrimiterea nu dublează. */
