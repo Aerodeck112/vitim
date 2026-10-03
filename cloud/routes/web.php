@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\ReportController;
@@ -95,6 +96,17 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::get('/sistem', [SystemController::class, 'show'])->name('system');
         Route::post('/sistem/actualizare', [SystemController::class, 'upload'])->middleware('throttle:5,1')->name('system.upload');
         Route::post('/sistem/actualizare-urcata', [SystemController::class, 'applyPending'])->middleware('throttle:5,1')->name('system.pending');
+        Route::get('/noutati', [AnnouncementController::class, 'index'])->name('announcements.index');
+        Route::put('/noutati/setari', [AnnouncementController::class, 'settings'])->name('announcements.settings');
+        Route::get('/noutati/nou', [AnnouncementController::class, 'create'])->name('announcements.create');
+        Route::post('/noutati', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::get('/noutati/{announcement}', [AnnouncementController::class, 'edit'])->whereNumber('announcement')->name('announcements.edit');
+        Route::put('/noutati/{announcement}', [AnnouncementController::class, 'update'])->whereNumber('announcement')->name('announcements.update');
+        Route::get('/noutati/{announcement}/previzualizare', [AnnouncementController::class, 'preview'])->whereNumber('announcement')->name('announcements.preview');
+        Route::post('/noutati/{announcement}/test', [AnnouncementController::class, 'test'])->whereNumber('announcement')->middleware('throttle:10,1')->name('announcements.test');
+        Route::post('/noutati/{announcement}/trimite', [AnnouncementController::class, 'send'])->whereNumber('announcement')->name('announcements.send');
+        Route::post('/noutati/{announcement}/opreste', [AnnouncementController::class, 'cancel'])->whereNumber('announcement')->name('announcements.cancel');
+        Route::delete('/noutati/{announcement}', [AnnouncementController::class, 'destroy'])->whereNumber('announcement')->name('announcements.destroy');
         Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
         Route::post('/clienti', [OrganizationController::class, 'store'])->name('organizations.store');
         Route::prefix('clienti/{organization}')->middleware('org')->group(function () {
@@ -197,6 +209,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::put('/canale/{channel}', [Portal\ChannelController::class, 'save'])->middleware('can:manage_campaigns')->name('channels.save');
         Route::post('/canale/{channel}/test', [Portal\ChannelController::class, 'test'])->middleware(['can:manage_campaigns', 'throttle:10,1'])->name('channels.test');
         Route::delete('/canale/{channel}', [Portal\ChannelController::class, 'destroy'])->middleware('can:manage_campaigns')->name('channels.destroy');
+        Route::get('/noutati-vitim', [Portal\NewsController::class, 'index'])->middleware('can:view_reports')->name('news');
+        Route::get('/noutati-vitim/{announcement}', [Portal\NewsController::class, 'show'])->middleware('can:view_reports')->where('announcement', $id)->name('news.show');
         Route::get('/rapoarte', [Portal\ReportController::class, 'index'])->middleware('can:view_reports')->name('reports.index');
         Route::get('/rapoarte/{period}', [Portal\ReportController::class, 'show'])->middleware('can:view_reports')->where('period', '\d{4}-\d{2}')->name('reports.show');
         Route::get('/lucrari', [Portal\WorkLogController::class, 'index'])->middleware('can:view_reports')->name('worklogs');

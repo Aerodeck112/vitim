@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Tenancy;
 
+use App\Models\Announcement;
 use App\Models\Organization;
+use App\Models\PlatformSetting;
 use App\Models\User;
 use App\Tenancy\BelongsToOrganization;
 use Tests\TestCase;
@@ -18,6 +20,8 @@ final class ArchitectureTest extends TestCase
     private const GLOBAL_MODELS = [
         User::class,         // un om poate fi membru în mai multe firme; accesul vine din Membership
         Organization::class, // tenantul însuși
+        Announcement::class,    // noutățile VITIM: date de platformă, scrise doar de echipa VITIM
+        PlatformSetting::class, // setările platformei, nu ale unei firme
     ];
 
     public function test_every_model_is_tenant_scoped_or_explicitly_global(): void

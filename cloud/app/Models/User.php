@@ -34,6 +34,7 @@ class User extends Authenticatable
             'totp_confirmed_at' => 'datetime',
             'password' => 'hashed',
             'platform_role' => PlatformRole::class,
+            'product_updates' => 'boolean',
         ];
     }
 

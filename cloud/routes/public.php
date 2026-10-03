@@ -4,6 +4,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\SubscribeConfirmController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\UnsubscribeController;
+use App\Http\Controllers\UpdatesController;
 use App\Http\Controllers\Webhooks\WhatsAppWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,6 @@ Route::get('/t/c/{code}', [TrackingController::class, 'click'])->middleware('thr
 Route::get('/m/{organization}/{file}', [MediaController::class, 'show'])->where(['organization' => '[0-9]+', 'file' => '[A-Za-z0-9]{32}\.(jpg|png|gif|webp)'])->name('media');
 Route::get('/confirmare/{code}', [SubscribeConfirmController::class, 'show'])->where('code', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('forms.confirm');
 Route::post('/confirmare/{code}', [SubscribeConfirmController::class, 'store'])->where('code', '[A-Za-z0-9]{40}')->middleware('throttle:30,1')->name('forms.confirm.store');
+Route::get('/n/{code}.gif', [UpdatesController::class, 'open'])->where('code', '[A-Za-z0-9]{24}')->middleware('throttle:300,1')->name('updates.open');
+Route::get('/noutati/dezabonare/{user}', [UpdatesController::class, 'show'])->whereNumber('user')->middleware('throttle:30,1')->name('updates.unsubscribe');
+Route::post('/noutati/dezabonare/{user}', [UpdatesController::class, 'unsubscribe'])->whereNumber('user')->middleware('throttle:30,1');

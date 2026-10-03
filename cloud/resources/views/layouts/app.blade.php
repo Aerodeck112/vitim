@@ -22,6 +22,7 @@
       <a href="{{ route('admin.sites.index') }}" @class(['on' => request()->routeIs('admin.sites.*')])>Site-uri</a>
       <a href="{{ route('admin.agents.index') }}" @class(['on' => request()->routeIs('admin.agents.*')])>Agenți</a>
       <a href="{{ route('admin.users.index') }}" @class(['on' => request()->routeIs('admin.users.*')])>Utilizatori</a>
+      <a href="{{ route('admin.announcements.index') }}" @class(['on' => request()->routeIs('admin.announcements.*')])>Noutăți către clienți</a>
       @if ($user->platform_role === \App\Enums\PlatformRole::SuperAdmin)<a href="{{ route('admin.system') }}" @class(['on' => request()->routeIs('admin.system*')])>Sistem</a>@endif
     @endif
     @isset($organization)
@@ -34,6 +35,7 @@
       <a href="{{ route('portal.home', $slug) }}" @class(['on' => request()->routeIs('portal.home')])>Prezentare</a>
       <a href="{{ route('portal.worklogs', $slug) }}" @class(['on' => request()->routeIs('portal.worklogs')])>Lucrări VITIM</a>
       <a href="{{ route('portal.reports.index', $slug) }}" @class(['on' => request()->routeIs('portal.reports.*')])>Rapoarte lunare</a>
+      <a href="{{ route('portal.news', $slug) }}" @class(['on' => request()->routeIs('portal.news*')])>Noutăți VITIM</a>
       <a href="{{ route('portal.agents.index', $slug) }}" @class(['on' => request()->routeIs('portal.agents.*')])>Agent AI</a>
       @can('view_contacts')<a href="{{ route('portal.conversations.index', $slug) }}" @class(['on' => request()->routeIs('portal.conversations.*')])>Conversații</a>@endcan
       @can('view_contacts')<a href="{{ route('portal.contacts.index', $slug) }}" @class(['on' => request()->routeIs('portal.contacts.*')])>Contacte</a>@endcan

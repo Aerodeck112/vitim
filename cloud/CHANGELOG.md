@@ -1,5 +1,14 @@
 # VITIM AI Cloud — versiuni
 
+## 0.19.0 — noutățile VITIM, direct în panoul tău
+
+- **„Noutăți VITIM”** în meniul panoului: toate anunțurile noastre despre platformă, într-un singur loc, ca să le găsești oricând.
+- **Ce am făcut pentru firma ta**: emailurile noastre includ acum lucrările făcute pe site-urile tale de la ultimul mesaj (securitate, actualizări, SEO, backup).
+- **Rezumatul lunar**: la începutul fiecărei luni primești pe scurt ce a făcut VITIM AI pentru firma ta (conversații pe site, cereri noi, abonați noi, mesaje trimise), lucrările noastre și linkul spre raportul lunar.
+- Nu mai vrei aceste emailuri? Fiecare are un link de dezabonare; emailurile importante despre cont continuă.
+
+**Actualizare:** în Admin → „Noutăți către clienți”: anunțuri cu previzualizare pe orice client, test, programare, public pe servicii și roluri, livrări și deschideri; bifele „Trimite automat noutățile fiecărei versiuni” (ciorna din CHANGELOG, trimisă a doua zi la 10:00) și „Rezumatul lunar automat”. Trimiterea folosește emailul platformei (MAIL_* din .env), câte 40 de emailuri la 5 minute. Rândurile „**Actualizare:**” din CHANGELOG nu ajung la clienți.
+
 ## 0.18.0 — cookie-uri pe site-urile clienților (plugin 1.6.0)
 
 - **Meniu nou „Cookie-uri”** în panoul firmei: bannerul de consimțământ pentru fiecare site, conform Legii 506/2004 și GDPR. Se activează dintr-o bifă.
