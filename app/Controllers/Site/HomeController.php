@@ -34,7 +34,7 @@ final class HomeController extends SiteController
             'posts' => DB::all("SELECT slug, title, excerpt, cover, published_at, body FROM posts WHERE status = 'published' AND published_at <= ? ORDER BY published_at DESC LIMIT 3", [DB::now()]),
             'faq' => $faq,
             'projects' => DB::all('SELECT * FROM projects WHERE published = 1 AND featured = 1 ORDER BY sort, id DESC LIMIT 4'),
-            'clients' => DB::all("SELECT slug, client, logo FROM projects WHERE published = 1 AND client IS NOT NULL AND client <> '' ORDER BY sort, id DESC"),
+            'clients' => DB::all("SELECT slug, client, logo FROM projects WHERE published = 1 AND own = 0 AND client IS NOT NULL AND client <> '' ORDER BY sort, id DESC"),
         ], $seo);
     }
 }

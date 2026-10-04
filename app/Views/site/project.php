@@ -8,7 +8,8 @@ echo View::partial('site/partials/page_hero', ['crumbs' => [['Proiecte', '/proie
 <section class="section-sm"><div class="container"><div class="stats"><?php foreach ($results as $r): ?><div class="stat"><b><?= e($r['value'] ?? '') ?></b><span><?= e($r['label'] ?? '') ?></span></div><?php endforeach; ?></div></div></section>
 <?php endif; ?>
 <section class="section-sm"><div class="container" style="max-width:980px">
-  <?php if ($p['cover']): ?><div class="article-cover"><img src="<?= e(upload_url($p['cover'])) ?>" alt="<?= e($p['title']) ?>"></div><?php endif; ?>
+  <?php if ($p['cover']): ?><div class="project-shot" data-reveal><?= View::partial('site/partials/showcase', ['p' => $p, 'size' => 'lg', 'eager' => true]) ?></div><?php endif; ?>
+  <?php if (!empty($p['site'])): ?><p class="project-site"><?= icon('globe') ?> <a class="link" href="https://<?= e($p['site']) ?>" target="_blank" rel="noopener"><?= e($p['site']) ?> <?= icon('arrow-up-right') ?></a></p><?php endif; ?>
   <?php if (!empty($p['problem'])): ?>
   <ol class="case-flow">
     <li data-reveal><span class="mono">01</span><div><h2>Problema</h2><p><?= e($p['problem']) ?></p></div></li>

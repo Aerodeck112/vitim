@@ -1,5 +1,18 @@
 # Istoric versiuni
 
+## 1.8.0 — logo nou, proiecte reale cu imagini
+
+- **Logo nou VITIM:** „vitim” desenat din linii, cu punctele lui „i” ca două noduri albastre (VITIM leagă tehnologia firmei într-un singur sistem). Simbolul separat (favicon, iconița de pe telefon, chat, panou, emailuri) este un „V” ale cărui brațe converg într-un singur nod. Pătratul cu gradient albastru-violet a fost scos.
+- **Proiecte refăcute:**
+  - Clinica Veterinară HikeVet, Local Mureș (proiectul nostru), Podreg, Autohaus Westcar (mentenanță IT la două sedii și afișaj digital), FerestrePartner.ro (site și formulare), SC Profil, Optica Optofarm (partener tehnic: site-uri, securitate cibernetică, email marketing, paginile de social media) și Gelateria Da Michele (marketing local și mentenanță IT);
+  - fiecare proiect are capturi reale ale site-ului, pe calculator și pe telefon;
+  - pagina `/proiecte` are rânduri alternante imagine–text.
+- **Prima pagină:** în dreapta titlului apar capturi ale proiectelor reale, nu o animație. Am scos textul în gradient și luminile difuze mari.
+- **Actualizare:**
+  - proiectele scoase (Optoplus, Argento Metal, Dental Arena) nu mai apar pe site, iar adresele lor trimit spre `/proiecte`;
+  - adresele vechi Autohaus și Optofarm trimit spre cele noi;
+  - în panou, la proiecte, se pot încărca noi capturi (calculator și telefon), adresa site-ului și opțiunea „proiect propriu”.
+
 ## 1.7.1
 
 - Pagina „Despre noi” nu mai are secțiune de echipă și site-ul nu mai folosește nume de persoane. Prezentarea rămâne la nivel de firmă: cine este VITIM, cum lucrăm, „Om, nu robot”.

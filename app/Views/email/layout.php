@@ -33,7 +33,7 @@ a{color:#2f6bff}
         <img src="<?= e(abs_url(upload_url($logo))) ?>" alt="<?= $brand ?>" height="34" style="height:34px;width:auto;display:block">
       <?php else: ?>
         <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-          <td style="width:34px;height:34px;border-radius:10px;background:#2f6bff;background-image:linear-gradient(135deg,#2f8cff,#6a5cff);color:#fff;font:700 18px/34px Arial,sans-serif;text-align:center">V</td>
+          <td style="width:34px;height:34px"><img src="<?= e(abs_url('/assets/img/icon-192.png')) ?>" alt="" width="34" height="34" style="display:block;width:34px;height:34px;border-radius:9px"></td>
           <td style="padding-left:10px;font:700 20px Arial,sans-serif;color:#0b1020;letter-spacing:-.5px"><?= $brand ?></td>
         </tr></table>
       <?php endif; ?>

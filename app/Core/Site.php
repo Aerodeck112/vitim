@@ -115,11 +115,28 @@ final class Site
             }
             return $img;
         }
-        return self::markSvg() . '<span>' . $brand . ($withTag ? '<small>IT · Marketing · AI</small>' : '') . '</span>';
+        return self::wordmarkSvg() . '<span class="sr-only">' . $brand . '</span>' . ($withTag ? '<small class="logo-tag">IT &amp; AI</small>' : '');
     }
 
+    /**
+     * Logotipul VITIM: „vitim” desenat din linii, cu punctele lui „i” ca două noduri albastre
+     * (VITIM leagă tehnologia firmei într-un singur sistem). Culoarea literelor urmează textul (temă luminoasă / întunecată).
+     */
+    public static function wordmarkSvg(string $class = 'wordmark'): string
+    {
+        return '<svg class="' . $class . '" viewBox="0 0 86 36" fill="none" aria-hidden="true" focusable="false">'
+            . '<g stroke="currentColor" stroke-width="4.6" stroke-miterlimit="10">'
+            . '<path d="M2.2 13 10.8 32.2 19.4 13"/><path d="M27.4 13V34"/><path d="M36.8 5v22q0 4.7 4.7 4.7H44"/><path d="M31.5 13h12"/>'
+            . '<path d="M51.6 13V34"/><path d="M60.4 34V13m0 5.6q0-5.6 5.9-5.6t5.9 5.8V34m0-15.2q0-5.8 5.9-5.8T84 18.8V34"/></g>'
+            . '<circle class="node" cx="27.4" cy="5" r="3.1"/><circle class="node" cx="51.6" cy="5" r="3.1"/></svg>';
+    }
+
+    /** Simbolul VITIM: un „V” ale cărui brațe converg într-un singur nod (favicon, avatarul chatului, panou). */
     public static function markSvg(string $class = 'mark'): string
     {
-        return '<svg class="' . $class . '" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg-v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f8cff"/><stop offset=".6" stop-color="#6a5cff"/><stop offset="1" stop-color="#19d3c5"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#lg-v)"/><path d="M15 17h9l8 20 8-20h9L37 47h-10z" fill="#fff"/><path d="M41 17h8l-4 10h-8z" fill="#fff" opacity=".55"/></svg>';
+        return '<svg class="' . $class . '" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#0b1020"/>'
+            . '<path d="M17.5 17.5 32 44 46.5 17.5" fill="none" stroke="#eef1f8" stroke-width="6"/>'
+            . '<circle cx="17.5" cy="17.5" r="5" fill="#0b1020" stroke="#eef1f8" stroke-width="3"/><circle cx="46.5" cy="17.5" r="5" fill="#0b1020" stroke="#eef1f8" stroke-width="3"/>'
+            . '<circle cx="32" cy="45" r="6.5" fill="#4d82ec"/></svg>';
     }
 }

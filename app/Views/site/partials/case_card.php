@@ -3,9 +3,10 @@
 $features = array_values(array_filter(array_map('trim', explode("\n", (string)($p['features'] ?? '')))));
 $max = $max ?? 6;
 ?>
-<article class="case card" data-reveal data-delay="<?= (($i ?? 0) % 2) * 80 ?>">
+<article class="case card<?= !empty($p['cover']) ? ' has-shot' : '' ?>" data-reveal data-delay="<?= (($i ?? 0) % 2) * 80 ?>">
+  <?= \App\Core\View::partial('site/partials/showcase', ['p' => $p, 'size' => 'sm']) ?>
   <header class="case-head">
-    <?php if (!empty($p['logo'])): ?><img class="case-logo" src="<?= e(upload_url($p['logo'])) ?>" alt="<?= e($p['client']) ?>" loading="lazy" width="120" height="36"><?php else: ?><span class="case-client"><?= e($p['client'] ?: $p['title']) ?></span><?php endif; ?>
+    <?php if (!empty($p['logo'])): ?><img class="case-logo" src="<?= e(upload_url($p['logo'])) ?>" alt="<?= e($p['client']) ?>" loading="lazy" width="120" height="36"><?php else: ?><span class="case-client"><?= e($p['client'] ?: $p['title']) ?><?php if (!empty($p['own'])): ?> <span class="own-flag">proiect propriu</span><?php endif; ?></span><?php endif; ?>
     <?php if (!empty($p['tag'])): ?><span class="tag"><?= e($p['tag']) ?></span><?php endif; ?>
   </header>
   <h3><?= e($p['summary']) ?></h3>

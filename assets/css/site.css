@@ -768,3 +768,68 @@ body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opac
 @media (max-width:1180px){.logo small{display:none}.menu{gap:0}.menu>li>a,.menu>li>button{padding:10px 8px;font-size:14px}}
 .logo .mark,.logo img{flex:none}.nav .logo{flex:none}
 .pillars li{align-content:start}
+
+/* v1.8 — logotip: „vitim” din linii, cu punctele lui „i” ca noduri */
+.logo{gap:12px;color:var(--text)}
+.logo .wordmark{height:27px;width:auto;flex:none;display:block;overflow:visible}
+.wordmark .node{fill:var(--accent);transition:transform .5s var(--ease);transform-box:fill-box;transform-origin:center}
+.logo:hover .wordmark .node{transform:scale(1.25)}
+.logo .wordmark .node:last-of-type{transition-delay:.06s}
+.logo .logo-tag{display:inline-flex;align-items:center;margin:0;padding-left:12px;height:20px;border-left:1px solid var(--border-2);font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.02em;color:var(--text-3);white-space:nowrap}
+@media (max-width:1180px){.logo .logo-tag{display:none}}
+.site-footer .logo .wordmark,.foot-about .logo .wordmark{height:30px}
+
+/* v1.8 — capturi reale ale proiectelor: browser + telefon suprapus */
+.showcase{position:relative;margin:0;padding:0 7% 7% 0;isolation:isolate}
+.sc-browser{position:relative;border-radius:14px;overflow:hidden;background:#0d1220;border:1px solid var(--border-2);box-shadow:0 30px 60px -28px rgba(20,40,110,.55)}
+.sc-bar{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;background:#121829;border-bottom:1px solid rgba(255,255,255,.06)}
+.sc-bar i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.16)}
+.sc-bar span{margin-left:10px;flex:1;max-width:220px;height:18px;border-radius:6px;background:rgba(255,255,255,.06);font-family:var(--mono);font-size:10.5px;line-height:18px;padding:0 9px;color:#8b94aa;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.sc-browser img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top}
+.sc-phone{position:absolute;right:0;bottom:0;width:24%;aspect-ratio:9/19;border-radius:20px;padding:5px;background:#0b1020;border:1px solid rgba(255,255,255,.14);box-shadow:0 24px 40px -16px rgba(5,10,30,.75);z-index:1;transition:transform .5s var(--ease)}
+.sc-phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:15px}
+.showcase-lg .sc-bar{height:36px}.showcase-lg .sc-bar i{width:10px;height:10px}.showcase-lg .sc-bar span{font-size:12px;height:22px;line-height:22px;max-width:280px}
+.showcase-lg .sc-phone{width:21%;border-radius:26px;padding:6px}.showcase-lg .sc-phone img{border-radius:20px}
+.case.has-shot{padding-top:20px}
+.case.has-shot .showcase{margin:0 0 22px}
+.case:hover .sc-phone,.case-row:hover .sc-phone{transform:translateY(-6px)}
+.own-flag{display:inline-block;vertical-align:middle;margin-left:6px;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.02em;padding:2px 7px;border-radius:5px;background:var(--accent-soft);color:var(--brand-1)}
+.case-rows{display:grid;gap:clamp(56px,8vw,112px)}
+.case-row{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(28px,5vw,72px);align-items:center}
+.case-row.flip .case-row-media{order:2}
+.case-row-title{font-size:clamp(1.45rem,2.6vw,2.1rem);margin:16px 0 12px}
+.case-row-title a:hover{color:var(--brand-1)}
+.case-row-text>.muted{font-size:1.05rem;margin:0 0 18px}
+.case-row-text .chips-static{margin-bottom:22px}
+.project-shot{margin:0 0 18px}
+.project-site{display:flex;align-items:center;gap:8px;margin:0 0 36px;color:var(--text-2)}
+.project-site .ico{width:18px;height:18px}
+@media (max-width:1024px){.case-row{grid-template-columns:1fr}.case-row.flip .case-row-media{order:0}}
+@media (max-width:720px){.showcase{padding:0 9% 12% 0}.sc-phone{width:30%;border-radius:16px;padding:4px}.sc-phone img{border-radius:12px}.sc-bar span{max-width:150px}}
+
+/* v1.8 — mai puțin „AI”: fără text în gradient, fără pete de lumină mari */
+.grad{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}
+.blob{opacity:.22;filter:blur(110px)}
+.blob.b2{opacity:.12}
+[data-theme="light"] .blob{opacity:.12}
+
+/* prima pagină: colaj cu site-uri reale ale clienților */
+.hero-wall{position:relative;aspect-ratio:1/.9;width:100%;max-width:620px;margin-left:auto}
+.hw-item,.hw-phone{position:absolute;display:block;overflow:hidden;background:#0d1220;border:1px solid var(--border-2);box-shadow:0 30px 60px -24px rgba(10,20,60,.7);transition:transform .5s var(--ease),box-shadow .5s;animation:hw-in .9s var(--ease) both}
+.hw-item{border-radius:12px}
+.hw-item img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top}
+.hw-item .sc-bar{height:24px}.hw-item .sc-bar i{width:7px;height:7px}.hw-item .sc-bar span{font-size:10px;height:15px;line-height:15px}
+.hw-1{top:0;left:0;width:80%;z-index:1;animation-delay:.05s}
+.hw-2{top:40%;right:0;width:62%;z-index:2;animation-delay:.2s}
+.hw-phone{top:44%;left:3%;width:21%;aspect-ratio:9/19;border-radius:18px;padding:4px;background:#0b1020;z-index:3;animation-delay:.35s}
+.hw-phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:14px}
+.hw-item:hover,.hw-phone:hover{transform:translateY(-6px);box-shadow:0 40px 70px -24px rgba(20,50,140,.75)}
+.hw-label{position:absolute;display:flex;flex-direction:column;gap:1px;padding:7px 11px;border-radius:9px;background:rgba(8,11,20,.84);backdrop-filter:blur(6px);color:#c9d0e0;font-size:11.5px;line-height:1.3;max-width:calc(100% - 20px)}
+.hw-label b{color:#fff;font-size:12.5px;font-weight:600}
+.hw-1 .hw-label{top:34px;right:10px}
+.hw-2 .hw-label{right:10px;bottom:10px}
+.hw-note{position:absolute;right:0;bottom:0;margin:0;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)}
+.hw-note .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+@keyframes hw-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@media (max-width:1024px){.hero-wall{margin:10px auto 0}}
+@media (max-width:520px){.hw-label{display:none}.hero-wall{aspect-ratio:1/1}.hw-note{font-size:12px}}

@@ -90,6 +90,20 @@ $pillars = [
         </ul>
       </div>
       <div class="float-card fc2"><?= icon('headset') ?><span>Suport remote<br><small class="muted">și la sediul tău</small></span></div>
+      <?php elseif (setting('home_hero_style', 'proiecte') === 'proiecte' && count($wall = array_values(array_filter($projects ?? [], fn($p) => !empty($p['cover'])))) >= 3): ?>
+      <div class="hero-wall" role="group" aria-label="Site-uri și platforme reale, construite sau administrate de VITIM">
+        <?php foreach (array_slice($wall, 0, 2) as $k => $p): ?>
+        <a class="hw-item hw-<?= $k + 1 ?>" href="<?= e(url('/proiecte/' . $p['slug'])) ?>" aria-label="<?= e($p['client'] . ' – studiu de caz') ?>">
+          <div class="sc-bar" aria-hidden="true"><i></i><i></i><i></i><span><?= e($p['site'] ?: $p['client']) ?></span></div>
+          <img src="<?= e(upload_url((string)$p['cover'])) ?>" srcset="<?= e(\App\Core\Uploader::srcset((string)$p['cover'])) ?>" sizes="(max-width:1024px) 80vw, 480px" alt="<?= e('Site-ul ' . ($p['site'] ?: $p['client'])) ?>" width="1440" height="900"<?= $k === 0 ? ' fetchpriority="high"' : ' loading="lazy"' ?> decoding="async">
+          <span class="hw-label"><b><?= e($p['client']) ?></b><?= e($p['tag'] ?? '') ?></span>
+        </a>
+        <?php endforeach; ?>
+        <?php $ph = $wall[2]; if (!empty($ph['cover_mobile'])): ?>
+        <a class="hw-phone" href="<?= e(url('/proiecte/' . $ph['slug'])) ?>" aria-label="<?= e($ph['client'] . ' – studiu de caz') ?>"><img src="<?= e(upload_url((string)$ph['cover_mobile'])) ?>" alt="<?= e('Site-ul ' . ($ph['site'] ?: $ph['client']) . ' pe telefon') ?>" width="585" height="1266" loading="lazy" decoding="async"></a>
+        <?php endif; ?>
+        <p class="hw-note"><span class="dot"></span>Proiecte reale, construite și administrate de VITIM</p>
+      </div>
       <?php else: ?>
       <div class="console" data-console role="figure" aria-label="Exemplu: ce administrează VITIM într-o dimineață obișnuită la o firmă client">
         <div class="console-bar"><i></i><i></i><i></i><span>vitim — exemplu de dimineață la o firmă client</span></div>

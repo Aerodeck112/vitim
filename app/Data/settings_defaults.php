@@ -116,7 +116,7 @@ return [
     'ai_instructions' => '',
     'ai_daily_limit' => '300',
     'ai_max_turns' => '24',
-    'home_hero_style' => 'animatie',
+    'home_hero_style' => 'proiecte',
     'home_hero_image' => '',
     'about_image' => '',
 
