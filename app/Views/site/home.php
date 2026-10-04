@@ -290,7 +290,7 @@ $pillars = [
       </div>
       <?php endforeach; ?>
     </div>
-    <p class="center" style="margin:32px 0 0"><a class="link" href="<?= e(url('/despre-noi')) ?>">Cunoaște echipa VITIM <?= icon('arrow-right') ?></a></p>
+    <p class="center" style="margin:32px 0 0"><a class="link" href="<?= e(url('/despre-noi')) ?>">Despre VITIM <?= icon('arrow-right') ?></a></p>
   </div>
 </section>
 

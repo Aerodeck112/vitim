@@ -70,7 +70,7 @@ return function (): void {
 
     // ---------- textele noi (vezi și app/Data/settings_defaults.php) ----------
     $defaults = require APP_PATH . '/Data/settings_defaults.php';
-    foreach ([...$keys, 'pricing_from', 'pricing_note', 'about_team'] as $k) {
+    foreach ([...$keys, 'pricing_from', 'pricing_note'] as $k) {
         if (array_key_exists($k, $defaults)) {
             Settings::set($k, $defaults[$k]);
         }

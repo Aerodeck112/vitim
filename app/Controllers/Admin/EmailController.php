@@ -78,7 +78,7 @@ final class EmailController extends AdminController
                     'body' => '<h2>' . e($p['title']) . '</h2><p>Salut {{prenume}},</p><p>' . e($p['excerpt']) . '</p><p><a href="' . e(abs_url('/blog/' . $p['slug'])) . '" style="background:#2f6bff;color:#ffffff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:600;display:inline-block">Citește articolul</a></p>'];
             }
         }
-        $c ??= ['kind' => 'newsletter', 'body' => '<p>Salut {{prenume}},</p><p></p><p>Cu drag,<br>Echipa VITIM</p>'];
+        $c ??= ['kind' => 'newsletter', 'body' => '<p>Salut {{prenume}},</p><p></p><p>Cu drag,<br>VITIM</p>'];
         return $this->render('email/edit', [
             'c' => $c, 'errors' => $errors,
             'audience' => json_list($c['audience'] ?? '{}'),

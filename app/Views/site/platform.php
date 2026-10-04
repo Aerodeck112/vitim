@@ -31,7 +31,7 @@ $unique = [
     ['Totul într-un singur loc', 'În loc de un chatbot, un CRM, un program de newsletter, un plugin de cookie-uri și o firmă de mentenanță, ai o singură platformă și un singur partener.'],
     ['Făcută pentru firmele din România', 'Interfață și asistent în română, SMS prin furnizori români, texte legale gândite pentru GDPR, Legea 506/2004 și ANPC.'],
     ['Fără taxe pe contacte', 'Trimiți din conturile firmei tale și plătești doar ce trimiți. Platformele străine cer abonamente care cresc odată cu lista ta de clienți.'],
-    ['Oameni, nu doar software', 'Echipa VITIM configurează, verifică și administrează. Ai un om pe care îl suni, nu un tichet într-o coadă.'],
+    ['Oameni, nu doar software', 'VITIM configurează, verifică și administrează. Ai un om pe care îl suni, nu un tichet într-o coadă.'],
 ];
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['VITIM AI', '/vitim-ai']],
@@ -110,7 +110,7 @@ echo View::partial('site/partials/page_hero', [
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal><span class="eyebrow">Cum gestionăm</span><h2>Nu îți dăm doar un program. Îl configurăm și îl administrăm pentru tine</h2>
-      <p>VITIM AI vine cu echipa VITIM în spate. Tu îți vezi de clienți, noi ne ocupăm de tehnologie.</p></div>
+      <p>VITIM AI vine cu VITIM în spate: configurare, verificare și administrare. Tu îți vezi de clienți, noi ne ocupăm de tehnologie.</p></div>
     <div class="steps">
       <?php foreach ($managed as $i => [$title, $text]): ?>
       <div class="step" data-reveal data-delay="<?= $i * 90 ?>"><h3><?= e($title) ?></h3><p><?= e($text) ?></p></div>

@@ -13,8 +13,8 @@ return [
         'subtitle' => 'Înainte să ne dai acces la infrastructura și datele companiei tale, vrem să știi cine suntem.',
         'template' => 'about',
         'in_footer' => 0,
-        'meta_title' => 'Despre VITIM – echipa de IT & AI din Târgu Mureș',
-        'meta_description' => 'Cine suntem: echipa VITIM din Târgu Mureș, departamentul extern de IT & AI pentru firme. Mentenanță IT, securitate, backup, automatizări, AI, website și marketing.',
+        'meta_title' => 'Despre VITIM – departamentul extern de IT & AI din Târgu Mureș',
+        'meta_description' => 'Cine este VITIM: firma din Târgu Mureș care funcționează ca departamentul extern de IT & AI al companiilor. Mentenanță IT, securitate, backup, automatizări, AI, website și marketing.',
         'body' => <<<'HTML'
 <h2>Cine suntem</h2>
 <p><strong>{{brand}}</strong> (Various IT and Marketing Solutions) este o firmă din Târgu Mureș. Am pornit din IT – calculatoare, rețele, servere, suport – și am crescut odată cu nevoile clienților noștri: securitate, backup, website-uri, marketing și, acum, automatizări și inteligență artificială.</p>

@@ -1,5 +1,11 @@
 # Istoric versiuni
 
+## 1.7.1
+
+- Pagina „Despre noi” nu mai are secțiune de echipă și site-ul nu mai folosește nume de persoane. Prezentarea rămâne la nivel de firmă: cine este VITIM, cum lucrăm, „Om, nu robot”.
+- Emailurile automate și asistentul de pe site semnează „VITIM”, fără „Echipa VITIM”.
+- **Actualizare:** setările echipei (nume, roluri, fotografii) se șterg automat din baza de date. Dacă ai personalizat răspunsul automat din Setări → Email și semnează „Echipa VITIM”, schimbă textul de acolo.
+
 ## 1.7.0 — repoziționare: departamentul extern de IT & AI
 
 - **Prima pagină, refăcută ca ofertă comercială clară:** „Departamentul extern de IT & AI al firmei tale”, abonamente pentru companii de la 1.000 RON/lună, butoanele „Solicită o evaluare” și „Vezi cum lucrăm”.
@@ -11,14 +17,11 @@
   - „Om, nu robot”;
   - îndemnul final.
 - **Proiecte reale** în formatul problemă → soluția VITIM → ce am implementat: HIKeVET, LocalMureș, Podreg, Autohouse Westcar, Optoplus, Argento Metal, FerestrePartner.ro, SC Profil, Optofarm, Dental Arena. Primele patru apar pe prima pagină, toate sunt pe `/proiecte`, iar numele clienților apar în „Companii care au lucrat cu VITIM”. Fără cifre inventate; rezultatele se adaugă din panou doar când sunt confirmate de client.
-- **Despre noi:**
-  - echipa (Victor, Cristian, Thea) cu locuri pentru fotografii;
-  - mesajul „Înainte să ne dai acces la infrastructura și datele companiei tale, vrem să știi cine suntem”;
-  - filosofia „Om, nu robot”.
+- **Despre noi:** mesajul „Înainte să ne dai acces la infrastructura și datele companiei tale, vrem să știi cine suntem” și filosofia „Om, nu robot”.
 - **Formular de contact mai scurt:** nume, telefon sau email, „Cu ce te putem ajuta?” și butonul „Vreau să discutăm”. Detaliile despre firmă (angajați, calculatoare, servicii, buget, județ) sunt opționale.
 - **Pagina VITIM AI** are schema „Ce poate face VITIM AI?” (client → canale → VITIM AI → CRM / ERP / WooCommerce / calendar / documente → acțiune) și patru fluxuri exemplu.
 - Paginile de servicii și toate adresele rămân aceleași. Paginile de servicii trimit acum spre abonamente, iar meniul are „Abonamente” și butonul „Solicită o evaluare”.
-- **Actualizare:** textele vechi ale primei pagini și ale paginii „Despre noi” se păstrează în setarea `backup_texte_v16`. În Panou → Setări → Prima pagină se pot edita prețul „de la”, nota de preț, echipa și cele trei fotografii. La proiecte se pot edita problema, soluția, ce am implementat, eticheta, logo-ul și opțiunea „Pe prima pagină”.
+- **Actualizare:** textele vechi ale primei pagini și ale paginii „Despre noi” se păstrează în setarea `backup_texte_v16`. În Panou → Setări → Prima pagină se pot edita prețul „de la” și nota de preț. La proiecte se pot edita problema, soluția, ce am implementat, eticheta, logo-ul și opțiunea „Pe prima pagină”.
 
 ## 1.6.0 — design reîmprospătat
 

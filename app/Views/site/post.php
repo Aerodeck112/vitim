@@ -16,7 +16,7 @@ echo View::partial('site/partials/page_hero', [
       <?php if ($faq): ?><h2 style="margin-top:56px">Întrebări frecvente</h2><?= View::partial('site/partials/faq', ['faq' => $faq]) ?><?php endif; ?>
       <div class="side-card" style="margin-top:48px;display:flex;gap:16px;align-items:center">
         <span class="avatar" style="width:52px;height:52px;flex:none"><?= e(mb_strtoupper(mb_substr($author, 0, 1))) ?></span>
-        <div><strong><?= e($author) ?></strong><p class="muted" style="margin:0;font-size:15px">Echipa <?= e(setting('brand_name')) ?> – IT, securitate, marketing și AI pentru firme din Mureș, Bistrița-Năsăud și Alba.</p></div>
+        <div><strong><?= e($author) ?></strong><p class="muted" style="margin:0;font-size:15px"><?= e(setting('brand_name')) ?> – IT, securitate, marketing și AI pentru firme din Mureș, Bistrița-Năsăud și Alba.</p></div>
       </div>
     </div>
     <aside class="sticky">

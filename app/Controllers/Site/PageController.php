@@ -38,7 +38,7 @@ final class PageController extends SiteController
         ], $seo);
     }
 
-    /** Pagina produsului VITIM AI: platforma, beneficiile pentru client și cum o administrează echipa VITIM. */
+    /** Pagina produsului VITIM AI: platforma, beneficiile pentru client și cum o administrează VITIM. */
     public function platform(): string
     {
         $url = abs_url('/vitim-ai');

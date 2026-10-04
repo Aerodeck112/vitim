@@ -204,7 +204,7 @@ XSL;
             }
             $out .= "\n";
         }
-        $out .= "## VITIM AI\n\n- [Platforma VITIM AI](" . abs_url('/vitim-ai') . "): asistent AI pe site 24/7, contacte și cereri într-un singur loc, campanii email / SMS / WhatsApp, automatizări, formulare, integrare WooCommerce, site administrat și raport lunar, configurate și administrate de echipa VITIM.\n\n";
+        $out .= "## VITIM AI\n\n- [Platforma VITIM AI](" . abs_url('/vitim-ai') . "): asistent AI pe site 24/7, contacte și cereri într-un singur loc, campanii email / SMS / WhatsApp, automatizări, formulare, integrare WooCommerce, site administrat și raport lunar, configurate și administrate de VITIM.\n\n";
         $out .= "## Optional\n\n- [Despre noi](" . abs_url('/despre-noi') . ")\n- [Sitemap](" . abs_url('/sitemap.xml') . ")\n";
         return $out;
     }

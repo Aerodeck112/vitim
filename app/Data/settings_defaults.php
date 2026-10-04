@@ -74,7 +74,7 @@ return [
     'newsletter_double_optin' => '1',
     'autoreply_enabled' => '1',
     'autoreply_subject' => 'Am primit mesajul tău – VITIM',
-    'autoreply_body' => '<p>Salut {{prenume}},</p><p>Îți mulțumim că ne-ai scris! Am primit solicitarea ta și revenim cu un răspuns în cel mai scurt timp, de regulă în aceeași zi lucrătoare.</p><p>Dacă e ceva urgent, ne poți suna direct la <strong>{{telefon}}</strong>.</p><p>Cu drag,<br>Echipa VITIM</p>',
+    'autoreply_body' => '<p>Salut {{prenume}},</p><p>Îți mulțumim că ne-ai scris! Am primit solicitarea ta și revenim cu un răspuns în cel mai scurt timp, de regulă în aceeași zi lucrătoare.</p><p>Dacă e ceva urgent, ne poți suna direct la <strong>{{telefon}}</strong>.</p><p>Cu drag,<br>VITIM</p>',
     'cron_key' => '',
     'backup_auto' => '1',
     'backup_email' => '',
@@ -104,10 +104,6 @@ return [
     'home_cta_text' => 'Spune-ne cum lucrează firma ta acum. Noi îți arătăm ce putem administra, securiza și automatiza. Abonamente începând de la 1.000 RON/lună.',
     'pricing_from' => '1.000',
     'pricing_note' => 'Costul final depinde de numărul de utilizatori, echipamente, locații, infrastructură și serviciile incluse.',
-    'about_team' => '[{"name": "Victor", "role": "Fondator · IT, automatizări, dezvoltare soluții", "text": "Construiește soluțiile VITIM: infrastructură, automatizări, platforme custom și integrările cu AI."}, {"name": "Cristian", "role": "IT · infrastructură și suport", "text": "Se ocupă de calculatoare, rețele, servere și de suportul zilnic pentru echipele clienților."}, {"name": "Thea", "role": "Marketing digital", "text": "Se ocupă de campanii, comunicare și de tot ce aduce clienți noi din online."}]',
-    'team_photo_1' => '',
-    'team_photo_2' => '',
-    'team_photo_3' => '',
 
     // ---------- Asistent AI ----------
     'ai_enabled' => '0',

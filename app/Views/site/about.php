@@ -4,37 +4,14 @@ use App\Core\View;
 
 $why = Settings::json('home_why');
 $stats = Settings::json('home_stats');
-$team = Settings::json('about_team');
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['Despre noi', '/despre-noi']],
-    'eyebrow' => icon('map') . ' Echipă din ' . e(setting('company_city')),
-    'title' => 'Oamenii din spatele tehnologiei firmei tale',
+    'eyebrow' => icon('map') . ' Firmă din ' . e(setting('company_city')),
+    'title' => 'Cine este VITIM',
     'lead' => $page['subtitle'] ?: 'Înainte să ne dai acces la infrastructura și datele companiei tale, vrem să știi cine suntem.',
     'actions' => '<a class="btn btn-primary btn-lg" href="' . e(url('/contact')) . '">Hai să ne cunoaștem ' . icon('arrow-right', 'ico ico-move') . '</a> <a class="btn btn-ghost btn-lg" href="' . e(phone_href((string)setting('phone'))) . '" data-loc="despre">' . icon('phone') . ' ' . e(setting('phone')) . '</a>',
 ]);
 ?>
-<?php if ($team): ?>
-<section class="section-sm" aria-labelledby="echipa">
-  <div class="container">
-    <div class="section-head" data-reveal><span class="eyebrow">Echipa</span><h2 id="echipa">Cu cine vorbești când suni la VITIM</h2>
-      <p>O echipă mică, din Târgu Mureș. Știi de la început cine se ocupă de calculatoarele, datele și clienții firmei tale.</p></div>
-    <div class="team">
-      <?php foreach ($team as $i => $m): $photo = (string)setting('team_photo_' . ($i + 1)); ?>
-      <article class="team-card" data-reveal data-delay="<?= $i * 80 ?>">
-        <div class="team-photo<?= $photo ? '' : ' empty' ?>">
-          <?php if ($photo): ?><img src="<?= e(upload_url($photo)) ?>" srcset="<?= e(\App\Core\Uploader::srcset($photo)) ?>" sizes="(max-width:720px) 100vw, 400px" alt="<?= e(($m['name'] ?? '') . ', ' . ($m['role'] ?? '')) ?>" loading="lazy" width="800" height="960">
-          <?php else: ?><span aria-hidden="true"><?= e(mb_substr((string)($m['name'] ?? '?'), 0, 1)) ?></span><?php endif; ?>
-        </div>
-        <h3><?= e($m['name'] ?? '') ?></h3>
-        <p class="team-role"><?= e($m['role'] ?? '') ?></p>
-        <?php if (!empty($m['text'])): ?><p class="muted"><?= e($m['text']) ?></p><?php endif; ?>
-      </article>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-<?php endif; ?>
-
 <section class="section">
   <div class="container">
     <div class="philosophy" data-reveal>
@@ -42,7 +19,7 @@ echo View::partial('site/partials/page_hero', [
       <h2>Om, nu robot.</h2>
       <p>Folosim AI și automatizări ca să scăpăm firmele de munca repetitivă. Dar când ai o problemă, vorbești cu un om care îți cunoaște firma, nu cu un formular sau cu o coadă de tichete.</p>
       <ul class="pillars pillars-inline">
-        <li><?= icon('phone') ?><strong>Răspundem la telefon</strong><span>Un număr, oameni pe care îi știi.</span></li>
+        <li><?= icon('phone') ?><strong>Răspundem la telefon</strong><span>Un singur număr pentru tot.</span></li>
         <li><?= icon('message') ?><strong>Vorbim pe înțeles</strong><span>Fără jargon și fără promisiuni goale.</span></li>
         <li><?= icon('key') ?><strong>Acces cu responsabilitate</strong><span>Lucrăm în datele tale ca în ale noastre.</span></li>
       </ul>
