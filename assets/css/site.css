@@ -833,3 +833,91 @@ body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opac
 @keyframes hw-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 @media (max-width:1024px){.hero-wall{margin:10px auto 0}}
 @media (max-width:520px){.hw-label{display:none}.hero-wall{aspect-ratio:1/1}.hw-note{font-size:12px}}
+
+/* v1.9 — Despre noi: organizație, ecosistem, cum lucrăm */
+.eco{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch}
+.eco-side{padding:clamp(20px,3vw,32px);border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface)}
+.eco-after{border-color:rgba(77,130,236,.4);background:radial-gradient(520px 260px at 50% 0%,rgba(77,130,236,.12),transparent 70%),var(--surface-solid)}
+.eco-label{margin:0 0 16px;font-family:var(--mono);font-size:12.5px;color:var(--text-3)}
+.eco-vendors{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.eco-vendors li{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px dashed var(--border-2);font-size:15px}
+.eco-vendors .ico{width:18px;height:18px;color:var(--text-3)}
+.eco-vendors small{font-family:var(--mono);font-size:11px;color:var(--text-3)}
+.eco-foot{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:14.5px;color:var(--text-2)}
+.eco-foot .ico{width:18px;height:18px;color:var(--warn)}
+.eco-foot.ok .ico{color:var(--ok)}
+.eco-arrow{display:grid;place-items:center;color:var(--brand-1)}
+.eco-arrow .ico{width:28px;height:28px}
+.eco-hub{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.eco-core{display:grid;justify-items:center;gap:6px;padding:22px 18px;border-radius:20px;background:var(--bg);border:1px solid rgba(77,130,236,.35);color:var(--text)}
+.eco-core .eco-mark{width:86px;height:auto}
+.eco-core .eco-mark .node{fill:var(--accent)}
+.eco-core small{font-family:var(--mono);font-size:11px;color:var(--text-3);white-space:nowrap}
+.eco-hub ul{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid rgba(77,130,236,.35);display:grid;gap:9px}
+.eco-hub li{display:flex;align-items:center;gap:8px;font-size:15px}
+.eco-hub li .ico{width:16px;height:16px;color:var(--ok)}
+.eco-msg{margin:24px 0 0;font-size:1.15rem;text-align:center}
+.steps5{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:12px;counter-reset:none}
+.steps5 li{position:relative;padding:24px 20px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface-solid)}
+.steps5-n{font-size:12.5px;color:var(--brand-1)}
+.steps5-ic{display:block;margin:14px 0 10px}
+.steps5-ic .ico{width:24px;height:24px;color:var(--text)}
+.steps5 h3{margin:0 0 8px;font-size:1.15rem}
+.steps5 p{margin:0;font-size:14.5px;color:var(--text-2)}
+.steps5 li:not(:last-child)::after{content:"";position:absolute;top:34px;right:-12px;width:12px;height:1px;background:rgba(77,130,236,.6)}
+.statement{margin:clamp(28px,4vw,48px) auto 0;max-width:860px;text-align:center;font-size:clamp(1.3rem,2.4vw,1.9rem);font-weight:600;letter-spacing:-.02em;line-height:1.3;text-wrap:balance}
+.about-dirs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.about-dir{display:flex;flex-direction:column;padding:26px;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface);transition:border-color .25s,transform .35s var(--ease)}
+.about-dir:hover{border-color:var(--border-2);transform:translateY(-3px)}
+.about-dir.star{border-color:rgba(77,130,236,.45);background:radial-gradient(420px 220px at 50% 0%,rgba(77,130,236,.14),transparent 70%),var(--surface-solid)}
+.about-dir>.ico{width:28px;height:28px;color:var(--brand-1)}
+.about-dir h3{margin:16px 0 8px}
+.about-dir p{color:var(--text-2);font-size:15px;margin:0 0 16px}
+.about-dir .more{margin-top:auto;display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14.5px;color:var(--brand-1)}
+.about-dir .more .ico{width:16px;height:16px}
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 32px}
+.principle{display:grid;grid-template-columns:auto 1fr;gap:14px}
+.principle>.ico{width:22px;height:22px;color:var(--brand-1);margin-top:3px}
+.principle h3{margin:0 0 6px;font-size:1.1rem}
+.principle p{margin:0;color:var(--text-2);font-size:15px}
+.about-shots{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.about-shot>span{display:flex;flex-direction:column;margin-top:4px;font-size:13.5px;color:var(--text-2)}
+.about-shot>span b{color:var(--text);font-size:15.5px}
+.about-shot:hover .sc-phone{transform:translateY(-6px)}
+@media (max-width:1024px){.steps5{grid-template-columns:1fr 1fr}.steps5 li::after{display:none}.about-dirs,.principles{grid-template-columns:1fr 1fr}.eco{grid-template-columns:1fr}.eco-arrow{transform:rotate(90deg)}.about-shots{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.steps5,.about-dirs,.principles,.about-shots{grid-template-columns:1fr}.eco-hub{grid-template-columns:1fr}.eco-hub ul{border-left:0;padding:14px 0 0;border-top:2px solid rgba(77,130,236,.35)}}
+
+/* v1.9 — service tehnic, afișat secundar */
+.mega-minor{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 16px 2px;border-top:1px solid var(--border);font-size:13.5px;color:var(--text-3)}
+.mega-minor>span{display:inline-flex;align-items:center;gap:6px}
+.mega-minor .ico{width:15px;height:15px}
+.mega-minor a{color:var(--text-2)}
+.mega-minor a:hover{color:var(--text)}
+.svc-minor{display:grid;grid-template-columns:.8fr 1.2fr;gap:24px 48px;align-items:start;margin-top:clamp(32px,5vw,56px);padding:clamp(22px,3vw,32px);border-radius:var(--radius-lg);border:1px dashed var(--border-2)}
+.svc-minor h2{font-size:clamp(1.3rem,2vw,1.6rem);margin:0 0 8px}
+.svc-minor p{margin:0;font-size:15px}
+.svc-minor ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.svc-minor a{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--border)}
+.svc-minor a>.ico{width:18px;height:18px;color:var(--text-3)}
+.svc-minor a span{display:grid}
+.svc-minor small{color:var(--text-3);font-size:13.5px}
+.svc-minor a:hover strong{color:var(--brand-1)}
+@media (max-width:720px){.svc-minor{grid-template-columns:1fr}}
+/* buget: lunar (abonament) sau proiect, afișat după tipul ales */
+.budget-opt{display:none}
+.form-more-body:has([data-budget-type][value="abonament"]:checked) [data-budget-for="abonament"],
+.form-more-body:has([data-budget-type][value="proiect"]:checked) [data-budget-for="proiect"]{display:block}
+.case-steps .case-result p{color:var(--text)}
+.case-steps .case-result::before{background:var(--ok)}
+.case-flow-result{border-color:rgba(52,211,153,.35)!important}
+.case-flow-result>.mono{color:var(--ok)!important}
+.case-row-result{display:flex;gap:10px;align-items:flex-start;margin:0 0 18px;font-size:15px;color:var(--text-2)}
+.case-row-result .ico{width:18px;height:18px;color:var(--ok);flex:none;margin-top:3px}
+.case-row-result strong{color:var(--text)}
+.case-noshot{display:grid;place-content:center;gap:8px;aspect-ratio:16/10;border-radius:14px;border:1px dashed var(--border-2);background:radial-gradient(400px 200px at 30% 20%,rgba(77,130,236,.12),transparent 70%),var(--surface);text-align:center;padding:20px}
+.case-noshot span{font-size:clamp(1.6rem,3.4vw,2.6rem);font-weight:700;letter-spacing:-.03em}
+.case-noshot small{font-family:var(--mono);font-size:12px;color:var(--text-3)}
+/* meniul mare se centrează pe header, nu pe butonul „Servicii” (altfel ieșea din ecran în stânga) */
+.nav{position:relative}
+.menu>li:has(>.mega){position:static}
+.mega{top:calc(100% - 4px)}

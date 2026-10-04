@@ -14,7 +14,9 @@ echo View::partial('site/partials/page_hero', [
   <?php foreach ($items as $i => $p): $features = array_values(array_filter(array_map('trim', explode("\n", (string)($p['features'] ?? ''))))); ?>
     <article class="case-row<?= $i % 2 ? ' flip' : '' ?>" data-reveal>
       <div class="case-row-media">
-        <?php if (!empty($p['cover'])): ?><?= View::partial('site/partials/showcase', ['p' => $p, 'size' => 'sm']) ?><?php endif; ?>
+        <?php if (!empty($p['cover'])): ?><?= View::partial('site/partials/showcase', ['p' => $p, 'size' => 'sm']) ?><?php else: ?>
+        <div class="case-noshot" aria-hidden="true"><span><?= e($p['client']) ?></span><small><?= e($p['tag'] ?? '') ?></small></div>
+        <?php endif; ?>
       </div>
       <div class="case-row-text">
         <div class="case-head">
@@ -23,8 +25,9 @@ echo View::partial('site/partials/page_hero', [
         </div>
         <h2 class="case-row-title"><a href="<?= e(url('/proiecte/' . $p['slug'])) ?>"><?= e($p['summary']) ?></a></h2>
         <?php if (!empty($p['solution'])): ?><p class="muted"><?= e($p['solution']) ?></p><?php endif; ?>
+        <?php if (!empty($p['result'])): ?><p class="case-row-result"><?= icon('check-circle') ?><span><strong>Rezultatul:</strong> <?= e($p['result']) ?></span></p><?php endif; ?>
         <?php if ($features): ?><ul class="chips-static"><?php foreach ($features as $f): ?><li><?= e($f) ?></li><?php endforeach; ?></ul><?php endif; ?>
-        <a class="link" href="<?= e(url('/proiecte/' . $p['slug'])) ?>">Problema, soluția și ce am implementat <?= icon('arrow-right') ?></a>
+        <a class="link" href="<?= e(url('/proiecte/' . $p['slug'])) ?>">Problema, soluția, ce am implementat și rezultatul <?= icon('arrow-right') ?></a>
       </div>
     </article>
   <?php endforeach; ?>

@@ -20,8 +20,8 @@ return [
 <li>Rețelistică și Wi-Fi pentru birouri, depozite, hoteluri și pensiuni.</li>
 <li><a href="/servicii/seo">SEO local</a> și campanii <a href="/servicii/google-ads">Google Ads</a> pentru afaceri din Mureș.</li>
 </ul>
-<h2>LocalMureș – susținem afacerile locale</h2>
-<p>Prin proiectul <strong>LocalMureș</strong> promovăm afacerile locale din județ, cu campanii Meta și Google și vizibilitate reciprocă între parteneri. Pentru că o economie locală puternică e bună pentru toți.</p>
+<h2>Local Mureș – susținem afacerile locale</h2>
+<p>Prin proiectul <strong>Local Mureș</strong> promovăm afacerile locale din județ, cu campanii Meta și Google și vizibilitate reciprocă între parteneri. Pentru că o economie locală puternică e bună pentru toți.</p>
 HTML,
         'cities' => [
             ['slug' => 'targu-mures', 'name' => 'Târgu Mureș', 'lat' => '46.5425', 'lng' => '24.5575', 'intro' => 'Firmă IT din Târgu Mureș: mentenanță, service la sediu, recuperare date, securitate cibernetică, plus SEO, reclame și agenți AI pentru afacerile din municipiu și zona metropolitană.'],

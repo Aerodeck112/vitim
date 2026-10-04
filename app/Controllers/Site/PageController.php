@@ -27,7 +27,7 @@ final class PageController extends SiteController
     public function about(): string
     {
         $page = DB::row("SELECT * FROM pages WHERE slug = 'despre-noi'") ?? ['title' => 'Despre noi', 'subtitle' => '', 'body' => '', 'slug' => 'despre-noi'];
-        $seo = $this->seo($page['title'] . ' – ' . Settings::get('brand_name'), $page['subtitle'] ?: 'Cine suntem, cum lucrăm și de ce firmele din Mureș, Bistrița-Năsăud și Alba ne aleg pentru IT, securitate, marketing și AI.', [['Despre noi', '/despre-noi']]);
+        $seo = $this->seo($page['title'] . ' – ' . Settings::get('brand_name'), $page['subtitle'] ?: 'VITIM ajută companiile să își administreze infrastructura IT, securitatea, automatizările, AI-ul și prezența digitală printr-un singur partener tehnologic.', [['Despre noi', '/despre-noi']]);
         $seo->pageType = 'AboutPage';
         $this->applyMeta($seo, $page);
         [$body] = Sanitizer::withToc(Site::companyVars((string)$page['body']));
@@ -35,6 +35,7 @@ final class PageController extends SiteController
             'page' => $page,
             'body' => $body,
             'testimonials' => DB::all('SELECT * FROM testimonials WHERE published = 1 ORDER BY sort LIMIT 3'),
+            'projects' => DB::all("SELECT * FROM projects WHERE published = 1 AND featured = 1 AND cover IS NOT NULL AND cover <> '' ORDER BY sort, id DESC LIMIT 3"),
         ], $seo);
     }
 
@@ -43,8 +44,8 @@ final class PageController extends SiteController
     {
         $url = abs_url('/vitim-ai');
         $faq = self::platformFaq();
-        $seo = $this->seo('VITIM AI – agenți AI și automatizare procese pentru firme',
-            'VITIM AI, platforma proprie VITIM: AI care lucrează cu datele și procesele firmei tale. Răspunde clienților, califică lead-uri, generează oferte, se conectează la CRM, ERP și WooCommerce.',
+        $seo = $this->seo('VITIM AI – AI pentru firme: lead-uri, CRM și automatizări',
+            'VITIM AI răspunde clienților pe site, WhatsApp și email, califică lead-uri, urmărește oportunitățile în CRM și automatizează procesele firmei.',
             [['VITIM AI', '/vitim-ai']]);
         $seo->schema[] = [
             '@type' => 'SoftwareApplication', '@id' => $url . '#produs', 'name' => 'VITIM AI', 'url' => $url,
@@ -56,7 +57,7 @@ final class PageController extends SiteController
             $seo->schema[] = $f;
         }
 
-        return $this->view('platform', ['faq' => $faq], $seo);
+        return $this->view('platform', ['faq' => $faq, 'pageCss' => ['platform.css']], $seo);
     }
 
     /** @return list<array{q: string, a: string}> */
@@ -68,6 +69,7 @@ final class PageController extends SiteController
             ['q' => 'Funcționează cu site-ul meu actual?', 'a' => 'Da. Pe WordPress și WooCommerce se conectează printr-un modul VITIM, instalat de noi. Pe orice alt site se adaugă o singură linie de cod. Nu trebuie să schimbi site-ul.'],
             ['q' => 'Cât costă trimiterea campaniilor?', 'a' => 'Emailurile pleacă din adresa firmei tale, iar SMS-urile și mesajele WhatsApp din conturile tale. Plătești direct furnizorului doar ce trimiți, fără taxe pe numărul de contacte cum au platformele străine.'],
             ['q' => 'Ce se întâmplă cu datele clienților mei?', 'a' => 'Datele fiecărei firme sunt separate de ale celorlalți clienți VITIM și nu sunt folosite în alt scop. Acordurile de marketing și de cookie-uri se înregistrează cu dovadă (când, unde, ce a acceptat), dezabonarea e automată, iar parolele conturilor tale sunt criptate.'],
+            ['q' => 'Ce funcționează acum în VITIM AI și ce urmează?', 'a' => 'Acum funcționează: asistentul AI pe site, inboxul cu conversațiile de pe site, email, WhatsApp și SMS, contactele și lead-urile pe etape, campaniile, automatizările, formularele, integrarea cu WordPress și WooCommerce, rolurile de acces și jurnalul de acțiuni. Integrările cu alte sisteme (calendar, facturare, CRM sau ERP existent) le implementăm la cerere. Raportul zilnic, asistentul intern pe documente și nivelurile de autonomie sunt în dezvoltare. Pe pagină, fiecare funcție are marcat statusul.'],
             ['q' => 'Pot începe doar cu o parte din platformă?', 'a' => 'Da. Mulți clienți încep cu asistentul AI pe site și cu inboxul de cereri, apoi adaugă campaniile, automatizările sau administrarea site-ului. Îți recomandăm ce merită pentru firma ta.'],
         ];
     }

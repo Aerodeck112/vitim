@@ -11,7 +11,7 @@ echo View::partial('site/partials/page_hero', [
 ?>
 <section class="section">
   <div class="container">
-    <?php foreach ($groups as $key => $g): ?>
+    <?php foreach ($groups as $key => $g): if (!empty($g['cat']['secondary'])) { continue; } ?>
     <div class="svc-group" id="<?= e($key) ?>">
       <div class="svc-group-head" data-reveal>
         <div style="max-width:640px">
@@ -34,6 +34,12 @@ echo View::partial('site/partials/page_hero', [
       </div>
     </div>
     <?php endforeach; ?>
+    <?php if (!empty($groups['service'])): $g = $groups['service']; ?>
+    <div class="svc-minor" id="service" data-reveal>
+      <div><span class="eyebrow"><?= e($g['cat']['short']) ?></span><h2><?= e($g['cat']['name']) ?></h2><p class="muted"><?= e($g['cat']['intro']) ?></p></div>
+      <ul><?php foreach ($g['items'] as $s): ?><li><a href="<?= e(url('/servicii/' . $s['slug'])) ?>"><?= icon($s['icon'] ?: 'wrench') ?><span><strong><?= e($s['title']) ?></strong><small><?= e($s['tagline']) ?></small></span><?= icon('arrow-up-right') ?></a></li><?php endforeach; ?></ul>
+    </div>
+    <?php endif; ?>
   </div>
 </section>
 <section class="section" style="padding-top:0">

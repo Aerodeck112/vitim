@@ -4,7 +4,8 @@ use App\Core\Site;
 
 $groups = Site::servicesByCategory();
 $selected = $service ?? '';
-$budgets = Settings::json('form_budgets');
+$budgetsMonthly = Settings::json('form_budgets_monthly');
+$budgetsProject = Settings::json('form_budgets_project');
 $phone = (string)setting('phone');
 $fid = 'f' . substr(md5((string)($title ?? '') . $selected), 0, 6);
 $counties = Site::counties();
@@ -60,9 +61,17 @@ $needs = ['Mentenanță IT', 'Backup', 'Securitate', 'AI & automatizări', 'Webs
               <?php foreach ($groups as $g): ?><optgroup label="<?= e($g['cat']['short']) ?>"><?php foreach ($g['items'] as $s): ?><option value="<?= e($s['slug']) ?>"<?= $selected === $s['slug'] ? ' selected' : '' ?>><?= e($s['title']) ?></option><?php endforeach; ?></optgroup><?php endforeach; ?>
             </select>
           </div>
-          <?php if ($budgets): ?>
-          <fieldset class="field" style="border:0;padding:0;margin:0"><legend class="legend">Buget estimat</legend>
-            <div class="chips"><?php foreach ($budgets as $b): ?><label><input type="radio" name="budget" value="<?= e($b) ?>"><span><?= e($b) ?></span></label><?php endforeach; ?></div>
+          <fieldset class="field budget-box" style="border:0;padding:0;margin:0"><legend class="legend">Ce fel de colaborare cauți?</legend>
+            <div class="chips"><?php foreach (['abonament' => 'Abonament lunar', 'proiect' => 'Proiect (o singură dată)', 'nu-stiu' => 'Nu știu încă'] as $v => $l): ?><label><input type="radio" name="budget_type" value="<?= $v ?>" data-budget-type><span><?= e($l) ?></span></label><?php endforeach; ?></div>
+          </fieldset>
+          <?php if ($budgetsMonthly): ?>
+          <fieldset class="field budget-opt" data-budget-for="abonament" style="border:0;padding:0;margin:0"><legend class="legend">Buget lunar</legend>
+            <div class="chips"><?php foreach ($budgetsMonthly as $b): ?><label><input type="radio" name="budget" value="<?= e($b) ?>"><span><?= e($b) ?></span></label><?php endforeach; ?></div>
+          </fieldset>
+          <?php endif; ?>
+          <?php if ($budgetsProject): ?>
+          <fieldset class="field budget-opt" data-budget-for="proiect" style="border:0;padding:0;margin:0"><legend class="legend">Buget proiect</legend>
+            <div class="chips"><?php foreach ($budgetsProject as $b): ?><label><input type="radio" name="budget" value="<?= e($b) ?>"><span><?= e($b) ?></span></label><?php endforeach; ?></div>
           </fieldset>
           <?php endif; ?>
           <label class="check"><input type="checkbox" name="newsletter" value="1"> <span><?= e(setting('newsletter_consent_text')) ?> <span class="muted">(dacă ai lăsat un email)</span></span></label>

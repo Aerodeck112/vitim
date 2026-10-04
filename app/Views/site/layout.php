@@ -28,6 +28,7 @@ $hasTags = $ga4 || $gtm || $gads || $pixel || $clarity;
 <meta name="format-detection" content="telephone=no">
 <link rel="preload" href="<?= e(url('/assets/fonts/Geist-Variable.woff2')) ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= e(asset('css/site.css')) ?>">
+<?php foreach ($pageCss ?? [] as $css): ?><link rel="stylesheet" href="<?= e(asset('css/' . $css)) ?>"><?php endforeach; ?>
 <link rel="icon" href="<?= e(url('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="icon" href="<?= e(url('/assets/img/favicon-32.png')) ?>" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="<?= e(url('/assets/img/apple-touch-icon.png')) ?>">
@@ -64,7 +65,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
         <li>
           <button type="button" data-mega aria-expanded="false" aria-haspopup="true"<?= $cur('/servicii') ?>>Servicii <?= icon('chevron-down', 'ico chev') ?></button>
           <div class="mega" role="menu">
-            <?php foreach ($groups as $gk => $g): ?>
+            <?php foreach ($groups as $gk => $g): if (!empty($g['cat']['secondary'])) { continue; } ?>
             <div class="mega-col">
               <p class="mega-h"><?= e($g['cat']['short']) ?></p>
               <?php foreach ($g['items'] as $s): ?>
@@ -72,7 +73,10 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
               <?php endforeach; ?>
             </div>
             <?php endforeach; ?>
-            <div class="mega-foot"><span>Nu știi de unde să începi? Facem o evaluare și îți spunem ce merită administrat, securizat și automatizat.</span><a class="btn btn-primary btn-sm" href="<?= e(url('/contact')) ?>">Discută cu un specialist <?= icon('arrow-right', 'ico ico-move') ?></a></div>
+            <?php if (!empty($groups['service'])): ?>
+            <div class="mega-minor"><span><?= icon('wrench') ?> <?= e($groups['service']['cat']['name']) ?>:</span><?php foreach ($groups['service']['items'] as $s): ?><a href="<?= e(url('/servicii/' . $s['slug'])) ?>" role="menuitem"><?= e($s['title']) ?></a><?php endforeach; ?></div>
+            <?php endif; ?>
+            <div class="mega-foot"><span>Nu știi de unde să începi? Facem o evaluare și îți spunem ce merită administrat, securizat și automatizat.</span><a class="btn btn-primary btn-sm" href="<?= e(url('/contact')) ?>">Solicită o evaluare <?= icon('arrow-right', 'ico ico-move') ?></a></div>
           </div>
         </li>
         <li><a href="<?= e(url('/vitim-ai')) ?>"<?= $cur('/vitim-ai') ?>>VITIM AI</a></li>
@@ -132,10 +136,13 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
         <?php endif; ?>
       </div>
       <?php
-      // coloane footer: IT + Securitate | Marketing | AI
+      // coloane footer: IT + Securitate | AI | Web & creștere (service-ul tehnic apare separat, sub zone)
       $cols = [];
       foreach ($groups as $gk => $g) {
-          $ci = match ($gk) { 'it', 'securitate' => 0, 'marketing' => 1, default => 2 };
+          if (!empty($g['cat']['secondary'])) {
+              continue; // service tehnic: listat separat, sub zone
+          }
+          $ci = match ($gk) { 'it', 'securitate' => 0, 'ai' => 1, default => 2 };
           $cols[$ci]['title'] ??= $g['cat']['short'];
           $cols[$ci]['items'] = array_merge($cols[$ci]['items'] ?? [], $g['items']);
       }
@@ -162,6 +169,10 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
         </form>
         <h2 class="fh" style="margin-top:28px">Zone</h2>
         <ul><?php foreach ($counties as $c): ?><li><a href="<?= e(url('/zone/' . $c['slug'])) ?>">Județul <?= e($c['name']) ?></a></li><?php endforeach; ?></ul>
+        <?php if (!empty($groups['service'])): ?>
+        <h2 class="fh" style="margin-top:28px"><?= e($groups['service']['cat']['name']) ?></h2>
+        <ul><?php foreach ($groups['service']['items'] as $s): ?><li><a href="<?= e(url('/servicii/' . $s['slug'])) ?>"><?= e($s['title']) ?></a></li><?php endforeach; ?></ul>
+        <?php endif; ?>
       </div>
     </div>
     <div class="legal-badges">

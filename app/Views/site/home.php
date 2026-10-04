@@ -255,30 +255,24 @@ $pillars = [
 </section>
 <?php endif; ?>
 
-<section class="section">
-  <div class="container split">
+<section class="section" id="vitim-ai">
+  <div class="container home-ai">
     <div data-reveal>
-      <span class="eyebrow">VITIM AI</span>
+      <span class="eyebrow">VITIM AI · platforma noastră</span>
       <h2>AI-ul care lucrează cu datele și procesele companiei tale</h2>
-      <p class="muted" style="font-size:1.1rem">VITIM AI este platforma noastră proprie. O conectăm la emailul, CRM-ul, magazinul și documentele firmei tale, ca munca repetitivă să se facă singură, iar echipa să se ocupe de clienți.</p>
+      <p class="muted" style="font-size:1.1rem">VITIM AI conectează conversațiile, lead-urile, datele și procesele firmei. Răspunde clienților, califică lead-urile, urmărește ofertele și pornește pașii următori, iar echipa VITIM îl configurează și îl administrează.</p>
       <ul class="checklist">
-        <li><?= icon('check-circle') ?><span><strong>Răspunde clienților</strong> pe site, email sau WhatsApp, din informațiile firmei.</span></li>
-        <li><?= icon('check-circle') ?><span><strong>Califică lead-urile</strong> și le trece în CRM, cu rezumat.</span></li>
-        <li><?= icon('check-circle') ?><span><strong>Pregătește oferte, documente și follow-up</strong> în stilul firmei.</span></li>
-        <li><?= icon('check-circle') ?><span><strong>Sub controlul tău:</strong> datele rămân ale firmei, cu acces pe roluri.</span></li>
+        <li><?= icon('check-circle') ?><span><strong>Răspunde</strong> pe site, WhatsApp, email și SMS, din informațiile firmei.</span></li>
+        <li><?= icon('check-circle') ?><span><strong>Califică și urmărește</strong> fiecare lead în CRM, până la vânzare.</span></li>
+        <li><?= icon('check-circle') ?><span><strong>Automatizează</strong> follow-up-ul, campaniile și mesajele după comandă.</span></li>
+        <li><?= icon('check-circle') ?><span><strong>Raportează</strong> ce s-a întâmplat și ce necesită atenția ta.</span></li>
       </ul>
       <div class="hero-ctas">
-        <a class="btn btn-primary" href="<?= e(url('/vitim-ai')) ?>">Descoperă VITIM AI <?= icon('arrow-right', 'ico ico-move') ?></a>
-        <a class="btn btn-ghost" href="<?= e(url('/servicii/automatizari')) ?>">Automatizare procese</a>
+        <a class="btn btn-primary" href="<?= e(url('/vitim-ai#in-actiune')) ?>">Vezi VITIM AI în acțiune <?= icon('arrow-right', 'ico ico-move') ?></a>
+        <a class="btn btn-ghost" href="<?= e(url('/vitim-ai#demo')) ?>">Solicită demo</a>
       </div>
     </div>
-    <div class="flow" data-reveal data-delay="120" aria-label="Exemplu de flux automatizat cu VITIM AI">
-      <div class="flow-node"><div class="icon-tile"><?= icon('mail') ?></div><div><small>01 · declanșator</small><strong>Cerere nouă de ofertă pe email</strong></div><span class="status">live</span></div>
-      <div class="flow-node"><div class="icon-tile"><?= icon('brain') ?></div><div><small>02 · VITIM AI</small><strong>Înțelege cererea și extrage datele</strong></div></div>
-      <div class="flow-node"><div class="icon-tile"><?= icon('database') ?></div><div><small>03 · integrare</small><strong>Verifică stocul și prețurile în ERP</strong></div></div>
-      <div class="flow-node"><div class="icon-tile"><?= icon('file') ?></div><div><small>04 · rezultat</small><strong>Ofertă PDF pregătită și trimisă spre aprobare</strong></div></div>
-      <div class="flow-node"><div class="icon-tile"><?= icon('kanban') ?></div><div><small>05 · CRM</small><strong>Oportunitate creată, follow-up programat</strong></div><span class="status">automat</span></div>
-    </div>
+    <div data-reveal data-delay="120"><?= View::partial('site/partials/ai_dashboard', ['compact' => true]) ?></div>
   </div>
 </section>
 

@@ -1,5 +1,39 @@
 # Istoric versiuni
 
+## 1.9.0 — VITIM ca companie, VITIM AI ca produs
+
+- **Despre noi**, refăcută la nivel de companie, fără echipă prezentată individual:
+  - titlul „Tehnologia companiei tale, administrată ca un singur sistem”;
+  - de ce o companie nu ar trebui să coordoneze singură mai mulți furnizori (schemă înainte și după);
+  - „Cum lucrăm” în cinci pași: Analizăm, Construim, Integrăm, Administrăm, Optimizăm;
+  - principiile de lucru și proiectele reale.
+- **VITIM AI**, prezentat ca produs software. Pagina are machete de interfață:
+  - tablou de bord „Bună dimineața” cu „Ce necesită atenția ta?”;
+  - inbox central (site, WhatsApp, email, SMS) cu profilul clientului;
+  - CRM vizual pe etape;
+  - fluxul „Nu doar răspunde. Execută.”;
+  - roluri AI și surse de informații;
+  - niveluri de control și constructor de automatizări;
+  - raport zilnic, recomandări și recuperarea oportunităților;
+  - VITIM AI pe industrii, integrări, jurnal de activitate, roluri de acces și „Întreabă VITIM AI”.
+  Cifrele din machete sunt marcate „Date demonstrative”. Fiecare funcție are statusul ei: Disponibil, La cerere sau În dezvoltare.
+- **Prima pagină:** secțiunea VITIM AI arată o previzualizare a tabloului de bord, cu butoanele „Vezi VITIM AI în acțiune” și „Solicită demo”. Proiectele de pe prima pagină sunt HiKeVet, Local Mureș, Podreg și Autohaus Westcar.
+- **Proiecte:**
+  - lista completă, cu denumirile exacte: HiKeVet, Local Mureș, Podreg, Autohaus Westcar, Optica Optofarm, Optoplus, Dental Arena, FerestrePartner.ro, SCProfil.ro, Argento Metal, Gelateria Da Michele;
+  - fiecare proiect are acum și secțiunea „Rezultatul”, fără cifre neconfirmate;
+  - capturi noi pentru Optoplus și Dental Arena.
+- **Service & intervenții:** reparațiile de calculatoare, plăci de bază, telefoane și tablete au trecut într-o categorie secundară, afișată separat în meniu, pe pagina Servicii și în subsol. Adresele paginilor nu s-au schimbat.
+- **Formular:** alegi întâi tipul colaborării, abonament lunar sau proiect, și apoi bugetul potrivit. Nu mai există varianta „Sub 1.000”.
+- **Butoane:** peste tot apar „Solicită o evaluare” (VITIM) și „Solicită demo” / „Vezi VITIM AI în acțiune” (VITIM AI).
+- **Corecturi:**
+  - meniul „Servicii” nu se mai închide la click imediat după ce s-a deschis la trecerea mouse-ului și nu mai iese din ecran în stânga;
+  - textele „conform GDPR” descriu acum mecanismele de consimțământ, nu promit conformitate;
+  - denumirea „Local Mureș” este corectată peste tot.
+- **Actualizare:**
+  - textul vechi al paginii „Despre noi” se păstrează în setarea `backup_texte_v18`;
+  - în Setări → Formulare găsești variantele de buget lunar și pe proiect;
+  - în panou, la proiecte, există câmpul „Rezultatul”.
+
 ## 1.8.0 — logo nou, proiecte reale cu imagini
 
 - **Logo nou VITIM:** „vitim” desenat din linii, cu punctele lui „i” ca două noduri albastre (VITIM leagă tehnologia firmei într-un singur sistem). Simbolul separat (favicon, iconița de pe telefon, chat, panou, emailuri) este un „V” ale cărui brațe converg într-un singur nod. Pătratul cu gradient albastru-violet a fost scos.

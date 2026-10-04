@@ -32,11 +32,12 @@
 
   /* Mega meniu */
   $$('.menu [data-mega]').forEach(function (btn) {
-    var li = btn.parentElement, t;
+    var li = btn.parentElement, t, hoverAt = 0;
     function open() { clearTimeout(t); li.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
     function close() { t = setTimeout(function () { li.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }, 120); }
-    btn.addEventListener('click', function (e) { e.preventDefault(); li.classList.contains('open') ? close() : open(); });
-    li.addEventListener('mouseenter', open); li.addEventListener('mouseleave', close);
+    // un click imediat după ce meniul s-a deschis la hover nu trebuie să-l închidă
+    btn.addEventListener('click', function (e) { e.preventDefault(); if (li.classList.contains('open') && Date.now() - hoverAt > 700) { close(); } else { open(); } });
+    li.addEventListener('mouseenter', function () { if (!li.classList.contains('open')) hoverAt = Date.now(); open(); }); li.addEventListener('mouseleave', close);
     li.addEventListener('focusout', function (e) { if (!li.contains(e.relatedTarget)) close(); });
   });
   d.addEventListener('keydown', function (e) {
@@ -171,6 +172,8 @@
       if (msg && !msg.value.trim()) msg.value = lines.join('\n');
       var more = target.querySelector('.form-more');
       if (more) more.open = true;
+      var bt = target.querySelector('[data-budget-type][value=abonament]');
+      if (bt && !target.querySelector('[data-budget-type]:checked')) { bt.checked = true; bt.dispatchEvent(new Event('change')); }
       var pcSel = target.querySelector('[name=computers]');
       if (pcSel && pc) pcSel.value = pc;
       $$('input[name="needs[]"]', target).forEach(function (i) {
@@ -182,6 +185,15 @@
       if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 450);
     });
   }
+  /* buget: la schimbarea tipului (abonament / proiect) se golește alegerea din grupul ascuns */
+  $$('[data-budget-type]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      var box = r.closest('.form-more-body'); if (!box) return;
+      $$('[data-budget-for]', box).forEach(function (fs) {
+        if (fs.getAttribute('data-budget-for') !== r.value) $$('input[name=budget]', fs).forEach(function (i) { i.checked = false; });
+      });
+    });
+  });
   $$('[data-focus-form]').forEach(function (a) {
     a.addEventListener('click', function () {
       var f = $(a.getAttribute('href')); var i = f && f.querySelector('[name=name]');

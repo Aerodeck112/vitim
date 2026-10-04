@@ -120,7 +120,7 @@ HTML,
     ],
     [
         'slug' => 'reparatii-it',
-        'category' => 'it',
+        'category' => 'service',
         'title' => 'Reparații IT: PC, laptop, servere',
         'h1' => 'Reparații calculatoare, laptopuri și servere pentru firme',
         'tagline' => 'Diagnoză, reparații și upgrade-uri',
@@ -173,7 +173,7 @@ HTML,
     ],
     [
         'slug' => 'reparatii-placi-de-baza',
-        'category' => 'it',
+        'category' => 'service',
         'title' => 'Reparații plăci de bază (nivel componentă)',
         'h1' => 'Reparații plăci de bază la nivel de componentă: laptop, PC, telefon, tabletă',
         'tagline' => 'Microsoldering, BGA, diagnoză electronică',
@@ -233,7 +233,7 @@ HTML,
     ],
     [
         'slug' => 'reparatii-telefoane-tablete',
-        'category' => 'it',
+        'category' => 'service',
         'title' => 'Reparații telefoane și tablete',
         'h1' => 'Reparații telefoane și tablete: ecran, baterie, încărcare, placă de bază',
         'tagline' => 'iPhone, Samsung, Xiaomi, iPad și alte mărci',
@@ -546,7 +546,7 @@ HTML,
 <li><strong>Google Analytics 4</strong>: evenimente cheie, conversii, audiențe, excluderea traficului intern, legături cu Ads și Search Console.</li>
 <li><strong>Google Tag Manager</strong>: structură curată, denumiri clare, versiuni documentate.</li>
 <li><strong>Tracking de conversii complet</strong>: formulare, apeluri din site, click pe WhatsApp, email, rezervări, achiziții.</li>
-<li><strong>Consent Mode v2</strong> și banner de cookies conform GDPR.</li>
+<li><strong>Consent Mode v2</strong> și banner de cookies pentru gestionarea consimțământului (GDPR).</li>
 <li><strong>Server-side tagging</strong> și <strong>Meta Conversions API</strong> pentru date mai robuste.</li>
 <li><strong>Enhanced Conversions</strong> și importul conversiilor offline din CRM (când un lead devine client).</li>
 </ul>
@@ -700,7 +700,7 @@ HTML,
 <li>Design responsive, optimizat întâi pentru mobil.</li>
 <li>Viteză: imagini optimizate, cache, cod curat, fără pluginuri inutile.</li>
 <li>SEO tehnic complet: meta, schema.org, sitemap, redirecționări, URL-uri curate.</li>
-<li>Tracking de conversii și banner de cookies conform GDPR.</li>
+<li>Tracking de conversii și banner de cookies pentru gestionarea consimțământului (GDPR).</li>
 <li>Formulare conectate la CRM, cu notificări instant.</li>
 <li>Pagini legale și securitate (HTTPS, backup, actualizări).</li>
 </ul>

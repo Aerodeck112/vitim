@@ -90,7 +90,7 @@ final class SettingsController extends AdminController
             ]],
             'formulare' => ['label' => 'Formulare & CRM', 'fields' => [
                 ['crm_stages', 'Etapele pipeline-ului', 'repeater', 'Cheile „castigat” și „pierdut” au semnificație specială (închid oportunitatea).', [['key' => 'key', 'label' => 'Cheie (fără spații)'], ['key' => 'label', 'label' => 'Denumire'], ['key' => 'color', 'label' => 'Culoare (#hex)']]],
-                ['form_budgets', 'Variante de buget în formular', 'list'],
+                ['form_budgets_monthly', 'Buget lunar (abonament) – variante', 'list', 'Abonamentele pornesc de la 1.000 RON/lună.'], ['form_budgets_project', 'Buget proiect (o singură dată) – variante', 'list'],
                 ['consent_text', 'Text acord GDPR (obligatoriu)', 'textarea'], ['newsletter_consent_text', 'Text acord newsletter', 'textarea'],
             ]],
             'avansat' => ['label' => 'Avansat', 'fields' => [

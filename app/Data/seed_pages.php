@@ -10,24 +10,17 @@ return [
     [
         'slug' => 'despre-noi',
         'title' => 'Despre noi',
-        'subtitle' => 'Înainte să ne dai acces la infrastructura și datele companiei tale, vrem să știi cine suntem.',
+        'subtitle' => 'VITIM ajută companiile să își administreze infrastructura IT, securitatea, automatizările, inteligența artificială și prezența digitală printr-un singur partener tehnologic.',
         'template' => 'about',
         'in_footer' => 0,
         'meta_title' => 'Despre VITIM – departamentul extern de IT & AI din Târgu Mureș',
-        'meta_description' => 'Cine este VITIM: firma din Târgu Mureș care funcționează ca departamentul extern de IT & AI al companiilor. Mentenanță IT, securitate, backup, automatizări, AI, website și marketing.',
+        'meta_description' => 'VITIM este compania din Târgu Mureș care administrează tehnologia firmelor ca un singur sistem: IT, securitate, backup, automatizări, VITIM AI, website și marketing.',
         'body' => <<<'HTML'
-<h2>Cine suntem</h2>
-<p><strong>{{brand}}</strong> (Various IT and Marketing Solutions) este o firmă din Târgu Mureș. Am pornit din IT – calculatoare, rețele, servere, suport – și am crescut odată cu nevoile clienților noștri: securitate, backup, website-uri, marketing și, acum, automatizări și inteligență artificială.</p>
-<p>Astăzi funcționăm ca <strong>departamentul extern de IT &amp; AI</strong> al firmelor cu care lucrăm. Ne ocupăm de tehnologie, ca echipa lor să se poată ocupa de clienți.</p>
-<h2>Cum lucrăm</h2>
-<ul>
-<li><strong>Un singur partener pentru toată tehnologia.</strong> Nu mai explici aceeași problemă la trei firme diferite.</li>
-<li><strong>Vorbim pe înțeles.</strong> Îți explicăm opțiunile și costurile clar și îți spunem sincer ce nu merită.</li>
-<li><strong>Prevenim, nu doar reparăm.</strong> Monitorizare, backup verificat și actualizări, ca problemele să nu ajungă la tine.</li>
-<li><strong>Suntem aproape.</strong> Intervenim la sediu în Mureș, Bistrița-Năsăud și Alba și suntem la un telefon distanță pentru restul țării.</li>
-</ul>
-<h2>LocalMureș</h2>
-<p>Credem în economia locală. Prin proiectul <a href="/localmures">LocalMureș</a> promovăm afacerile din județul Mureș și le conectăm între ele.</p>
+<h2>Pe scurt</h2>
+<p><strong>{{brand}}</strong> (Various IT and Marketing Solutions) este o companie tehnologică din Târgu Mureș. Am pornit din IT – calculatoare, rețele, servere, suport – și am crescut odată cu nevoile clienților: securitate, backup, website-uri, marketing, automatizări și platforma noastră, VITIM AI.</p>
+<p>Astăzi funcționăm ca <strong>departamentul extern de IT &amp; AI</strong> al companiilor cu care lucrăm. Ne ocupăm de tehnologia companiei, ca echipa ei să se poată ocupa de clienți.</p>
+<h2>Local Mureș</h2>
+<p>Credem în economia locală. Prin proiectul nostru <a href="/localmures">Local Mureș</a> promovăm afacerile din județul Mureș și le conectăm între ele.</p>
 HTML,
     ],
     [
@@ -40,21 +33,21 @@ HTML,
     ],
     [
         'slug' => 'localmures',
-        'title' => 'LocalMureș – susținem afacerile locale',
+        'title' => 'Local Mureș – susținem afacerile locale',
         'subtitle' => 'Mureșul prosperă prin afacerile locale. Descoperă, susține, crește!',
         'template' => 'cta',
         'in_footer' => 0,
-        'meta_title' => 'LocalMureș – promovarea afacerilor locale din județul Mureș',
-        'meta_description' => 'LocalMureș este proiectul VITIM de promovare a afacerilor locale din județul Mureș: campanii Meta și Google, reclamă reciprocă între parteneri și networking.',
+        'meta_title' => 'Local Mureș – promovarea afacerilor locale din județul Mureș',
+        'meta_description' => 'Local Mureș este proiectul VITIM de promovare a afacerilor locale din județul Mureș: campanii Meta și Google, reclamă reciprocă între parteneri și networking.',
         'body' => <<<'HTML'
-<h2>Ce este LocalMureș</h2>
-<p><strong>LocalMureș</strong> este o platformă dedicată promovării afacerilor locale din județul Mureș, prin strategii moderne de marketing digital. Proiectul susține dezvoltarea antreprenorilor locali prin:</p>
+<h2>Ce este Local Mureș</h2>
+<p><strong>Local Mureș</strong> este o platformă dedicată promovării afacerilor locale din județul Mureș, prin strategii moderne de marketing digital. Proiectul susține dezvoltarea antreprenorilor locali prin:</p>
 <ul>
 <li><strong>Promovare pe Meta și Google</strong> – creăm și gestionăm campanii eficiente pe Facebook, Instagram și Google, pentru a ajunge direct la clienții tăi.</li>
-<li><strong>Reclamă vizuală reciprocă</strong> – afacerile listate beneficiază de promovare încrucișată pe platforma LocalMures.ro.</li>
+<li><strong>Reclamă vizuală reciprocă</strong> – afacerile listate beneficiază de promovare încrucișată pe platforma localmures.ro.</li>
 <li><strong>Oportunități de networking</strong> – conectăm afacerile locale între ele și cu publicul larg, consolidând economia locală.</li>
 </ul>
-<p>Fii parte din LocalMureș și crește-ți vizibilitatea într-un mod eficient și accesibil.</p>
+<p>Fii parte din Local Mureș și crește-ți vizibilitatea într-un mod eficient și accesibil.</p>
 <p><a href="https://www.localmures.ro" target="_blank" rel="noopener">www.localmures.ro</a> – Sprijinim comunitatea, susținem afacerile locale!</p>
 HTML,
     ],

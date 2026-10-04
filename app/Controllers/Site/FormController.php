@@ -65,6 +65,13 @@ final class FormController extends SiteController
         if ($errors) {
             json_out(['ok' => false, 'message' => 'Te rugăm să completezi ' . implode(', ', $errors) . '.'], 422);
         }
+        // tipul colaborării: bugetul lunar (abonament) nu se amestecă cu bugetul unui proiect
+        $type = ['abonament' => 'Abonament lunar', 'proiect' => 'Proiect (o singură dată)', 'nu-stiu' => 'Nu știu încă'][str_input('budget_type')] ?? '';
+        if ($d['budget'] !== '' && $type !== '' && $type !== 'Nu știu încă') {
+            $d['budget'] = $type . ': ' . $d['budget'];
+        } elseif ($type !== '' && $d['budget'] === '') {
+            $d['budget'] = $type;
+        }
         // detaliile opționale (pasul 2) se adaugă la mesaj, ca să ajungă în CRM și în notificare
         $extra = [];
         foreach (['employees' => 'Angajați', 'computers' => 'Calculatoare'] as $k => $label) {

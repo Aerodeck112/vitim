@@ -19,6 +19,7 @@ $max = $max ?? 6;
       <ul class="chips-static"><?php foreach (array_slice($features, 0, $max) as $f): ?><li><?= e($f) ?></li><?php endforeach; ?><?php if (count($features) > $max): ?><li class="more-chip">+<?= count($features) - $max ?></li><?php endif; ?></ul>
     </li>
     <?php endif; ?>
+    <?php if (!empty($p['result'])): ?><li class="case-result"><small>Rezultatul</small><p><?= e($p['result']) ?></p></li><?php endif; ?>
   </ol>
   <?php endif; ?>
   <span class="more">Vezi proiectul <?= icon('arrow-up-right') ?></span>

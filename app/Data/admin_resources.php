@@ -132,6 +132,7 @@ return [
             ['name' => 'problem', 'label' => 'Problema', 'type' => 'textarea'],
             ['name' => 'solution', 'label' => 'Soluția VITIM', 'type' => 'textarea'],
             ['name' => 'features', 'label' => 'Ce am implementat (un element pe rând)', 'type' => 'textarea'],
+            ['name' => 'result', 'label' => 'Rezultatul (fără cifre neconfirmate)', 'type' => 'textarea'],
             ['name' => 'results', 'label' => 'Rezultate în cifre (doar confirmate de client)', 'type' => 'repeater', 'fields' => [['key' => 'value', 'label' => 'Valoare (ex: -40%)'], ['key' => 'label', 'label' => 'Descriere (ex: cost per lead)']]],
             ['name' => 'body', 'label' => 'Studiul complet', 'type' => 'richtext'],
             ['name' => 'published', 'label' => 'Publicat', 'type' => 'checkbox', 'col' => 'side', 'default' => 1],

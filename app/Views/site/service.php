@@ -33,16 +33,18 @@ echo View::partial('site/partials/page_hero', [
       <div class="side-card"><h3>Pe această pagină</h3><ul class="toc"><?php foreach ($toc as $t): ?><li class="l<?= $t['level'] ?>"><a href="#<?= e($t['id']) ?>"><?= e($t['text']) ?></a></li><?php endforeach; ?></ul></div>
       <?php endif; ?>
       <div class="side-card">
-        <h3>Discută cu un specialist</h3>
+        <h3>Solicită o evaluare</h3>
         <p class="muted" style="font-size:15px;margin:0">Consultanța inițială și oferta sunt gratuite.<?php if ($s['price_from']): ?> Prețuri <strong style="color:var(--text)">de la <?= e($s['price_from']) ?></strong>.<?php endif; ?></p>
         <a class="btn btn-primary btn-block" href="#oferta">Solicită o evaluare</a>
         <a class="btn btn-ghost btn-block" href="<?= e(phone_href((string)setting('phone'))) ?>" data-loc="service-side"><?= icon('phone') ?> <?= e(setting('phone')) ?></a>
       </div>
+      <?php if (empty($cat['secondary'])): ?>
       <div class="side-card">
         <h3>Inclus în abonamentul VITIM</h3>
         <p class="muted" style="font-size:15px;margin:0 0 12px">Serviciul se poate lua separat sau împreună cu restul tehnologiei firmei, într-un abonament pentru companii de la <strong style="color:var(--text)"><?= e(setting('pricing_from', '1.000')) ?> RON/lună</strong>.</p>
         <a class="link" href="<?= e(url('/#abonamente')) ?>">Vezi abonamentele <?= icon('arrow-right') ?></a>
       </div>
+      <?php endif; ?>
       <?php if ($s['onsite']): ?>
       <div class="side-card"><h3>Intervenții la sediu</h3><ul class="toc"><?php foreach (Site::counties() as $c): ?><li><a href="<?= e(url('/zone/' . $c['slug'])) ?>">Județul <?= e($c['name']) ?></a></li><?php endforeach; ?></ul></div>
       <?php endif; ?>

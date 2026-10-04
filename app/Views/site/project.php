@@ -15,6 +15,7 @@ echo View::partial('site/partials/page_hero', ['crumbs' => [['Proiecte', '/proie
     <li data-reveal><span class="mono">01</span><div><h2>Problema</h2><p><?= e($p['problem']) ?></p></div></li>
     <li data-reveal data-delay="80"><span class="mono">02</span><div><h2>Soluția VITIM</h2><p><?= e((string)$p['solution']) ?></p></div></li>
     <?php if ($features): ?><li data-reveal data-delay="160"><span class="mono">03</span><div><h2>Ce am implementat</h2><ul class="checklist"><?php foreach ($features as $f): ?><li><?= icon('check-circle') ?><span><?= e($f) ?></span></li><?php endforeach; ?></ul></div></li><?php endif; ?>
+    <?php if (!empty($p['result'])): ?><li class="case-flow-result" data-reveal data-delay="240"><span class="mono">04</span><div><h2>Rezultatul</h2><p><?= e($p['result']) ?></p></div></li><?php endif; ?>
   </ol>
   <?php else: ?>
   <article class="prose"><?= $p['body'] ?></article>

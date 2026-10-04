@@ -6,7 +6,7 @@ echo View::partial('site/partials/page_hero', [
     'eyebrow' => icon('map') . ' ' . ($isCounty ? 'Județul ' . e($l['name']) : e($l['name']) . ', jud. ' . e($countyName)),
     'title' => e($isCounty ? 'Servicii IT pentru firme în județul ' : 'Suport și service IT în ') . '' . e($l['name']) . '',
     'lead' => $l['intro'] ?: 'Mentenanță IT, intervenții la sediu, recuperări de date și securitate cibernetică pentru afacerile din ' . $display . '. Plus marketing online și soluții AI livrate remote.',
-    'actions' => '<a class="btn btn-primary btn-lg" href="#oferta">Cere ofertă în ' . e($l['name']) . ' ' . icon('arrow-right', 'ico ico-move') . '</a><a class="btn btn-ghost btn-lg" href="' . e(phone_href((string)setting('phone'))) . '" data-loc="zone-hero">' . icon('phone') . ' ' . e(setting('phone')) . '</a>',
+    'actions' => '<a class="btn btn-primary btn-lg" href="#oferta">Solicită o evaluare în ' . e($l['name']) . ' ' . icon('arrow-right', 'ico ico-move') . '</a><a class="btn btn-ghost btn-lg" href="' . e(phone_href((string)setting('phone'))) . '" data-loc="zone-hero">' . icon('phone') . ' ' . e(setting('phone')) . '</a>',
 ]);
 ?>
 <section class="section-sm">
@@ -58,5 +58,5 @@ echo View::partial('site/partials/page_hero', [
 </section>
 
 <section class="section" id="oferta">
-  <div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Cere ofertă în ' . $l['name'], 'text' => 'Spune-ne ce ai nevoie. Revenim în aceeași zi lucrătoare cu pașii următori.', 'county' => $countyName]) ?></div>
+  <div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Solicită o evaluare în ' . $l['name'], 'text' => 'Spune-ne ce ai nevoie. Revenim în aceeași zi lucrătoare cu pașii următori.', 'county' => $countyName]) ?></div>
 </section>
