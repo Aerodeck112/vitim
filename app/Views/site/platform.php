@@ -61,7 +61,7 @@ echo View::partial('site/partials/page_hero', [
   <div class="container">
     <div class="section-head" data-reveal><span class="eyebrow">Ce primești</span><h2>Tot ce are nevoie o firmă ca să comunice cu clienții, într-o singură platformă</h2>
       <p>Activezi doar ce îți trebuie acum și adaugi restul când firma crește.</p></div>
-    <div class="grid-3">
+    <div class="grid-3 varied">
       <?php foreach ($modules as $i => [$ic, $title, $text]): ?>
       <div class="card" data-reveal data-delay="<?= ($i % 3) * 70 ?>"><div class="icon-tile"><?= icon($ic) ?></div><h3><?= e($title) ?></h3><p><?= e($text) ?></p></div>
       <?php endforeach; ?>

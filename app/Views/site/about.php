@@ -24,7 +24,7 @@ echo View::partial('site/partials/page_hero', [
 <section class="section bg-alt">
   <div class="container">
     <div class="section-head" data-reveal><span class="eyebrow">Valori</span><h2>Ce ne definește</h2></div>
-    <div class="grid-3"><?php foreach ($why as $i => $w): ?><div class="card" data-reveal data-delay="<?= ($i % 3) * 70 ?>"><div class="icon-tile"><?= icon($w['icon'] ?? 'check') ?></div><h3><?= e($w['title'] ?? '') ?></h3><p><?= e($w['text'] ?? '') ?></p></div><?php endforeach; ?></div>
+    <div class="grid-3 varied"><?php foreach ($why as $i => $w): ?><div class="card" data-reveal data-delay="<?= ($i % 3) * 70 ?>"><div class="icon-tile"><?= icon($w['icon'] ?? 'check') ?></div><h3><?= e($w['title'] ?? '') ?></h3><p><?= e($w['text'] ?? '') ?></p></div><?php endforeach; ?></div>
   </div>
 </section>
 <?php if ($testimonials): ?>

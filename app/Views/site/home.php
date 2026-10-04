@@ -139,7 +139,7 @@ $all = Site::services();
       <h2>Partenerul tehnic pe care te poți baza</h2>
       <p>Nu vindem ore de lucru, ci liniște: echipamente care merg, date în siguranță și un flux constant de clienți.</p>
     </div>
-    <div class="grid-3">
+    <div class="grid-3 varied">
       <?php foreach ($why as $i => $w): ?>
       <div class="card" data-reveal data-delay="<?= ($i % 3) * 80 ?>">
         <div class="icon-tile"><?= icon($w['icon'] ?? 'check') ?></div>

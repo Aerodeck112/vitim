@@ -1,5 +1,12 @@
 # Istoric versiuni
 
+## 1.6.0 — design reîmprospătat
+
+- O singură culoare de accent (albastru, mai calm) în loc de gradientul albastru-violet; butoanele, chatul și iconițele o folosesc unitar.
+- Etichete mai lizibile (fără majuscule mono), titluri echilibrate pe rânduri, paragrafe limitate la o lățime comodă de citit, cifre aliniate.
+- Secțiunile cu beneficii („De ce VITIM”, „Despre noi”, „VITIM AI”) au o grilă variată, nu trei carduri identice pe rând.
+- Butoanele reacționează la apăsare; animațiile se opresc pentru cine a cerut asta în sistem (reducerea mișcării); o textură fină pe fundal.
+
 ## 1.5.0
 
 - **Pagină nouă: „VITIM AI”** (`/vitim-ai`, în meniul principal și pe mobil): ce este platforma, ce primește firma (asistent AI pe site 24/7, chat live, contacte și cereri, campanii email / SMS / WhatsApp, automatizări, editor de email, formulare, magazin online, analiză, site administrat, conformitate GDPR și cookie-uri, echipă cu roluri), cum o configurăm și o administrăm noi, de ce e unică, demo-ul pe site-ul clientului și întrebări frecvente.

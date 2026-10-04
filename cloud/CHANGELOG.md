@@ -1,5 +1,12 @@
 # VITIM AI Cloud — versiuni
 
+## 0.20.0 — panou mai clar și mai ușor de citit
+
+- **Aspect nou al panoului**: litere mai clare, aceeași culoare a mărcii peste tot, cifre aliniate în tabele și în cifrele principale, rândurile tabelelor se evidențiază când treci cu mouse-ul.
+- **Butoane și câmpuri mai prietenoase**: reacționează la apăsare, arată clar unde ești cu tastatura, iar meniul din stânga marchează pagina deschisă.
+
+**Actualizare:** fonturile Geist sunt acum în `public/fonts` (până acum panoul folosea fontul sistemului).
+
 ## 0.19.0 — noutățile VITIM, direct în panoul tău
 
 - **„Noutăți VITIM”** în meniul panoului: toate anunțurile noastre despre platformă, într-un singur loc, ca să le găsești oricând.
