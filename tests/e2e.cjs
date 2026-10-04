@@ -21,7 +21,7 @@ function ok(cond, msg) { if (cond) { passed++; console.log('  ✓ ' + msg); } el
 
   console.log('Site public');
   await ctx.addInitScript(() => { try { localStorage.setItem('consent', '{"analytics":false,"marketing":false}'); } catch (e) {} });
-  for (const p of ['/', '/servicii', '/servicii/securitate-cibernetica', '/zone/alba', '/zone/bistrita', '/blog', '/despre-noi', '/contact', '/politica-cookies']) {
+  for (const p of ['/', '/proiecte', '/vitim-ai', '/servicii', '/servicii/securitate-cibernetica', '/zone/alba', '/zone/bistrita', '/blog', '/despre-noi', '/contact', '/politica-cookies']) {
     const r = await page.goto(BASE + p);
     ok(r.status() === 200, `${p} → 200`);
   }
@@ -32,10 +32,11 @@ function ok(cond, msg) { if (cond) { passed++; console.log('  ✓ ' + msg); } el
   await page.goto(BASE + '/servicii/recuperare-date');
   const form = page.locator('#oferta form[data-ajax]');
   await form.locator('[name=name]').fill('Ion Testescu');
+  await form.locator('[name=contact]').fill('ion.test@example.com');
+  ok(await form.locator('.form-more').evaluate(d => d.open), 'formular: detaliile opționale deschise pe pagina de serviciu');
   await form.locator('[name=company]').fill('Test SRL');
-  await form.locator('[name=phone]').fill('0722 123 456');
-  await form.locator('[name=email]').fill('ion.test@example.com');
   await form.locator('[name=county]').selectOption('Mureș');
+  await form.locator('[name=computers]').selectOption('6–15');
   await form.locator('[name=message]').fill('Avem un hard disk extern care nu mai este recunoscut, conține facturile pe 3 ani.');
   await form.locator('[name=consent]').check();
   await form.locator('[name=newsletter]').check();
@@ -81,7 +82,7 @@ function ok(cond, msg) { if (cond) { passed++; console.log('  ✓ ' + msg); } el
     '/admin/c/servicii', '/admin/c/zone', '/admin/c/articole', '/admin/c/pagini', '/admin/c/proiecte', '/admin/c/testimoniale', '/admin/media',
     '/admin/setari/prima', '/admin/setari/firma', '/admin/setari/aspect', '/admin/setari/email', '/admin/setari/integrari', '/admin/setari/formulare', '/admin/setari/avansat',
     '/admin/seo', '/admin/seo/audit', '/admin/seo/redirectionari', '/admin/utilizatori', '/admin/utilizatori/nou', '/admin/cont', '/admin/cont/2fa', '/admin/sistem', '/admin/sistem/jurnal',
-    '/admin/c/servicii/1', '/admin/c/zone/1', '/admin/c/articole/1', '/admin/c/pagini/1', '/admin/c/articole/nou', '/admin/crm/import', '/admin/crm/contacte/nou', '/admin/crm/oportunitati/nou'];
+    '/admin/c/servicii/1', '/admin/c/proiecte/1', '/admin/c/zone/1', '/admin/c/articole/1', '/admin/c/pagini/1', '/admin/c/articole/nou', '/admin/crm/import', '/admin/crm/contacte/nou', '/admin/crm/oportunitati/nou'];
   for (const p of adminPages) {
     const r = await page.goto(BASE + p);
     const bad = await page.locator('text=Ceva nu a mers bine').count();

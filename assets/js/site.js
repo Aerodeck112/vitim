@@ -154,6 +154,41 @@
   });
 
 
+  /* Abonamente: mini configurator → completează formularul de evaluare (nu trimite nimic singur) */
+  var cfgForm = $('[data-configurator]');
+  if (cfgForm) {
+    cfgForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var target = $('#contact form[data-ajax]') || $('form[data-ajax][data-form="contact"]');
+      if (!target) { location.href = cfg.base + '/contact'; return; }
+      var pc = cfgForm.elements.pc.value, loc = cfgForm.elements.loc.value;
+      var svc = $$('input[name=svc]:checked', cfgForm).map(function (i) { return i.value; });
+      var lines = ['Aș dori o evaluare a infrastructurii pentru un abonament VITIM.'];
+      if (pc) lines.push('Calculatoare: ' + pc);
+      if (loc) lines.push('Locații: ' + loc);
+      if (svc.length) lines.push('Servicii: ' + svc.join(', '));
+      var msg = target.querySelector('[name=message]');
+      if (msg && !msg.value.trim()) msg.value = lines.join('\n');
+      var more = target.querySelector('.form-more');
+      if (more) more.open = true;
+      var pcSel = target.querySelector('[name=computers]');
+      if (pcSel && pc) pcSel.value = pc;
+      $$('input[name="needs[]"]', target).forEach(function (i) {
+        var v = i.value === 'Mentenanță IT' ? 'IT' : i.value;
+        if (svc.indexOf(v) > -1) i.checked = true;
+      });
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var first = target.querySelector('[name=name]');
+      if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 450);
+    });
+  }
+  $$('[data-focus-form]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      var f = $(a.getAttribute('href')); var i = f && f.querySelector('[name=name]');
+      if (i) setTimeout(function () { i.focus({ preventScroll: true }); }, 400);
+    });
+  });
+
   /* Chat cu asistentul */
   var chat = $('[data-chat]');
   if (chat) {

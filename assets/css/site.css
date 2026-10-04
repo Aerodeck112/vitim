@@ -591,3 +591,192 @@ body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opac
 @media (max-width:1024px){.grid-3.varied{grid-template-columns:repeat(2,1fr)}.grid-3.varied>*,.grid-3.varied>*:nth-child(5n+1){grid-column:span 1}.grid-3.varied>*:nth-child(5n+1){grid-column:span 2}}
 @media (max-width:640px){.grid-3.varied{grid-template-columns:1fr}.grid-3.varied>*,.grid-3.varied>*:nth-child(5n+1){grid-column:auto}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* =========================================================
+   v1.7 — repoziționare: departamentul extern de IT & AI
+   ========================================================= */
+.pill-price{color:var(--text);font-weight:600;border-color:rgba(77,130,236,.4);background:var(--accent-soft)}
+.legend{font-size:13.5px;font-weight:500;color:var(--text-2);margin-bottom:8px;padding:0}
+
+/* logo-uri clienți: statice, fără carusel */
+.logo-wall-wrap{padding:8px 0 clamp(24px,4vw,40px)}
+.logo-wall-label{text-align:center;font-size:14px;font-weight:500;color:var(--text-3);margin:0 0 16px}
+.logo-wall{list-style:none;margin:0;padding:22px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 34px;border-block:1px solid var(--border)}
+.logo-wall a{display:flex;align-items:center;height:40px;color:var(--text-2);font-weight:650;font-size:17px;letter-spacing:-.02em;white-space:nowrap;transition:color .2s}
+.logo-wall a:hover{color:var(--text)}
+.logo-wall img{max-height:36px;width:auto;filter:grayscale(1);opacity:.75;transition:.2s}
+.logo-wall a:hover img{filter:none;opacity:1}
+
+/* problema → un singur sistem */
+.split-top{align-items:start}
+.problem-list{list-style:none;padding:0;margin:20px 0 22px;display:grid;gap:2px}
+.problem-list li{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--border);color:var(--text-2)}
+.problem-list .ico{width:18px;height:18px;margin-top:4px;color:var(--err);opacity:.8}
+.problem-answer{font-size:1.12rem;padding:18px 20px;border-radius:var(--radius-sm);background:var(--accent-soft);border:1px solid rgba(77,130,236,.25);margin:0}
+.problem-answer strong{color:var(--text)}
+.hub{position:sticky;top:110px}
+.hub-ring{position:relative;width:min(100%,460px);aspect-ratio:1;margin:0 auto}
+.hub-ring::before,.hub-ring::after{content:"";position:absolute;border-radius:50%;border:1px dashed var(--border-2)}
+.hub-ring::before{inset:9%}
+.hub-ring::after{inset:31%;border-style:solid;border-color:rgba(77,130,236,.28)}
+.hub-node{--a:calc(var(--i) * 45deg - 90deg);position:absolute;left:calc(50% + 41% * cos(var(--a)));top:calc(50% + 41% * sin(var(--a)));transform:translate(-50%,-50%);display:grid;justify-items:center;gap:6px;width:96px;text-align:center;z-index:1}
+.hub-node .ico{width:48px;height:48px;padding:12px;border-radius:14px;background:var(--surface-solid);border:1px solid var(--border-2);color:var(--text-2)}
+.hub-node small{font-size:12.5px;color:var(--text-2);line-height:1.25}
+.hub-core{position:absolute;inset:36%;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(circle at 30% 25%,#5a8cef,#3f6fd6 70%);color:#fff;box-shadow:var(--shadow-glow),0 0 0 10px rgba(77,130,236,.08)}
+.hub-core b{font-size:clamp(1.1rem,2.4vw,1.5rem);letter-spacing:.02em}
+.hub-core small{font-size:12px;opacity:.85;line-height:1.2}
+
+/* trei direcții */
+.directions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.direction{position:relative;display:flex;flex-direction:column;padding:30px 28px;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface-solid)}
+.direction.star{border-color:rgba(77,130,236,.45);background:radial-gradient(520px 260px at 50% 0%,rgba(77,130,236,.18),transparent 70%),var(--surface-solid);box-shadow:0 30px 60px -30px rgba(40,80,170,.5)}
+.direction-head{display:flex;align-items:center;gap:12px}
+.direction-head .mono{font-size:13px;color:var(--text-3)}
+.badge-star{margin-left:auto;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--accent);color:var(--accent-ink)}
+.direction h3{font-size:clamp(1.3rem,2vw,1.6rem);margin:20px 0 10px}
+.direction-msg{color:var(--text);font-size:16px;margin:0 0 18px}
+.chips-static{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-wrap:wrap;gap:6px}
+.chips-static li{font-size:12.5px;padding:4px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2)}
+.chips-static .more-chip{color:var(--brand-1)}
+.direction-links{display:grid;margin:0 0 22px;border-top:1px solid var(--border)}
+.direction-links a{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14.5px;color:var(--text-2);transition:color .2s}
+.direction-links a:hover{color:var(--text)}
+.direction-links .ico{width:15px;height:15px;color:var(--text-3)}
+.direction-cta{margin-top:auto}
+
+/* un singur număr */
+.one-number{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(28px,5vw,64px);align-items:center;padding:clamp(28px,5vw,56px);border-radius:32px;border:1px solid var(--border);background:var(--surface)}
+.one-number-phone{display:inline-flex;align-items:center;gap:12px;margin-top:10px;font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;letter-spacing:-.03em;color:var(--text)}
+.one-number-phone .ico{width:44px;height:44px;padding:11px;border-radius:14px;background:var(--accent);color:#fff}
+.qa-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qa-list li{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--surface-solid);border:1px solid var(--border);font-size:15px;color:var(--text-2)}
+.qa-list li .ico{width:18px;height:18px;color:var(--text-3)}
+.qa-list li b{margin-left:auto;font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--brand-1);padding-left:8px}
+.pillars{list-style:none;padding:0;margin:16px 0 0;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.pillars li{display:grid;gap:2px;padding:18px;border-radius:var(--radius);border:1px solid var(--border)}
+.pillars .ico{width:22px;height:22px;color:var(--brand-1);margin-bottom:8px}
+.pillars strong{font-size:15.5px;letter-spacing:-.01em}
+.pillars span{font-size:14px;color:var(--text-2);line-height:1.45}
+.pillars-inline{grid-template-columns:repeat(3,1fr);margin-top:28px}
+
+/* studii de caz */
+.cases{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.case{display:flex;flex-direction:column;background:var(--surface-solid)}
+.case-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.case-client{font-weight:700;font-size:18px;letter-spacing:-.02em}
+.case-logo{max-height:34px;width:auto}
+.case h3{font-size:clamp(1.15rem,1.6vw,1.3rem);margin:16px 0 18px}
+.case-steps{list-style:none;padding:0;margin:0;display:grid;gap:14px;counter-reset:cs}
+.case-steps>li{position:relative;padding-left:22px}
+.case-steps>li::before{content:"";position:absolute;left:4px;top:7px;width:7px;height:7px;border-radius:2px;background:var(--brand-1)}
+.case-steps>li:not(:last-child)::after{content:"";position:absolute;left:7px;top:20px;bottom:-12px;width:1px;background:var(--border-2)}
+.case-steps small{display:block;font-family:var(--mono);font-size:12px;color:var(--text-3);text-transform:none;margin-bottom:2px}
+.case-steps p{font-size:15px}
+.case-steps .chips-static{margin:6px 0 0}
+.case .more{margin-top:auto;padding-top:20px}
+.case-flow{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.case-flow>li{display:grid;grid-template-columns:56px 1fr;gap:8px;padding:26px 28px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface)}
+.case-flow>li>.mono{font-size:13px;color:var(--brand-1);padding-top:6px}
+.case-flow h2{font-size:clamp(1.25rem,2vw,1.6rem);margin:0 0 8px}
+.case-flow p{color:var(--text-2);margin:0}
+.case-flow .checklist{margin:6px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+
+/* abonamente + configurator */
+.pricing{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px;align-items:stretch}
+.price-card,.configurator{padding:clamp(24px,3.5vw,36px);border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface-solid)}
+.price-card{border-color:rgba(77,130,236,.4);background:radial-gradient(520px 280px at 0% 0%,rgba(77,130,236,.16),transparent 65%),var(--surface-solid)}
+.price-top{display:flex;justify-content:space-between;align-items:center}
+.price-name{font-weight:650;font-size:18px}
+.price{margin:14px 0 6px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.price small{font-size:15px;color:var(--text-2)}
+.price b{font-size:clamp(2.6rem,6vw,3.6rem);letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}
+.price span{color:var(--text-2);font-weight:500}
+.price-card .checklist{margin:18px 0 22px}
+.price-card .checklist li{padding:6px 0;font-size:15.5px}
+.configurator h3{margin:0 0 8px;font-size:1.3rem}
+.configurator .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.configurator .field{margin-bottom:14px}
+.configurator label:not(.chips label){display:block;font-size:13.5px;font-weight:500;color:var(--text-2);margin-bottom:6px}
+.configurator select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border-2);background:var(--bg);font-size:15px}
+
+/* formular în doi pași */
+.form-more{border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface)}
+.form-more summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:13px 16px;font-size:14.5px;font-weight:600}
+.form-more summary::-webkit-details-marker{display:none}
+.form-more summary .ico{width:18px;height:18px;color:var(--brand-1);transition:transform .25s var(--ease)}
+.form-more[open] summary .ico{transform:rotate(45deg)}
+.form-more summary .muted{font-weight:400;font-size:13.5px}
+.form-more-body{display:grid;gap:14px;padding:4px 16px 18px}
+
+/* echipa */
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.team-card{padding:16px 16px 22px;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface)}
+.team-photo{aspect-ratio:5/6;border-radius:calc(var(--radius-lg) - 8px);overflow:hidden;background:var(--surface-2);margin-bottom:18px}
+.team-photo img{width:100%;height:100%;object-fit:cover}
+.team-photo.empty{display:grid;place-items:center;background:radial-gradient(circle at 30% 20%,rgba(77,130,236,.22),transparent 60%),var(--surface-2);border:1px dashed var(--border-2)}
+.team-photo.empty span{font-size:clamp(3rem,7vw,5rem);font-weight:700;letter-spacing:-.05em;color:var(--brand-1);opacity:.7}
+.team-card h3{margin:0 6px 2px;font-size:1.35rem}
+.team-role{margin:0 6px 10px;font-size:14px;font-weight:550;color:var(--brand-1)}
+.team-card .muted{margin:0 6px;font-size:15px}
+.philosophy{max-width:980px;margin:0 auto;text-align:center}
+.philosophy h2{font-size:clamp(2.4rem,6vw,4.4rem);letter-spacing:-.05em}
+.philosophy>p{font-size:clamp(1.05rem,1.5vw,1.25rem);color:var(--text-2);max-width:720px;margin:0 auto}
+.philosophy .pillars{text-align:left}
+
+/* VITIM AI: hartă și fluxuri */
+.ai-map{display:grid;grid-template-columns:.7fr 1fr 1.1fr 1fr .8fr;gap:0;align-items:center;padding:clamp(20px,3vw,32px);border-radius:var(--radius-lg);border:1px solid var(--border);background:radial-gradient(600px 300px at 50% 50%,rgba(77,130,236,.14),transparent 70%),var(--surface-solid);position:relative;overflow:hidden}
+.ai-col{display:grid;gap:8px;padding:0 12px;position:relative}
+.ai-col>small{font-size:11.5px;color:var(--text-3);margin-bottom:4px}
+.ai-col+.ai-col::before{content:"";position:absolute;left:-6px;top:50%;width:12px;height:12px;border-top:1.5px solid var(--brand-1);border-right:1.5px solid var(--brand-1);transform:translateY(-50%) rotate(45deg);opacity:.7}
+.ai-chip{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--border);font-size:14px;font-weight:500}
+.ai-chip .ico{width:17px;height:17px;color:var(--text-2)}
+.ai-done{border-color:rgba(52,211,153,.4);color:var(--ok);background:rgba(52,211,153,.08)}
+.ai-done .ico{color:var(--ok)}
+.ai-core{display:grid;justify-items:center;text-align:center;gap:4px;padding:26px 16px;border-radius:20px;background:linear-gradient(180deg,#5a8cef,#3f6fd6);color:#fff;box-shadow:var(--shadow-glow)}
+.ai-core .ico{width:28px;height:28px}
+.ai-core b{font-size:1.25rem;letter-spacing:-.02em}
+.ai-core span{font-size:12.5px;opacity:.85;font-family:var(--mono)}
+.pipes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.pipe{padding:22px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface)}
+.pipe-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.pipe-head .mono{font-size:12px;color:var(--text-3)}
+.pipe ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 0;align-items:center}
+.pipe li{display:flex;align-items:center;gap:6px;font-size:13.5px;padding:6px 10px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2)}
+.pipe li .ico{width:15px;height:15px;color:var(--brand-1)}
+.pipe li:not(.last)::after{content:"→";margin:0 -2px 0 8px;color:var(--text-3);position:relative;left:10px}
+.pipe li:not(.last){margin-right:16px}
+.pipe li.last{border-color:rgba(52,211,153,.4);color:var(--ok)}
+.pipe li.last .ico{color:var(--ok)}
+
+@media (max-width:1024px){
+  .directions,.team{grid-template-columns:1fr}
+  .directions{max-width:680px}
+  .team{grid-template-columns:repeat(3,1fr)}
+  .one-number,.pricing{grid-template-columns:1fr}
+  .pillars{grid-template-columns:repeat(3,1fr)}
+  .hub{position:static}
+  .ai-map{grid-template-columns:1fr 1fr;gap:18px}
+  .ai-col+.ai-col::before{display:none}
+  .ai-core-col{grid-column:1/-1;order:-1}
+  .pipes{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .cases,.team,.qa-list,.case-flow .checklist{grid-template-columns:1fr}
+  .team{max-width:420px}
+  .pillars,.pillars-inline{grid-template-columns:1fr 1fr}
+  .configurator .row{grid-template-columns:1fr}
+  .hub-node{width:76px}
+  .hub-node .ico{width:40px;height:40px;padding:10px}
+  .hub-node small{font-size:11.5px}
+  .case-flow>li{grid-template-columns:1fr;padding:22px}
+  .logo-wall{gap:6px 22px}
+  .logo-wall a{font-size:15px;height:34px}
+}
+@media (max-width:420px){.hub-node small{display:none}.pillars{grid-template-columns:1fr}}
+/* meniu: fără rupere pe două rânduri după adăugarea „Abonamente” */
+.menu>li>a,.menu>li>button,.phone-link,.btn-cta,.logo{white-space:nowrap}
+.logo small{white-space:nowrap}
+@media (max-width:1400px){.nav{gap:18px}.menu>li>a,.menu>li>button{padding:10px 11px}.phone-link span{display:none}}
+@media (max-width:1180px){.logo small{display:none}.menu{gap:0}.menu>li>a,.menu>li>button{padding:10px 8px;font-size:14px}}
+.logo .mark,.logo img{flex:none}.nav .logo{flex:none}
+.pillars li{align-content:start}

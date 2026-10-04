@@ -10,18 +10,19 @@ return [
     [
         'slug' => 'despre-noi',
         'title' => 'Despre noi',
-        'subtitle' => '',
+        'subtitle' => 'Înainte să ne dai acces la infrastructura și datele companiei tale, vrem să știi cine suntem.',
         'template' => 'about',
         'in_footer' => 0,
-        'meta_title' => 'Despre VITIM – IT, securitate, marketing și AI | Târgu Mureș',
-        'meta_description' => 'VITIM este o firmă din Târgu Mureș care oferă mentenanță IT, securitate cibernetică, recuperări de date, marketing online și soluții AI pentru firme din Mureș, Bistrița-Năsăud și Alba.',
+        'meta_title' => 'Despre VITIM – echipa de IT & AI din Târgu Mureș',
+        'meta_description' => 'Cine suntem: echipa VITIM din Târgu Mureș, departamentul extern de IT & AI pentru firme. Mentenanță IT, securitate, backup, automatizări, AI, website și marketing.',
         'body' => <<<'HTML'
 <h2>Cine suntem</h2>
-<p><strong>{{brand}}</strong> (Various IT and Marketing Solutions) este o firmă din Târgu Mureș care ajută afacerile să folosească tehnologia fără stres. Am pornit din IT – calculatoare, rețele, servere, suport – și ne-am extins firesc spre ce au nevoie azi firmele: securitate, vizibilitate online și automatizare cu inteligență artificială.</p>
-<h2>Ce ne diferențiază</h2>
+<p><strong>{{brand}}</strong> (Various IT and Marketing Solutions) este o firmă din Târgu Mureș. Am pornit din IT – calculatoare, rețele, servere, suport – și am crescut odată cu nevoile clienților noștri: securitate, backup, website-uri, marketing și, acum, automatizări și inteligență artificială.</p>
+<p>Astăzi funcționăm ca <strong>departamentul extern de IT &amp; AI</strong> al firmelor cu care lucrăm. Ne ocupăm de tehnologie, ca echipa lor să se poată ocupa de clienți.</p>
+<h2>Cum lucrăm</h2>
 <ul>
-<li><strong>Un singur partener pentru tot ce ține de tehnologie.</strong> Nu mai explici aceeași problemă la trei firme diferite.</li>
-<li><strong>Vorbim pe înțeles.</strong> Îți explicăm opțiunile și costurile clar, fără jargon, și îți spunem sincer ce nu merită.</li>
+<li><strong>Un singur partener pentru toată tehnologia.</strong> Nu mai explici aceeași problemă la trei firme diferite.</li>
+<li><strong>Vorbim pe înțeles.</strong> Îți explicăm opțiunile și costurile clar și îți spunem sincer ce nu merită.</li>
 <li><strong>Prevenim, nu doar reparăm.</strong> Monitorizare, backup verificat și actualizări, ca problemele să nu ajungă la tine.</li>
 <li><strong>Suntem aproape.</strong> Intervenim la sediu în Mureș, Bistrița-Năsăud și Alba și suntem la un telefon distanță pentru restul țării.</li>
 </ul>

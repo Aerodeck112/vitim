@@ -42,7 +42,7 @@ final class LocationController extends SiteController
         $title = $isCounty ? 'Servicii IT în județul ' . $l['name'] : 'Service și suport IT în ' . $l['name'];
         $desc = $isCounty
             ? "Mentenanță IT, reparații, recuperări de date și securitate cibernetică la sediul firmei tale în județul {$l['name']}. Plus SEO, reclame și agenți AI. Suna la " . Settings::get('phone') . '.'
-            : "Firmă IT pentru afaceri din {$l['name']} (jud. {$countyName}): mentenanță, reparații la sediu, recuperare date, securitate, SEO și automatizări AI. Ofertă gratuită.";
+            : "Firmă IT pentru afaceri din {$l['name']} (jud. {$countyName}): mentenanță, reparații la sediu, recuperare date, securitate, SEO și automatizări AI. Evaluare gratuită.";
         $seo = $this->seo($title, $desc, $crumbs);
         $seo->image = abs_url('/og/zona/' . $l['slug'] . '.png');
         $this->applyMeta($seo, $l);

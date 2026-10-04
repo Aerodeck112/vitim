@@ -21,6 +21,12 @@ $managed = [
     ['Lansăm și urmărim', 'Verificăm fiecare mesaj înainte să plece, urmărim primele conversații și ajustăm răspunsurile asistentului după întrebările reale ale clienților.'],
     ['Administrăm lunar', 'Îngrijim site-ul, propunem campanii, îmbunătățim automatizările și îți trimitem raportul lunar: ce s-a făcut, ce a adus, ce urmează.'],
 ];
+$examples = [
+    ['Lead primit', [['inbox', 'Lead primit'], ['brain', 'Analizat'], ['target', 'Calificat'], ['kanban', 'Trecut în CRM'], ['mail', 'Email trimis'], ['refresh', 'Follow-up programat']]],
+    ['Cerere de ofertă', [['file', 'Cerere de ofertă'], ['brain', 'Date interpretate'], ['edit', 'Ofertă generată'], ['download', 'PDF creat'], ['send', 'Email trimis'], ['users', 'Vânzările notificate']]],
+    ['Client existent', [['message', 'Mesaj de la client'], ['search', 'Client identificat'], ['clock', 'Istoric verificat'], ['check-circle', 'Răspuns personalizat']]],
+    ['Comandă WooCommerce', [['shopping', 'Comandă nouă'], ['settings', 'Procesată'], ['mail', 'Notificări trimise'], ['refresh', 'Follow-up'], ['star', 'Cerere de recenzie']]],
+];
 $unique = [
     ['Totul într-un singur loc', 'În loc de un chatbot, un CRM, un program de newsletter, un plugin de cookie-uri și o firmă de mentenanță, ai o singură platformă și un singur partener.'],
     ['Făcută pentru firmele din România', 'Interfață și asistent în română, SMS prin furnizori români, texte legale gândite pentru GDPR, Legea 506/2004 și ANPC.'],
@@ -30,11 +36,43 @@ $unique = [
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['VITIM AI', '/vitim-ai']],
     'eyebrow' => icon('sparkles') . ' Platforma VITIM AI',
-    'title' => 'Firma ta răspunde, vinde și își păstrează clienții, chiar și când nu ești la birou',
-    'lead' => 'VITIM AI adună într-un singur panou asistentul AI de pe site, conversațiile și cererile clienților, campaniile pe email, SMS și WhatsApp, automatizările și îngrijirea site-ului. Noi o configurăm și o administrăm, tu vezi rezultatele.',
-    'actions' => '<a class="btn btn-primary btn-lg" href="#demo-ai">Testează pe site-ul tău ' . icon('arrow-right', 'ico ico-move') . '</a> <a class="btn btn-ghost btn-lg" href="' . e(url('/contact')) . '">Programează o discuție</a>',
+    'title' => 'AI-ul care lucrează cu datele și procesele companiei tale',
+    'lead' => 'Firma ta răspunde, urmărește lead-urile și execută procese automat, chiar și atunci când oamenii tăi nu sunt la birou. VITIM AI este platforma noastră proprie: o configurăm, o conectăm la sistemele tale și o administrăm.',
+    'actions' => '<a class="btn btn-primary btn-lg" href="' . e(url('/contact')) . '">Solicită o evaluare ' . icon('arrow-right', 'ico ico-move') . '</a> <a class="btn btn-ghost btn-lg" href="#demo-ai">Testează pe site-ul tău</a>',
 ]);
 ?>
+<section class="section-sm" id="ce-poate-face">
+  <div class="container">
+    <div class="section-head" data-reveal><span class="eyebrow">Ce poate face VITIM AI?</span><h2>De la mesajul clientului la acțiune, fără să aștepte pe nimeni</h2>
+      <p>VITIM AI primește cererile pe orice canal, le înțelege, caută informația în sistemele firmei și execută pasul următor.</p></div>
+    <div class="ai-map" data-reveal role="img" aria-label="Schemă: clientul scrie pe website, WhatsApp, email sau telefon; VITIM AI lucrează cu CRM, ERP, WooCommerce, calendar și documente; rezultatul este o acțiune">
+      <div class="ai-col"><small class="mono">01 · client</small>
+        <div class="ai-chip"><?= icon('users') ?> Client</div>
+      </div>
+      <div class="ai-col"><small class="mono">02 · canale</small>
+        <?php foreach ([['globe', 'Website'], ['whatsapp', 'WhatsApp'], ['mail', 'Email'], ['phone', 'Telefon']] as [$ic, $l]): ?><div class="ai-chip"><?= icon($ic) ?> <?= e($l) ?></div><?php endforeach; ?>
+      </div>
+      <div class="ai-col ai-core-col"><small class="mono">03 · procesare</small>
+        <div class="ai-core"><?= icon('sparkles') ?><b>VITIM AI</b><span>înțelege · caută · decide</span></div>
+      </div>
+      <div class="ai-col"><small class="mono">04 · sistemele firmei</small>
+        <?php foreach ([['kanban', 'CRM'], ['database', 'ERP'], ['shopping', 'WooCommerce'], ['calendar', 'Calendar'], ['file', 'Documente']] as [$ic, $l]): ?><div class="ai-chip"><?= icon($ic) ?> <?= e($l) ?></div><?php endforeach; ?>
+      </div>
+      <div class="ai-col"><small class="mono">05 · rezultat</small>
+        <div class="ai-chip ai-done"><?= icon('check-circle') ?> Acțiune</div>
+      </div>
+    </div>
+    <div class="pipes">
+      <?php foreach ($examples as $i => [$name, $steps]): ?>
+      <div class="pipe" data-reveal data-delay="<?= $i * 70 ?>">
+        <div class="pipe-head"><span class="mono">exemplu <?= $i + 1 ?></span><strong><?= e($name) ?></strong></div>
+        <ol><?php foreach ($steps as $k => [$ic, $l]): ?><li<?= $k === count($steps) - 1 ? ' class="last"' : '' ?>><?= icon($ic) ?><span><?= e($l) ?></span></li><?php endforeach; ?></ol>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+
 <section class="section-sm">
   <div class="container split">
     <div data-reveal>
@@ -123,4 +161,4 @@ echo View::partial('site/partials/page_hero', [
   </div>
 </section>
 
-<section class="section"><div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Vrei să vezi VITIM AI pe firma ta?', 'text' => 'Spune-ne ce faci și ce site ai. Îți arătăm o demonstrație pe exemplul firmei tale și îți spunem sincer ce merită activat.']) ?></div></section>
+<section class="section"><div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Vrei să vezi VITIM AI pe firma ta?', 'text' => 'Spune-ne cum lucrează firma ta acum. Îți arătăm pe exemplul tău ce poate prelua VITIM AI și îți spunem sincer ce merită automatizat.', 'service' => 'ai-pentru-firme']) ?></div></section>

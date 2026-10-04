@@ -1,5 +1,25 @@
 # Istoric versiuni
 
+## 1.7.0 — repoziționare: departamentul extern de IT & AI
+
+- **Prima pagină, refăcută ca ofertă comercială clară:** „Departamentul extern de IT & AI al firmei tale”, abonamente pentru companii de la 1.000 RON/lună, butoanele „Solicită o evaluare” și „Vezi cum lucrăm”.
+- Secțiuni noi pe prima pagină:
+  - „Un singur partener pentru tehnologia firmei tale” (problemele tipice și schema care le leagă);
+  - cele trei direcții (IT & securitate, VITIM AI & automatizări, Web & creștere digitală), cu legături spre toate paginile de servicii;
+  - „Un singur număr pentru tehnologia firmei tale”;
+  - abonamente cu mini configurator (calculatoare, locații, servicii), care completează singur cererea de evaluare;
+  - „Om, nu robot”;
+  - îndemnul final.
+- **Proiecte reale** în formatul problemă → soluția VITIM → ce am implementat: HIKeVET, LocalMureș, Podreg, Autohouse Westcar, Optoplus, Argento Metal, FerestrePartner.ro, SC Profil, Optofarm, Dental Arena. Primele patru apar pe prima pagină, toate sunt pe `/proiecte`, iar numele clienților apar în „Companii care au lucrat cu VITIM”. Fără cifre inventate; rezultatele se adaugă din panou doar când sunt confirmate de client.
+- **Despre noi:**
+  - echipa (Victor, Cristian, Thea) cu locuri pentru fotografii;
+  - mesajul „Înainte să ne dai acces la infrastructura și datele companiei tale, vrem să știi cine suntem”;
+  - filosofia „Om, nu robot”.
+- **Formular de contact mai scurt:** nume, telefon sau email, „Cu ce te putem ajuta?” și butonul „Vreau să discutăm”. Detaliile despre firmă (angajați, calculatoare, servicii, buget, județ) sunt opționale.
+- **Pagina VITIM AI** are schema „Ce poate face VITIM AI?” (client → canale → VITIM AI → CRM / ERP / WooCommerce / calendar / documente → acțiune) și patru fluxuri exemplu.
+- Paginile de servicii și toate adresele rămân aceleași. Paginile de servicii trimit acum spre abonamente, iar meniul are „Abonamente” și butonul „Solicită o evaluare”.
+- **Actualizare:** textele vechi ale primei pagini și ale paginii „Despre noi” se păstrează în setarea `backup_texte_v16`. În Panou → Setări → Prima pagină se pot edita prețul „de la”, nota de preț, echipa și cele trei fotografii. La proiecte se pot edita problema, soluția, ce am implementat, eticheta, logo-ul și opțiunea „Pe prima pagină”.
+
 ## 1.6.0 — design reîmprospătat
 
 - O singură culoare de accent (albastru, mai calm) în loc de gradientul albastru-violet; butoanele, chatul și iconițele o folosesc unitar.

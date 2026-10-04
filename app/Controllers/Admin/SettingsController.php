@@ -56,6 +56,10 @@ final class SettingsController extends AdminController
                 ['home_process', 'Cum lucrăm (pași)', 'repeater', '', [['key' => 'title', 'label' => 'Pas'], ['key' => 'text', 'label' => 'Descriere', 'type' => 'textarea']]],
                 ['home_faq', 'Întrebări frecvente', 'repeater', '', [['key' => 'q', 'label' => 'Întrebare'], ['key' => 'a', 'label' => 'Răspuns', 'type' => 'textarea']]],
                 ['home_cta_title', 'Titlu secțiune contact', 'text'], ['home_cta_text', 'Text secțiune contact', 'textarea'],
+                ['pricing_from', 'Abonamente „de la” (RON/lună)', 'text', 'Apare pe prima pagină, în secțiunea de prețuri și în meniul de contact. Ex: 1.000'],
+                ['pricing_note', 'Notă preț', 'textarea'],
+                ['about_team', 'Echipa (pagina Despre noi)', 'repeater', 'Doar oameni reali și roluri reale. Fotografiile se pun mai jos, în aceeași ordine.', [['key' => 'name', 'label' => 'Nume'], ['key' => 'role', 'label' => 'Rol'], ['key' => 'text', 'label' => 'Ce face', 'type' => 'textarea']]],
+                ['team_photo_1', 'Fotografie membru 1', 'image'], ['team_photo_2', 'Fotografie membru 2', 'image'], ['team_photo_3', 'Fotografie membru 3', 'image'],
             ]],
             'email' => ['label' => 'Email & SMTP', 'fields' => [
                 ['mail_driver', 'Metodă de trimitere', 'select', 'SMTP este recomandat (emailurile ajung mai rar în spam).', ['smtp' => 'SMTP (recomandat)', 'mail' => 'PHP mail() – rezervă']],

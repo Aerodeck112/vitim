@@ -4,9 +4,9 @@ use App\Core\View;
 echo View::partial('site/partials/page_hero', [
     'crumbs' => [['Servicii', '/servicii']],
     'eyebrow' => icon('layers') . ' ' . count(\App\Core\Site::services()) . ' servicii, un singur partener',
-    'title' => 'Servicii IT, securitate, marketing și AI pentru firme',
-    'lead' => 'Alege exact ce ai nevoie sau lasă-ne să construim un pachet complet: infrastructură IT fiabilă, date protejate, clienți din online și procese automatizate.',
-    'actions' => '<a class="btn btn-primary btn-lg" href="' . e(url('/contact')) . '">Cere o ofertă ' . icon('arrow-right', 'ico ico-move') . '</a>',
+    'title' => 'Servicii IT, securitate, automatizări AI și creștere digitală pentru firme',
+    'lead' => 'Toate serviciile departamentului tău extern de IT & AI. Le poți lua separat sau împreună, într-un abonament pentru companii de la ' . setting('pricing_from', '1.000') . ' RON/lună.',
+    'actions' => '<a class="btn btn-primary btn-lg" href="' . e(url('/contact')) . '">Solicită o evaluare ' . icon('arrow-right', 'ico ico-move') . '</a> <a class="btn btn-ghost btn-lg" href="' . e(url('/#abonamente')) . '">Vezi abonamentele</a>',
 ]);
 ?>
 <section class="section">

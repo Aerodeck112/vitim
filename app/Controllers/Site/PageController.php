@@ -43,8 +43,8 @@ final class PageController extends SiteController
     {
         $url = abs_url('/vitim-ai');
         $faq = self::platformFaq();
-        $seo = $this->seo('VITIM AI – asistent AI, CRM și marketing automat pentru firma ta',
-            'VITIM AI: asistent AI pe site care răspunde clienților 24/7, contacte și cereri într-un singur loc, campanii pe email, SMS și WhatsApp, automatizări, magazin online și site administrat de echipa VITIM.',
+        $seo = $this->seo('VITIM AI – agenți AI și automatizare procese pentru firme',
+            'VITIM AI, platforma proprie VITIM: AI care lucrează cu datele și procesele firmei tale. Răspunde clienților, califică lead-uri, generează oferte, se conectează la CRM, ERP și WooCommerce.',
             [['VITIM AI', '/vitim-ai']]);
         $seo->schema[] = [
             '@type' => 'SoftwareApplication', '@id' => $url . '#produs', 'name' => 'VITIM AI', 'url' => $url,
@@ -89,7 +89,7 @@ final class PageController extends SiteController
         if (!$items) {
             return $this->notFound();
         }
-        $seo = $this->seo('Proiecte și studii de caz', 'Proiecte reale VITIM: infrastructură IT, securitate, SEO, campanii și automatizări AI – problema, soluția și rezultatele.', [['Proiecte', '/proiecte']]);
+        $seo = $this->seo('Proiecte și studii de caz', 'Proiecte reale VITIM pentru companii: platforme custom, automatizări, WooCommerce, infrastructură și marketing – problema, soluția VITIM și ce am implementat.', [['Proiecte', '/proiecte']]);
         $seo->pageType = 'CollectionPage';
         return $this->view('projects', ['items' => $items], $seo);
     }

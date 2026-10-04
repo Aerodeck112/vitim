@@ -81,8 +81,8 @@ final class Crm
         }
         return DB::insert('contacts', [
             'name' => $d['name'] ?? ($d['email'] ?? 'Contact'),
-            'email' => $d['email'] ?? null,
-            'phone' => $d['phone'] ?? null,
+            'email' => ($d['email'] ?? '') !== '' ? $d['email'] : null,
+            'phone' => ($d['phone'] ?? '') !== '' ? $d['phone'] : null,
             'company' => $d['company'] ?? null,
             'county' => $d['county'] ?? null,
             'status' => 'lead',
@@ -244,7 +244,7 @@ final class Crm
             }
         }
         $html .= '</table><p style="margin:20px 0 8px;color:#6b7489">Mesaj:</p><div style="background:#f5f7fb;padding:16px;border-radius:12px;white-space:pre-wrap">' . nl2br(e($d['message'])) . '</div>';
-        $html .= '<p style="margin:28px 0 0"><a href="' . e(abs_url('/admin/crm/contacte/' . $contactId)) . '" style="background:#2f6bff;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:600">Deschide în CRM</a> &nbsp; <a href="tel:' . e(preg_replace('/[^0-9+]/', '', $d['phone'])) . '" style="color:#2f6bff">Sună acum</a></p>';
+        $html .= '<p style="margin:28px 0 0"><a href="' . e(abs_url('/admin/crm/contacte/' . $contactId)) . '" style="background:#2f6bff;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:600">Deschide în CRM</a> ' . ($d['phone'] !== '' ? '&nbsp; <a href="tel:' . e(preg_replace('/[^0-9+]/', '', $d['phone'])) . '" style="color:#2f6bff">Sună acum</a>' : '') . '</p>';
         foreach (array_filter(array_map('trim', explode(',', $to))) as $addr) {
             Mailer::send($addr, '🔔 Lead nou: ' . $d['name'] . ($serviceTitle ? ' – ' . $serviceTitle : ''), Mailer::layout($html), ['kind' => 'notify', 'reply_to' => $d['email'], 'reply_name' => $d['name']]);
         }

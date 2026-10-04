@@ -1,14 +1,26 @@
 <?php
 use App\Core\View;
 
-echo View::partial('site/partials/page_hero', ['crumbs' => [['Proiecte', '/proiecte'], [$p['title'], '/proiecte/' . $p['slug']]], 'eyebrow' => icon('award') . ' ' . e($p['service_title'] ?: 'Studiu de caz') . ($p['client'] ? ' · ' . e($p['client']) : ''), 'title' => e($p['title']), 'lead' => $p['summary']]);
+$features = array_values(array_filter(array_map('trim', explode("\n", (string)($p['features'] ?? '')))));
+echo View::partial('site/partials/page_hero', ['crumbs' => [['Proiecte', '/proiecte'], [$p['client'] ?: $p['title'], '/proiecte/' . $p['slug']]], 'eyebrow' => icon('award') . ' ' . e($p['tag'] ?? '' ?: ($p['service_title'] ?: 'Studiu de caz')) . ($p['client'] ? ' · ' . e($p['client']) : ''), 'title' => e($p['title']), 'lead' => $p['summary']]);
 ?>
 <?php if ($results): ?>
 <section class="section-sm"><div class="container"><div class="stats"><?php foreach ($results as $r): ?><div class="stat"><b><?= e($r['value'] ?? '') ?></b><span><?= e($r['label'] ?? '') ?></span></div><?php endforeach; ?></div></div></section>
 <?php endif; ?>
-<section class="section-sm"><div class="container" style="max-width:880px">
+<section class="section-sm"><div class="container" style="max-width:980px">
   <?php if ($p['cover']): ?><div class="article-cover"><img src="<?= e(upload_url($p['cover'])) ?>" alt="<?= e($p['title']) ?>"></div><?php endif; ?>
+  <?php if (!empty($p['problem'])): ?>
+  <ol class="case-flow">
+    <li data-reveal><span class="mono">01</span><div><h2>Problema</h2><p><?= e($p['problem']) ?></p></div></li>
+    <li data-reveal data-delay="80"><span class="mono">02</span><div><h2>Soluția VITIM</h2><p><?= e((string)$p['solution']) ?></p></div></li>
+    <?php if ($features): ?><li data-reveal data-delay="160"><span class="mono">03</span><div><h2>Ce am implementat</h2><ul class="checklist"><?php foreach ($features as $f): ?><li><?= icon('check-circle') ?><span><?= e($f) ?></span></li><?php endforeach; ?></ul></div></li><?php endif; ?>
+  </ol>
+  <?php else: ?>
   <article class="prose"><?= $p['body'] ?></article>
-  <?php if ($p['service_slug']): ?><p style="margin-top:32px"><a class="btn btn-ghost" href="<?= e(url('/servicii/' . $p['service_slug'])) ?>">Despre serviciul <?= e($p['service_title']) ?> <?= icon('arrow-right') ?></a></p><?php endif; ?>
+  <?php endif; ?>
+  <p style="margin-top:32px;display:flex;flex-wrap:wrap;gap:10px">
+    <?php if ($p['service_slug']): ?><a class="btn btn-ghost" href="<?= e(url('/servicii/' . $p['service_slug'])) ?>">Despre serviciul <?= e($p['service_title']) ?> <?= icon('arrow-right') ?></a><?php endif; ?>
+    <a class="btn btn-ghost" href="<?= e(url('/proiecte')) ?>">Toate proiectele</a>
+  </p>
 </div></section>
-<section class="section"><div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Vrei rezultate similare?', 'text' => 'Spune-ne unde ești acum și unde vrei să ajungi.', 'service' => $p['service_slug'] ?? '']) ?></div></section>
+<section class="section"><div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Ai o provocare asemănătoare?', 'text' => 'Spune-ne unde ești acum și unde vrei să ajungi. Îți spunem sincer ce se poate face.', 'service' => $p['service_slug'] ?? '']) ?></div></section>

@@ -72,11 +72,11 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
               <?php endforeach; ?>
             </div>
             <?php endforeach; ?>
-            <div class="mega-foot"><span>Nu știi exact de ce ai nevoie? Îți recomandăm noi soluția potrivită, gratuit.</span><a class="btn btn-primary btn-sm" href="<?= e(url('/contact')) ?>">Discută cu un specialist <?= icon('arrow-right', 'ico ico-move') ?></a></div>
+            <div class="mega-foot"><span>Nu știi de unde să începi? Facem o evaluare și îți spunem ce merită administrat, securizat și automatizat.</span><a class="btn btn-primary btn-sm" href="<?= e(url('/contact')) ?>">Discută cu un specialist <?= icon('arrow-right', 'ico ico-move') ?></a></div>
           </div>
         </li>
         <li><a href="<?= e(url('/vitim-ai')) ?>"<?= $cur('/vitim-ai') ?>>VITIM AI</a></li>
-        <li><a href="<?= e(url('/zone')) ?>"<?= $cur('/zone') ?>>Zone</a></li>
+        <li><a href="<?= e(url('/#abonamente')) ?>">Abonamente</a></li>
         <?php if (Site::hasProjects()): ?><li><a href="<?= e(url('/proiecte')) ?>"<?= $cur('/proiecte') ?>>Proiecte</a></li><?php endif; ?>
         <li><a href="<?= e(url('/blog')) ?>"<?= $cur('/blog') ?>>Blog</a></li>
         <li><a href="<?= e(url('/despre-noi')) ?>"<?= $cur('/despre-noi') ?>>Despre noi</a></li>
@@ -86,7 +86,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
     <div class="nav-actions">
       <a class="phone-link" href="<?= e(phone_href($phone)) ?>" data-loc="header"><?= icon('phone') ?><span><?= e($phone) ?></span></a>
       <button class="icon-btn" type="button" data-theme-toggle aria-label="Schimbă tema"><?= icon('sun', 'ico i-sun') ?><?= icon('moon', 'ico i-moon') ?></button>
-      <a class="btn btn-primary btn-sm btn-cta" href="<?= e(url('/contact')) ?>">Cere ofertă</a>
+      <a class="btn btn-primary btn-sm btn-cta" href="<?= e(url('/contact')) ?>">Solicită o evaluare</a>
       <button class="icon-btn burger" type="button" data-drawer-open aria-label="Deschide meniul" aria-controls="drawer"><?= icon('menu') ?></button>
     </div>
   </div>
@@ -102,13 +102,14 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
       <?php foreach ($g['items'] as $s): ?><a href="<?= e(url('/servicii/' . $s['slug'])) ?>"><?= e($s['title']) ?></a><?php endforeach; ?>
     <?php endforeach; ?>
   </details>
+  <a href="<?= e(url('/#abonamente')) ?>">Abonamente</a>
   <a href="<?= e(url('/zone')) ?>">Zone deservite</a>
   <?php if (Site::hasProjects()): ?><a href="<?= e(url('/proiecte')) ?>">Proiecte</a><?php endif; ?>
   <a href="<?= e(url('/blog')) ?>">Blog</a>
   <a href="<?= e(url('/vitim-ai')) ?>">VITIM AI</a>
   <a href="<?= e(url('/despre-noi')) ?>">Despre noi</a>
   <a href="<?= e(url('/contact')) ?>">Contact</a>
-  <a class="btn btn-primary btn-lg btn-block" href="<?= e(url('/contact')) ?>">Cere o ofertă gratuită</a>
+  <a class="btn btn-primary btn-lg btn-block" href="<?= e(url('/contact')) ?>">Solicită o evaluare</a>
   <a class="btn btn-ghost btn-lg btn-block" href="<?= e(phone_href($phone)) ?>" data-loc="drawer"><?= icon('phone') ?> <?= e($phone) ?></a>
 </div>
 
@@ -182,7 +183,7 @@ function ld(u){var j=document.createElement('script');j.async=true;j.src=u;docum
 <nav class="mobile-bar" aria-label="Acțiuni rapide">
   <a href="<?= e(phone_href($phone)) ?>" data-loc="mobile-bar"><?= icon('phone') ?> Sună</a>
   <?php if ($wa): ?><a href="<?= e(whatsapp_href($wa, 'Bună! Aș dori mai multe informații despre serviciile VITIM.')) ?>" target="_blank" rel="noopener"><?= icon('whatsapp') ?> WhatsApp</a><?php else: ?><a href="mailto:<?= e(setting('email')) ?>"><?= icon('mail') ?> Email</a><?php endif; ?>
-  <a class="primary" href="<?= e(url('/contact')) ?>">Cere ofertă <?= icon('arrow-right') ?></a>
+  <a class="primary" href="<?= e(url('/contact')) ?>">Evaluare <?= icon('arrow-right') ?></a>
 </nav>
 
 <?php if (setting('cookie_banner') === '1'): ?>

@@ -34,15 +34,27 @@ final class FormController extends SiteController
             'budget' => Sanitizer::text(str_input('budget'), 60),
             'message' => Sanitizer::text(str_input('message'), 5000),
         ];
+        // formularul scurt (v1.7) are un singur câmp „Telefon sau email”
+        $contact = Sanitizer::text(str_input('contact'), 160);
+        if ($contact !== '') {
+            if (str_contains($contact, '@')) {
+                $d['email'] = $d['email'] ?: mb_strtolower($contact);
+            } else {
+                $d['phone'] = $d['phone'] ?: mb_substr($contact, 0, 30);
+            }
+        }
         $errors = [];
         if (mb_strlen($d['name']) < 2) {
             $errors[] = 'numele';
         }
-        if (!filter_var($d['email'], FILTER_VALIDATE_EMAIL)) {
+        $emailOk = filter_var($d['email'], FILTER_VALIDATE_EMAIL) !== false;
+        $phoneOk = strlen(preg_replace('/\D/', '', $d['phone'])) >= 9;
+        if ($d['email'] !== '' && !$emailOk) {
             $errors[] = 'un email valid';
-        }
-        if (strlen(preg_replace('/\D/', '', $d['phone'])) < 9) {
+        } elseif ($d['phone'] !== '' && !$phoneOk) {
             $errors[] = 'un număr de telefon valid';
+        } elseif (!$emailOk && !$phoneOk) {
+            $errors[] = 'un telefon sau un email la care te putem contacta';
         }
         if (mb_strlen($d['message']) < 5) {
             $errors[] = 'mesajul';
@@ -52,6 +64,21 @@ final class FormController extends SiteController
         }
         if ($errors) {
             json_out(['ok' => false, 'message' => 'Te rugăm să completezi ' . implode(', ', $errors) . '.'], 422);
+        }
+        // detaliile opționale (pasul 2) se adaugă la mesaj, ca să ajungă în CRM și în notificare
+        $extra = [];
+        foreach (['employees' => 'Angajați', 'computers' => 'Calculatoare'] as $k => $label) {
+            $v = Sanitizer::text(str_input($k), 30);
+            if ($v !== '') {
+                $extra[] = $label . ': ' . $v;
+            }
+        }
+        $needs = array_filter(array_map(fn($v) => Sanitizer::text(is_string($v) ? $v : '', 40), array_slice((array)($_POST['needs'] ?? []), 0, 8)));
+        if ($needs) {
+            $extra[] = 'Servicii de interes: ' . implode(', ', $needs);
+        }
+        if ($extra) {
+            $d['message'] .= "\n\n" . implode("\n", $extra);
         }
         if (preg_match_all('#https?://#i', $d['message']) > 3) {
             $spam += 3;
@@ -65,13 +92,13 @@ final class FormController extends SiteController
         }
 
         $serviceTitle = $d['service'] ? (string)DB::val('SELECT title FROM services WHERE slug = ?', [$d['service']]) : '';
-        $result = Crm::captureLead($d + ['service_title' => $serviceTitle], $utm, $spam, !empty($_POST['newsletter']));
+        $result = Crm::captureLead($d + ['service_title' => $serviceTitle], $utm, $spam, !empty($_POST['newsletter']) && $emailOk);
 
         $this->respondThenContinue(['ok' => true, 'message' => 'Mulțumim! Am primit mesajul și revenim în curând.', 'redirect' => url('/multumim')]);
 
         if ($spam < 5) {
             Crm::notifyNewLead($result['contact_id'], $result['deal_id'], $d, $serviceTitle, $utm);
-            if (Settings::get('autoreply_enabled') === '1') {
+            if ($emailOk && Settings::get('autoreply_enabled') === '1') {
                 $body = Mailer::merge((string)Settings::get('autoreply_body'), ['name' => $d['name'], 'email' => $d['email'], 'company' => $d['company']]);
                 Mailer::send($d['email'], Mailer::merge((string)Settings::get('autoreply_subject'), ['name' => $d['name']]), Mailer::layout($body, ['reason' => 'Primești acest email pentru că ai trimis o solicitare pe ' . parse_url(abs_url('/'), PHP_URL_HOST) . '.']), ['kind' => 'autoreply', 'to_name' => $d['name']]);
             }

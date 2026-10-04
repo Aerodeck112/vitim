@@ -9,7 +9,7 @@ echo View::partial('site/partials/page_hero', [
     'title' => e($h1),
     'image' => $s['image'] ?? '',
     'lead' => $s['excerpt'],
-    'actions' => '<a class="btn btn-primary btn-lg" href="#oferta">Cere o ofertă gratuită ' . icon('arrow-right', 'ico ico-move') . '</a><a class="btn btn-ghost btn-lg" href="' . e(phone_href((string)setting('phone'))) . '" data-loc="service-hero">' . icon('phone') . ' ' . e(setting('phone')) . '</a>',
+    'actions' => '<a class="btn btn-primary btn-lg" href="#oferta">Solicită o evaluare ' . icon('arrow-right', 'ico ico-move') . '</a><a class="btn btn-ghost btn-lg" href="' . e(phone_href((string)setting('phone'))) . '" data-loc="service-hero">' . icon('phone') . ' ' . e(setting('phone')) . '</a>',
 ]);
 ?>
 <?php if ($features): ?>
@@ -35,8 +35,13 @@ echo View::partial('site/partials/page_hero', [
       <div class="side-card">
         <h3>Discută cu un specialist</h3>
         <p class="muted" style="font-size:15px;margin:0">Consultanța inițială și oferta sunt gratuite.<?php if ($s['price_from']): ?> Prețuri <strong style="color:var(--text)">de la <?= e($s['price_from']) ?></strong>.<?php endif; ?></p>
-        <a class="btn btn-primary btn-block" href="#oferta">Cere ofertă</a>
+        <a class="btn btn-primary btn-block" href="#oferta">Solicită o evaluare</a>
         <a class="btn btn-ghost btn-block" href="<?= e(phone_href((string)setting('phone'))) ?>" data-loc="service-side"><?= icon('phone') ?> <?= e(setting('phone')) ?></a>
+      </div>
+      <div class="side-card">
+        <h3>Inclus în abonamentul VITIM</h3>
+        <p class="muted" style="font-size:15px;margin:0 0 12px">Serviciul se poate lua separat sau împreună cu restul tehnologiei firmei, într-un abonament pentru companii de la <strong style="color:var(--text)"><?= e(setting('pricing_from', '1.000')) ?> RON/lună</strong>.</p>
+        <a class="link" href="<?= e(url('/#abonamente')) ?>">Vezi abonamentele <?= icon('arrow-right') ?></a>
       </div>
       <?php if ($s['onsite']): ?>
       <div class="side-card"><h3>Intervenții la sediu</h3><ul class="toc"><?php foreach (Site::counties() as $c): ?><li><a href="<?= e(url('/zone/' . $c['slug'])) ?>">Județul <?= e($c['name']) ?></a></li><?php endforeach; ?></ul></div>
@@ -81,5 +86,5 @@ echo View::partial('site/partials/page_hero', [
 <?php endif; ?>
 
 <section class="section" id="oferta">
-  <div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Cere o ofertă: ' . $s['title'], 'text' => 'Spune-ne câteva detalii și revenim în aceeași zi lucrătoare cu o propunere clară – fără obligații.', 'service' => $s['slug']]) ?></div>
+  <div class="container"><?= View::partial('site/partials/cta_form', ['title' => 'Discută cu VITIM: ' . $s['title'], 'text' => 'Spune-ne în câteva cuvinte ce ai nevoie. Revenim în aceeași zi lucrătoare cu pașii următori, fără obligații.', 'service' => $s['slug']]) ?></div>
 </section>
