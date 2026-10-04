@@ -110,6 +110,8 @@ final class AnnouncementTest extends TestCase
         [$b] = $this->client('Liniste');
         $changelog = "# Versiuni\n\n## 0.19.0 — noutăți către clienți\n\n- **Emailuri** cu noutățile.\n\n**Actualizare:** pluginul 1.6.0.\n\n## 0.18.0 — cookie-uri\n\n- vechi\n";
         $service = app(Announcements::class);
+        // versiunea instalată e deja cunoscută: comanda nu face o ciornă și pentru ea
+        PlatformSetting::put('announcements_version', trim((string) file_get_contents(base_path('VERSION'))));
 
         $draft = $service->draftFromChangelog('0.19.0', $changelog);
         $this->assertSame('draft', $draft->status);
@@ -134,6 +136,7 @@ final class AnnouncementTest extends TestCase
         PlatformSetting::put('announcements', ['auto_updates' => true, 'digest' => true, 'digest_day' => 3, 'roles' => 'owners']);
         $this->travelTo(now('Europe/Bucharest')->startOfMonth()->addMonth()->setDay(3)->setTime(10, 30)->utc());
         $period = now('Europe/Bucharest')->subMonthNoOverflow();
+        $this->tenant()->runAs($b, fn () => WorkLog::query()->delete()); // firma fără activitate în luna rezumatului
         $this->tenant()->runAs($a, function () use ($period): void {
             WorkLog::create(['category' => WorkCategory::Updates, 'title' => 'Actualizări lunare', 'performed_at' => $period->copy()->setDay(10), 'visible_to_client' => true, 'source' => 'manual']);
             Conversation::create(['channel' => 'web', 'status' => 'open', 'mode' => 'ai', 'is_test' => false])->forceFill(['created_at' => $period->copy()->setDay(12)])->save();
