@@ -20,4 +20,11 @@ interface AiClient
 
     /** Există o cheie configurată (altfel agentul răspunde din informațiile firmei, fără model AI). */
     public function configured(): bool;
+
+    /**
+     * Verifică cheia și modelul implicit, fără să genereze text (nu costă).
+     *
+     * @return array{ok: bool, reason: string, detail: string}
+     */
+    public function check(string $model): array;
 }

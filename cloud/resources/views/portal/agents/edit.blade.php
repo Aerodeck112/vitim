@@ -5,7 +5,7 @@
 @php($engine = old('engine', $sys['engine'] ?? 'auto'))
 @php($hasKey = app(\App\Ai\AiClient::class)->configured())
 <div class="head"><div><h1>{{ $agent->name }}</h1><p>status {{ $agent->status->value }} · versiunea {{ $versions->first()?->version ?? 1 }} ·
-  {{ $engine === 'local' || ($engine === 'auto' && ! $hasKey) ? 'răspunde din informațiile firmei (fără cost AI)' : 'răspunde cu Claude ('.($agent->model_configuration['model'] ?? '—').')' }}</p></div>
+  {{ $engine === 'local' || ($engine === 'auto' && ! $hasKey) || ($agent->site && ! $agent->site->ai_enabled) ? 'răspunde din informațiile firmei (fără cost AI)' : 'răspunde cu AI' }}@if ($agent->site && ! $agent->site->ai_enabled) <span class="badge warn">AI oprit pe acest site de echipa VITIM</span>@endif</p></div>
   @if ($canManage)<a class="btn btn-p" href="{{ route('portal.agents.test', [$organization->slug, $agent->id]) }}">Testează agentul</a>@endif</div>
 @if ($errors->count() > 1)
   <div class="alert alert-err" role="alert">Nu am salvat. Corectează câmpurile marcate cu roșu:<ul style="margin:6px 0 0 18px;padding:0">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
@@ -25,10 +25,10 @@
       <div class="fl"><label for="default_language">Limba implicită</label><input id="default_language" type="text" name="default_language" value="{{ old('default_language', $agent->default_language) }}" maxlength="2" placeholder="ro">@error('default_language')<div class="err">{{ $message }}</div>@enderror</div>
     </div>
     <div class="fl"><label for="engine">Cum răspunde agentul</label><select id="engine" name="engine">
-      <option value="auto" @selected($engine === 'auto')>Automat: Claude dacă e configurat, altfel din informațiile firmei</option>
+      <option value="auto" @selected($engine === 'auto')>Automat: AI dacă e disponibil, altfel din informațiile firmei</option>
       <option value="local" @selected($engine === 'local')>Doar din informațiile firmei (fără AI extern, fără cost)</option>
-      <option value="claude" @selected($engine === 'claude')>Doar Claude (AI)</option></select>
-      <div class="hint">@if ($hasKey)Cheia Claude e configurată pe server.@else Cheia Claude nu e configurată: în modul automat agentul caută răspunsul în textul de mai jos, adună datele de contact (cu acordul vizitatorului) și anunță echipa când e nevoie de un om.@endif</div>
+      <option value="claude" @selected($engine === 'claude')>Doar AI</option></select>
+      <div class="hint">@if ($hasKey)Răspunsurile AI sunt disponibile.@else Răspunsurile AI nu sunt disponibile acum: în modul automat agentul caută răspunsul în textul de mai jos, adună datele de contact (cu acordul vizitatorului) și anunță echipa când e nevoie de un om.@endif</div>
       @error('engine')<div class="err">{{ $message }}</div>@enderror</div>
   </div>
   <div class="card">
@@ -50,7 +50,7 @@ O cabană de 60 mp e gata în 6–8 săptămâni.</pre>
       <div class="fl"><label for="languages">Limbi (coduri, separate prin virgulă)</label><input id="languages" type="text" name="languages" value="{{ old('languages', implode(', ', $sys['languages'] ?? [])) }}" placeholder="ro, en">@error('languages')<div class="err">{{ $message }}</div>@enderror @error('languages.*')<div class="err">{{ $message }}</div>@enderror</div>
     </div>
     <div class="fl"><label for="greeting">Mesaj de întâmpinare</label><input id="greeting" type="text" name="greeting" value="{{ old('greeting', $sys['greeting'] ?? '') }}" maxlength="500">@error('greeting')<div class="err">{{ $message }}</div>@enderror</div>
-    <div class="fl"><label for="instructions">Instrucțiuni suplimentare (doar pentru Claude)</label><textarea id="instructions" name="instructions" maxlength="4000">{{ old('instructions', $sys['instructions'] ?? '') }}</textarea>@error('instructions')<div class="err">{{ $message }}</div>@enderror</div>
+    <div class="fl"><label for="instructions">Instrucțiuni suplimentare (doar pentru răspunsurile AI)</label><textarea id="instructions" name="instructions" maxlength="4000">{{ old('instructions', $sys['instructions'] ?? '') }}</textarea>@error('instructions')<div class="err">{{ $message }}</div>@enderror</div>
     <div class="fl"><label for="fallback_behavior">Când nu știe răspunsul</label><select id="fallback_behavior" name="fallback_behavior">
       @foreach ($fallbacks as $f)<option value="{{ $f }}" @selected(old('fallback_behavior', $sys['fallback_behavior'] ?? '') === $f)>{{ ['collect_contact' => 'Cere datele de contact', 'handoff' => 'Anunță un om din echipă', 'apologize' => 'Spune că nu știe și dă datele de contact'][$f] }}</option>@endforeach</select></div>
   </div>

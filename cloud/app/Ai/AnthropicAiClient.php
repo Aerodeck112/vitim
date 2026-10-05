@@ -11,26 +11,53 @@ use Anthropic\Core\Exceptions\APIStatusException;
 use Anthropic\Core\Exceptions\AuthenticationException;
 use Anthropic\Core\Exceptions\PermissionDeniedException;
 use Anthropic\Core\Exceptions\RateLimitException;
+use App\Services\AiKey;
 
 /** Implementarea cu SDK-ul oficial. Cache pe prefixul stabil (instrucțiuni + tool-uri) și fallback la refuz. */
 final class AnthropicAiClient implements AiClient
 {
     public function configured(): bool
     {
-        return (string) config('vitim.ai.api_key') !== '';
+        return AiKey::current() !== '';
     }
 
-    public function create(array $request): array
+    public function check(string $model): array
     {
-        $key = (string) config('vitim.ai.api_key');
+        $key = AiKey::current();
         if ($key === '') {
-            throw new AiUnavailable('not_configured', 'ANTHROPIC_API_KEY lipsește din .env');
+            return ['ok' => false, 'reason' => 'not_configured', 'detail' => ''];
         }
-        $client = new Client(
+        try {
+            $this->client($key)->models->retrieve($model);
+        } catch (AuthenticationException|PermissionDeniedException $e) {
+            return ['ok' => false, 'reason' => 'auth', 'detail' => $e->getMessage()];
+        } catch (RateLimitException $e) {
+            return ['ok' => false, 'reason' => 'rate_limited', 'detail' => $e->getMessage()];
+        } catch (APIStatusException $e) {
+            return ['ok' => false, 'reason' => $e->status === 404 ? 'model' : (str_contains(strtolower($e->getMessage()), 'credit') ? 'billing' : 'unavailable'), 'detail' => $e->getMessage()];
+        } catch (APIConnectionException $e) {
+            return ['ok' => false, 'reason' => 'network', 'detail' => $e->getMessage()];
+        }
+
+        return ['ok' => true, 'reason' => 'ok', 'detail' => ''];
+    }
+
+    private function client(string $key): Client
+    {
+        return new Client(
             apiKey: $key,
             baseUrl: config('vitim.ai.base_url') ?: null,
             requestOptions: ['timeout' => (float) config('vitim.ai.timeout'), 'maxRetries' => 2],
         );
+    }
+
+    public function create(array $request): array
+    {
+        $key = AiKey::current();
+        if ($key === '') {
+            throw new AiUnavailable('not_configured', 'Cheia AI nu e setată (panou sau .env)');
+        }
+        $client = $this->client($key);
 
         try {
             $response = $client->beta->messages->create(

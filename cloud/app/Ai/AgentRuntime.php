@@ -47,7 +47,9 @@ final class AgentRuntime
         $this->message($conversation, SenderType::Contact, $text);
         // fără cheie Claude (sau la alegere): răspunsuri din informațiile firmei, fără cost AI
         $engine = $agent?->system_configuration['engine'] ?? 'auto';
-        $useLocal = $engine === 'local' || ($engine === 'auto' && ! $this->client->configured());
+        // AI-ul se poate opri pe site din panoul VITIM: atunci agentul răspunde doar din informațiile firmei
+        $siteAi = (bool) ($agent?->site?->ai_enabled ?? true);
+        $useLocal = $engine === 'local' || ! $siteAi || ($engine === 'auto' && ! $this->client->configured());
         $blocked = match (true) {
             $agent === null || (! $agent->isActive() && ! $conversation->is_test) => new AgentReply('Asistentul nu este disponibil momentan. '.$contact, 'inactive'),
             ! $organization->isActive() || ! $organization->subscription?->isServiceable() => new AgentReply('Asistentul nu este disponibil momentan. '.$contact, 'inactive'),

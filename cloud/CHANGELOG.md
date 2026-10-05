@@ -1,5 +1,16 @@
 # VITIM AI Cloud — versiuni
 
+## 0.21.0 — asistentul AI, mai clar în setări
+
+- În setările agentului, modurile de răspuns se numesc acum simplu: „Automat”, „Doar din informațiile firmei” și „Doar AI”. Ecranul arată și când răspunsurile AI sunt oprite pe site-ul tău.
+
+**Actualizare:** pagina nouă **Agent AI** (doar super admin):
+- cheia AI se salvează din panou, criptat, cu parola reconfirmată, și nu se mai afișează niciodată întreagă;
+- butonul „Testează cheia” explică ce nu merge: cheie greșită, fără credit, model indisponibil sau rețea;
+- pe fiecare site există comutatoarele „Răspunsuri AI” și „Chat pe site”, plus pornire și oprire pe toate site-urile.
+
+Cheia din panou are prioritate față de `ANTHROPIC_API_KEY` din `.env`. Migrare: coloana `sites.ai_enabled`, implicit pornit.
+
 ## 0.20.0 — panou mai clar și mai ușor de citit
 
 - **Aspect nou al panoului**: litere mai clare, aceeași culoare a mărcii peste tot, cifre aliniate în tabele și în cifrele principale, rândurile tabelelor se evidențiază când treci cu mouse-ul.

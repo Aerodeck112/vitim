@@ -23,6 +23,7 @@
       <a href="{{ route('admin.agents.index') }}" @class(['on' => request()->routeIs('admin.agents.*')])>Agenți</a>
       <a href="{{ route('admin.users.index') }}" @class(['on' => request()->routeIs('admin.users.*')])>Utilizatori</a>
       <a href="{{ route('admin.announcements.index') }}" @class(['on' => request()->routeIs('admin.announcements.*')])>Noutăți către clienți</a>
+      @if ($user->platform_role === \App\Enums\PlatformRole::SuperAdmin)<a href="{{ route('admin.ai') }}" @class(['on' => request()->routeIs('admin.ai*')])>Agent AI</a>@endif
       @if ($user->platform_role === \App\Enums\PlatformRole::SuperAdmin)<a href="{{ route('admin.system') }}" @class(['on' => request()->routeIs('admin.system*')])>Sistem</a>@endif
     @endif
     @isset($organization)

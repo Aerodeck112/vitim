@@ -23,6 +23,14 @@ final class FakeAiClient implements AiClient
         return $this->configured;
     }
 
+    /** @var array{ok: bool, reason: string, detail: string} */
+    public array $checkResult = ['ok' => true, 'reason' => 'ok', 'detail' => ''];
+
+    public function check(string $model): array
+    {
+        return $this->checkResult;
+    }
+
     public function create(array $request): array
     {
         $this->requests[] = $request;

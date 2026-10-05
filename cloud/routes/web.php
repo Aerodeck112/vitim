@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrganizationController;
@@ -93,6 +94,12 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::get('/site-uri', [DashboardController::class, 'sites'])->name('sites.index');
         Route::get('/agenti', [DashboardController::class, 'agents'])->name('agents.index');
         Route::get('/utilizatori', [DashboardController::class, 'users'])->name('users.index');
+        Route::get('/agent-ai', [AiController::class, 'show'])->name('ai');
+        Route::put('/agent-ai/cheie', [AiController::class, 'saveKey'])->middleware('throttle:10,1')->name('ai.key');
+        Route::delete('/agent-ai/cheie', [AiController::class, 'clearKey'])->middleware('throttle:10,1')->name('ai.key.clear');
+        Route::post('/agent-ai/test', [AiController::class, 'test'])->middleware('throttle:20,1')->name('ai.test');
+        Route::post('/agent-ai/site-uri/{site}', [AiController::class, 'toggle'])->whereNumber('site')->middleware('throttle:120,1')->name('ai.toggle');
+        Route::post('/agent-ai/toate', [AiController::class, 'bulk'])->middleware('throttle:10,1')->name('ai.bulk');
         Route::get('/sistem', [SystemController::class, 'show'])->name('system');
         Route::post('/sistem/actualizare', [SystemController::class, 'upload'])->middleware('throttle:5,1')->name('system.upload');
         Route::post('/sistem/actualizare-urcata', [SystemController::class, 'applyPending'])->middleware('throttle:5,1')->name('system.pending');

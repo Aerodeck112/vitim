@@ -9,7 +9,7 @@
 @if ($engine === 'local' || ($engine === 'auto' && ! $configured))
   <div class="alert alert-ok">Agentul răspunde <strong>din informațiile firmei</strong> (fără AI extern, fără cost). Dacă un răspuns lipsește sau nu e bun, completează textul din <a href="{{ route('portal.agents.edit', [$organization->slug, $agent->id]) }}">Configurație</a> → „Informații despre firmă” și încearcă din nou.</div>
 @elseif (! $configured)
-  <div class="alert alert-warn">Agentul e setat pe „Doar Claude”, dar cheia nu este configurată pe server (<span class="mono">ANTHROPIC_API_KEY</span> în <span class="mono">.env</span>). Alege „Automat” în Configurație ca să răspundă din informațiile firmei.</div>
+  <div class="alert alert-warn">Agentul e setat pe „Doar AI”, dar răspunsurile AI nu sunt disponibile acum (cheia AI se setează din panoul VITIM → Agent AI). Alege „Automat” în Configurație ca să răspundă din informațiile firmei.</div>
 @endif
 <p class="muted small">Consum AI luna aceasta: <strong>${{ number_format($spentUsd, 2) }}</strong>@if ($capUsd !== null) din plafonul de ${{ $capUsd }}@endif.@if ($conversation) Conversația aceasta: ${{ number_format($conversation->ai_cost_micro_usd / 1_000_000, 4) }}.@endif</p>
 
