@@ -37,6 +37,17 @@ final class CampaignService
 {
     public const AB_MIN = 10;
 
+    /** Cui retrimite o reluare: toată audiența, cei care n-au deschis, cei la care a eșuat sau cei care n-au primit-o deloc. */
+    public const RESEND = [
+        'all' => 'Toată audiența, din nou',
+        'not_opened' => 'Doar cei care nu au deschis emailul',
+        'failed' => 'Doar cei la care trimiterea a eșuat',
+        'not_received' => 'Doar cei care nu au primit-o (contacte noi sau fără acord atunci)',
+    ];
+
+    /** Statusurile destinatarilor la care mesajul a plecat. */
+    private const DELIVERED = ['sent', 'delivered', 'read', 'unsubscribed'];
+
     /** Câte mesaje pleacă la o rulare (în fiecare minut). */
     private const PER_RUN = ['email' => 40, 'sms' => 60, 'whatsapp' => 60];
 
@@ -90,8 +101,52 @@ final class CampaignService
         foreach ($this->groups((array) ($a['exclude'] ?? [])) as $definition) {
             $query->whereNot(fn (Builder $q) => SegmentQuery::apply($q, $definition));
         }
+        if (! empty($a['resend']['campaign_id'])) {
+            $sent = CampaignRecipient::query()->where('campaign_id', (int) $a['resend']['campaign_id']);
+            match ($a['resend']['mode'] ?? 'all') {
+                'not_opened' => $query->whereIn('id', $sent->whereIn('status', self::DELIVERED)->whereNotNull('sent_at')->whereNull('opened_at')->select('contact_id')),
+                'failed' => $query->whereIn('id', $sent->where('status', 'failed')->select('contact_id')),
+                'not_received' => $query->whereNotIn('id', $sent->whereIn('status', self::DELIVERED)->whereNotNull('contact_id')->select('contact_id')),
+                default => null,
+            };
+        }
 
         return $query;
+    }
+
+    /** @return array<string, int> câți contacte ar intra în fiecare variantă de reluare (înainte de verificarea acordului) */
+    public function resendCounts(Campaign $campaign): array
+    {
+        $base = fn () => CampaignRecipient::query()->where('campaign_id', $campaign->id);
+
+        return [
+            'not_opened' => $base()->whereIn('status', self::DELIVERED)->whereNotNull('sent_at')->whereNull('opened_at')->count(),
+            'failed' => $base()->where('status', 'failed')->count(),
+        ];
+    }
+
+    /**
+     * Reluare: o campanie nouă (ciornă) cu același conținut și același public, restrânsă la varianta aleasă.
+     * Trece prin test și aprobare ca orice campanie; acordul și dezabonările se verifică din nou la aprobare.
+     */
+    public function relaunch(Campaign $source, string $mode, User $user): Campaign
+    {
+        if (! in_array($source->status, ['completed', 'cancelled'], true)) {
+            throw ValidationException::withMessages(['resend' => 'Campania încă se trimite sau e oprită. Las-o să se termine sau anuleaz-o, apoi o poți relua.']);
+        }
+        if (! isset(self::RESEND[$mode]) || ($mode === 'not_opened' && $source->channel !== Channel::Email)) {
+            throw ValidationException::withMessages(['resend' => 'Alege cui retrimiți campania.']);
+        }
+        $suffix = ['all' => 'reluare', 'not_opened' => 'reluare, nu au deschis', 'failed' => 'reluare, eșuate', 'not_received' => 'reluare, nu au primit-o'][$mode];
+        $copy = Campaign::create([
+            'name' => Str::limit($source->name, 120, '').' ('.$suffix.')', 'channel' => $source->channel, 'status' => 'draft',
+            'subject' => $source->subject, 'preheader' => $source->preheader, 'body' => $source->body, 'blocks' => $source->blocks,
+            'template' => $source->template, 'ab' => $source->ab, 'created_by' => $user->id,
+            'audience' => array_filter((array) $source->audience, fn ($k) => $k !== 'resend', ARRAY_FILTER_USE_KEY) + ['resend' => ['campaign_id' => $source->id, 'mode' => $mode]],
+        ]);
+        $this->audit->record('campaign.relaunched', $copy, ['from' => $source->id, 'mode' => $mode]);
+
+        return $copy;
     }
 
     /** Listele / segmentele („list:3”, „segment:5”) ca definiții de segment. @return list<array<string, mixed>> */

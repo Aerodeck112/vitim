@@ -71,6 +71,8 @@ final class CampaignController extends PortalController
             'revenue' => $model->editable() ? null : ShopEvents::revenue($model->id),
             'ab' => $model->ab && ! $model->editable() ? $model->abResults() : null,
             'sendTime' => $model->editable() ? SendTime::best() : null,
+            'resendCounts' => in_array($model->status, ['completed', 'cancelled'], true) ? $service->resendCounts($model) : null,
+            'resendFrom' => ! empty($model->audience['resend']['campaign_id']) ? Campaign::query()->find((int) $model->audience['resend']['campaign_id']) : null,
             'smsParts' => $model->channel === Channel::Sms ? CampaignRenderer::smsParts($preview['body']) : null,
         ]);
     }
@@ -93,7 +95,8 @@ final class CampaignController extends PortalController
         ], ['template_name.regex' => 'Numele șablonului are doar litere mici, cifre și „_”, exact ca în WhatsApp Manager.', 'subject_b.required_if' => 'Scrie subiectul variantei B.']);
         $model->fill([
             'name' => $data['name'], 'subject' => $data['subject'] ?? null, 'body' => $request->has('body') ? ($data['body'] ?? null) : $model->body,
-            'audience' => array_filter(['include' => array_values($data['include'] ?? []), 'exclude' => array_values($data['exclude'] ?? [])]),
+            'audience' => array_filter(['include' => array_values($data['include'] ?? []), 'exclude' => array_values($data['exclude'] ?? []),
+                'resend' => $model->audience['resend'] ?? null]),
         ]);
         if ($model->channel === Channel::Email) {
             $model->ab = ! empty($data['ab_enabled']) ? [
@@ -134,6 +137,14 @@ final class CampaignController extends PortalController
         return $this->to('portal.campaigns.show', ['campaign' => $model->id], $at
             ? "Campania e programată pentru {$at->setTimezone('Europe/Bucharest')->format('d.m.Y H:i')} către {$count} destinatari."
             : "Campania a pornit către {$count} destinatari. Mesajele pleacă în tranșe, în câteva minute.");
+    }
+
+    public function relaunch(Request $request, CampaignService $service, int $campaign): RedirectResponse
+    {
+        $model = Campaign::query()->findOrFail($campaign);
+        $copy = $service->relaunch($model, (string) $request->input('mode', ''), $request->user());
+
+        return $this->to('portal.campaigns.show', ['campaign' => $copy->id], 'Am pregătit reluarea campaniei. Verifică mesajul și destinatarii, trimite-ți un test, apoi aprob-o.');
     }
 
     public function action(Request $request, CampaignService $service, int $campaign): RedirectResponse

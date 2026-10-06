@@ -32,6 +32,30 @@
       <form method="post" action="{{ route('portal.campaigns.action', [$slug, $campaign->id]) }}" @if ($action === 'cancel') onsubmit="return confirm('Anulezi campania? Mesajele netrimise nu mai pleacă.')" @endif>@csrf<input type="hidden" name="action" value="{{ $action }}"><button class="btn {{ $action === 'cancel' ? 'btn-d' : '' }}" type="submit">{{ $label }}</button></form>
     @endforeach
   </div>
+  @if ($resendCounts !== null)
+  <form method="post" action="{{ route('portal.campaigns.relaunch', [$slug, $campaign->id]) }}" class="card resend" id="reluare">
+    @csrf
+    <h2>Reluare campanie</h2>
+    <p class="small muted" style="margin-top:-6px">Pregătește o campanie nouă cu același mesaj și același public. O verifici, îți trimiți un test și o aprobi, ca de obicei. Cine s-a dezabonat între timp sau nu are acord nu o primește.</p>
+    <div class="resend-opts">
+      @foreach (\App\Services\CampaignService::RESEND as $mode => $label)
+        @continue($mode === 'not_opened' && $ch !== 'email')
+        <label class="chk"><input type="radio" name="mode" value="{{ $mode }}" @checked(old('mode', $ch === 'email' ? 'not_opened' : 'all') === $mode) required> {{ $label }}
+          @if (isset($resendCounts[$mode]))<span class="badge">{{ number_format($resendCounts[$mode], 0, ',', '.') }}</span>@endif</label>
+      @endforeach
+    </div>
+    @if ($ch === 'email')<p class="hint small muted">„Nu au deschis” e orientativ: unele programe de email blochează imaginile și nu raportează deschiderea, iar altele o raportează automat.</p>@endif
+    @error('resend')<div class="err">{{ $message }}</div>@enderror
+    <button class="btn btn-p" type="submit">Pregătește reluarea</button>
+  </form>
+  @elseif (in_array($campaign->status, ['scheduled', 'sending', 'paused'], true))
+  <p class="small muted">Reluarea campaniei devine disponibilă după ce trimiterea se termină sau după ce campania e anulată.</p>
+  @endif
+@endif
+
+@if ($resendFrom && $campaign->editable())
+  <div class="alert alert-warn">Aceasta e o reluare a campaniei <a href="{{ route('portal.campaigns.show', [$slug, $resendFrom->id]) }}">{{ $resendFrom->name }}</a>.
+    Pleacă către: <strong>{{ mb_strtolower(\App\Services\CampaignService::RESEND[$a['resend']['mode'] ?? 'all'] ?? '') }}</strong>, cu acord de marketing valabil acum.</div>
 @endif
 
 @if ($ab)

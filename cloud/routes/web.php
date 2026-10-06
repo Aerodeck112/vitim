@@ -177,6 +177,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::put('/campanii/{campaign}', [Portal\CampaignController::class, 'update'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.update');
         Route::post('/campanii/{campaign}/test', [Portal\CampaignController::class, 'test'])->middleware(['can:manage_campaigns', 'throttle:10,1'])->where('campaign', $id)->name('campaigns.test');
         Route::post('/campanii/{campaign}/aprobare', [Portal\CampaignController::class, 'approve'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.approve');
+        Route::post('/campanii/{campaign}/reluare', [Portal\CampaignController::class, 'relaunch'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.relaunch');
         Route::post('/campanii/{campaign}/actiune', [Portal\CampaignController::class, 'action'])->middleware('can:manage_campaigns')->where('campaign', $id)->name('campaigns.action');
         Route::get('/automatizari', [Portal\FlowController::class, 'index'])->middleware('can:manage_campaigns')->name('flows.index');
         Route::post('/automatizari', [Portal\FlowController::class, 'store'])->middleware('can:manage_campaigns')->name('flows.store');

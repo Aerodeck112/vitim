@@ -173,3 +173,4 @@ input[type=number],input[type=datetime-local]{width:100%;padding:10px 12px;borde
 th.cb,td.cb{width:34px;padding-right:0}th.cb input,td.cb input{width:16px;height:16px;accent-color:var(--brand)}
 @media (max-width:820px){.bulk-row{grid-template-columns:1fr}.bulk-head .btn{width:100%}}
 @media (scripting:none){.bulk-body{display:block}}
+.resend .resend-opts{display:grid;gap:4px;margin:6px 0 10px}.resend .badge{margin-left:4px}

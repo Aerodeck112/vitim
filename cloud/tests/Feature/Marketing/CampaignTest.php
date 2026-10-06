@@ -18,6 +18,7 @@ use App\Models\Membership;
 use App\Models\Organization;
 use App\Models\Suppression;
 use App\Models\User;
+use App\Services\CampaignService;
 use App\Services\ConsentService;
 use App\Services\ContactService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -172,6 +173,55 @@ final class CampaignTest extends TestCase
             ->assertSessionHas('ok', fn ($m) => str_contains($m, '1 contacte noi') && str_contains($m, '1 adrese dezabonate'));
         $second = $this->campaign($org, 'email', ['name' => 'A doua', 'subject' => 'S', 'body' => 'B']);
         $this->post("/app/{$org->slug}/campanii/{$second->id}/aprobare", ['confirm' => '1'])->assertSessionHas('ok', fn ($m) => str_contains($m, 'către 1 destinatari'));
+    }
+
+    public function test_relaunch_resends_to_the_chosen_part_of_the_audience(): void
+    {
+        [$org, $owner] = $this->firm();
+        $this->connectEmail($org, $owner);
+        $maria = $this->contact($org, 'Maria', 'maria@ex.ro', null, ['email']);
+        $ion = $this->contact($org, 'Ion', 'ion@ex.ro', null, ['email']);
+        $ana = $this->contact($org, 'Ana', 'ana@ex.ro', null, ['email']);
+        $campaign = $this->campaign($org, 'email', ['name' => 'Primăvară', 'subject' => 'Ofertă', 'body' => 'Bună {{prenume}}, avem ofertă.']);
+        $base = "/app/{$org->slug}/campanii";
+
+        $this->post("{$base}/{$campaign->id}/aprobare", ['confirm' => '1'])->assertSessionHas('ok');
+        $this->post("{$base}/{$campaign->id}/reluare", ['mode' => 'all'])->assertSessionHasErrors('resend'); // încă se trimite
+        $this->artisan('vitim:campaigns')->assertSuccessful();
+        $this->tenant()->runAs($org, function () use ($campaign, $maria, $ion): void {
+            CampaignRecipient::query()->where('campaign_id', $campaign->id)->where('contact_id', $maria->id)->update(['opened_at' => now()]);
+            CampaignRecipient::query()->where('campaign_id', $campaign->id)->where('contact_id', $ion->id)->update(['status' => 'failed', 'reason' => 'mailbox full']);
+        });
+        $vlad = $this->contact($org, 'Vlad', 'vlad@ex.ro', null, ['email']); // a venit după trimitere
+        $this->get("{$base}/{$campaign->id}")->assertOk()->assertSee('Reluare campanie')->assertSee('Doar cei care nu au deschis emailul');
+
+        $eligible = function (string $mode) use ($org, $base, $campaign): array {
+            $this->post("{$base}/{$campaign->id}/reluare", ['mode' => $mode])->assertRedirect();
+            $copy = $this->tenant()->runAs($org, fn () => Campaign::query()->latest('id')->firstOrFail());
+            $this->assertSame('draft', $copy->status);
+            $this->assertSame('Ofertă', $copy->subject);
+
+            return [$copy, $this->tenant()->runAs($org, fn () => app(CampaignService::class)->audienceQuery($copy)->orderBy('first_name')->pluck('first_name')->all())];
+        };
+        $this->assertSame(['Ana', 'Ion', 'Maria', 'Vlad'], $eligible('all')[1]);
+        $this->assertSame(['Ion'], $eligible('failed')[1]);
+        $this->assertSame(['Ion', 'Vlad'], $eligible('not_received')[1]);
+        [$copy, $names] = $eligible('not_opened');
+        $this->assertSame(['Ana'], $names, 'eșuatul nu a primit emailul, deci nu intră la „nu au deschis”');
+
+        // reluarea se editează, se testează și se aprobă ca orice campanie; filtrul rămâne după salvare
+        $this->get("{$base}/{$copy->id}")->assertOk()->assertSee('Aceasta e o reluare a campaniei')->assertSeeText('1 contacte vor primi campania');
+        $this->put("{$base}/{$copy->id}", ['name' => 'Primăvară, a doua oară', 'subject' => 'Ultima zi: ofertă', 'body' => 'Bună {{prenume}}, ultima zi.'])->assertSessionHasNoErrors();
+        $before = count($this->mails);
+        $this->post("{$base}/{$copy->id}/aprobare", ['confirm' => '1'])->assertSessionHas('ok', fn ($m) => str_contains($m, 'către 1 destinatari'));
+        $this->artisan('vitim:campaigns')->assertSuccessful();
+        $this->assertCount($before + 1, $this->mails);
+        $this->assertSame('ana@ex.ro', $this->lastMail()->getTo()[0]->getAddress());
+        $this->assertSame('Ultima zi: ofertă', $this->lastMail()->getSubject());
+
+        // altă firmă nu poate relua campania
+        [$other, $otherOwner] = $this->firm('Altă firmă');
+        $this->actingAs($otherOwner)->post("/app/{$other->slug}/campanii/{$campaign->id}/reluare", ['mode' => 'all'])->assertNotFound();
     }
 
     public function test_hourly_limit_and_import_requires_declared_consent(): void

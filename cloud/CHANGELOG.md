@@ -1,5 +1,14 @@
 # VITIM AI Cloud — versiuni
 
+## 0.23.0 — reluare campanie
+
+- O campanie trimisă sau anulată se poate relua cu butonul **Reluare**. Alegi cui pleacă din nou:
+  - toată audiența;
+  - doar cei care nu au deschis emailul;
+  - doar cei la care trimiterea a eșuat;
+  - doar cei care nu au primit-o (contacte noi sau care nu aveau acord atunci).
+- Reluarea se pregătește ca o campanie nouă, cu același mesaj și același public. Poți schimba subiectul sau textul, îți trimiți un test și o aprobi ca de obicei. Cine s-a dezabonat între timp nu o primește.
+
 ## 0.22.0 — contacte selectate deodată
 
 - În **Contacte** poți bifa mai multe contacte sau pe toate (inclusiv toate rezultatele unei căutări) și le adaugi dintr-o dată într-o listă existentă sau într-o listă nouă.

@@ -15,7 +15,7 @@
   <button class="btn btn-p" type="submit">Creează</button>
 </form>
 <div class="table-wrap"><table>
-  <thead><tr><th>Campanie</th><th>Canal</th><th>Stare</th><th>Trimise</th><th>Eșuate</th><th>Excluse</th><th>Dezabonați</th><th>Data</th></tr></thead>
+  <thead><tr><th>Campanie</th><th>Canal</th><th>Stare</th><th>Trimise</th><th>Eșuate</th><th>Excluse</th><th>Dezabonați</th><th>Data</th><th></th></tr></thead>
   <tbody>
   @forelse ($campaigns as $c)
     @php($s = $stats[$c->id] ?? collect())
@@ -23,9 +23,10 @@
       <td>{{ $labels[$c->channel->value] }}</td>
       <td><span class="badge {{ ['completed' => 'ok', 'sending' => 'ok', 'paused' => 'warn', 'scheduled' => 'warn', 'cancelled' => 'err'][$c->status] ?? '' }}">{{ \App\Models\Campaign::STATUSES[$c->status] }}</span></td>
       <td>{{ ($s['sent'] ?? 0) + ($s['delivered'] ?? 0) + ($s['read'] ?? 0) + ($s['unsubscribed'] ?? 0) }}</td><td>{{ $s['failed'] ?? 0 }}</td><td>{{ $s['excluded'] ?? 0 }}</td><td>{{ $s['unsubscribed'] ?? 0 }}</td>
-      <td class="small muted">{{ ($c->completed_at ?? $c->scheduled_at ?? $c->created_at)->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') }}</td></tr>
+      <td class="small muted">{{ ($c->completed_at ?? $c->scheduled_at ?? $c->created_at)->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') }}</td>
+      <td>@if (in_array($c->status, ['completed', 'cancelled'], true))<a class="btn btn-s" href="{{ route('portal.campaigns.show', [$organization->slug, $c->id]) }}#reluare">Reluare</a>@endif</td></tr>
   @empty
-    <tr><td colspan="8" class="empty">Nicio campanie încă.</td></tr>
+    <tr><td colspan="9" class="empty">Nicio campanie încă.</td></tr>
   @endforelse
   </tbody>
 </table></div>
