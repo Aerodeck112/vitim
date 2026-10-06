@@ -156,6 +156,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::get('/contacte/nou', [Portal\ContactController::class, 'create'])->middleware('can:manage_contacts')->name('contacts.create');
         Route::get('/contacte/import', [Portal\ContactImportController::class, 'show'])->middleware('can:manage_contacts')->name('contacts.import');
         Route::post('/contacte/import', [Portal\ContactImportController::class, 'store'])->middleware(['can:manage_contacts', 'can:manage_consent', 'throttle:10,1'])->name('contacts.import.store');
+        Route::post('/contacte/actiuni', Portal\ContactBulkController::class)->middleware(['can:manage_contacts', 'throttle:20,1'])->name('contacts.bulk');
         Route::post('/contacte', [Portal\ContactController::class, 'store'])->middleware('can:manage_contacts')->name('contacts.store');
         Route::get('/contacte/{contact}', [Portal\ContactController::class, 'show'])->middleware('can:view_contacts')->where('contact', $id)->name('contacts.show');
         Route::get('/contacte/{contact}/editare', [Portal\ContactController::class, 'edit'])->middleware('can:manage_contacts')->where('contact', $id)->name('contacts.edit');

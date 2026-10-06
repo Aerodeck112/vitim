@@ -1,5 +1,11 @@
 # VITIM AI Cloud — versiuni
 
+## 0.22.0 — contacte selectate deodată
+
+- În **Contacte** poți bifa mai multe contacte sau pe toate (inclusiv toate rezultatele unei căutări) și le adaugi dintr-o dată într-o listă existentă sau într-o listă nouă.
+- Tot de acolo poți înregistra acordul de marketing (email, SMS, WhatsApp) pentru toate contactele bifate, o singură dată, cu sursa acordului. Nu mai trebuie completat la fiecare contact. Cine a refuzat sau s-a dezabonat rămâne fără acord.
+- Tabelul de contacte arată pe ce canale are fiecare contact acord de marketing, iar fișa contactului arată sursa acordului în istoric.
+
 ## 0.21.1 — emailul de test al campaniilor
 
 - Emailul de test nu mai pune numele tău în salut. {{prenume}} se completează cu prenumele contactului care are adresa de test, dacă există în contacte, altfel cu exemplul „Maria”, ca în previzualizare. În campania reală, fiecare destinatar își vede propriul prenume.

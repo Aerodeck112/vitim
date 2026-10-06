@@ -52,7 +52,7 @@
   @if ($history->isNotEmpty())
     <details style="margin-top:12px"><summary class="small">Istoric ({{ $history->count() }})</summary>
       <div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>Data</th><th>Canal</th><th>Scop</th><th>Status</th><th>Sursă</th><th>IP</th></tr></thead><tbody>
-      @foreach ($history as $h)<tr><td class="small">{{ $h->occurred_at->format('d.m.Y H:i') }}</td><td>{{ $h->channel->value }}</td><td>{{ $h->purpose->value }}</td><td>{{ $statusLabels[$h->status->value] }}</td><td>{{ $h->source }}</td><td class="mono">{{ $h->ip_address ?? '—' }}</td></tr>@endforeach
+      @foreach ($history as $h)<tr><td class="small">{{ $h->occurred_at->format('d.m.Y H:i') }}</td><td>{{ $h->channel->value }}</td><td>{{ $h->purpose->value }}</td><td>{{ $statusLabels[$h->status->value] }}</td><td>{{ $h->source }}@if (! empty($h->metadata['evidence']))<div class="small muted">{{ $h->metadata['evidence'] }}</div>@endif</td><td class="mono">{{ $h->ip_address ?? '—' }}</td></tr>@endforeach
       </tbody></table></div></details>
   @endif
 </div>

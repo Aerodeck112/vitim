@@ -166,3 +166,10 @@ input[type=number],input[type=datetime-local]{width:100%;padding:10px 12px;borde
 .btn-danger{background:var(--err);border-color:var(--err);color:#fff}.btn-danger:hover{filter:brightness(1.08)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 .ai-tools input[type=search]{height:34px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);font:inherit;font-size:13.5px}
+/* contacte: acțiuni pe mai multe contacte */
+.bulk{padding:12px 14px;margin-bottom:14px}.bulk-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.bulk-head strong{margin-right:auto}
+.bulk-body{display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px}.bulk.on{border-color:var(--brand)}.bulk.on .bulk-body{display:block}
+.bulk-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bulk-consent{margin:4px 0 12px}.bulk-consent summary{cursor:pointer;font-weight:600;padding:6px 0}
+th.cb,td.cb{width:34px;padding-right:0}th.cb input,td.cb input{width:16px;height:16px;accent-color:var(--brand)}
+@media (max-width:820px){.bulk-row{grid-template-columns:1fr}.bulk-head .btn{width:100%}}
+@media (scripting:none){.bulk-body{display:block}}

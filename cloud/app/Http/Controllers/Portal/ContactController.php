@@ -30,18 +30,26 @@ final class ContactController extends PortalController
 {
     public function index(Request $request): View
     {
-        $query = Contact::query()->latest('id');
-        if ($q = trim((string) $request->query('q'))) {
-            $like = '%'.addcslashes($q, '%_\\').'%';
-            $query->where(fn ($w) => $w->where('first_name', 'like', $like)->orWhere('last_name', 'like', $like)
-                ->orWhere('email', 'like', $like)->orWhere('phone', 'like', $like)->orWhere('company', 'like', $like));
-        }
+        $q = trim((string) $request->query('q'));
+        $contacts = ContactBulkController::search(Contact::query(), $q)->latest('id')->paginate(25)->withQueryString();
+
+        // acordul de marketing pe fiecare canal (ultima înregistrare), pentru contactele din pagină
+        $marketing = [];
+        ContactConsent::query()->whereIn('contact_id', $contacts->pluck('id'))->where('purpose', ConsentPurpose::Marketing->value)
+            ->orderBy('occurred_at')->orderBy('id')->get(['contact_id', 'channel', 'status'])
+            ->each(function (ContactConsent $c) use (&$marketing): void {
+                $marketing[$c->contact_id][$c->channel->value] = $c->status;
+            });
 
         return view('portal.contacts.index', [
             'organization' => $this->organization(),
-            'contacts' => $query->paginate(25)->withQueryString(),
+            'contacts' => $contacts,
             'q' => $q,
+            'marketing' => $marketing,
+            'lists' => ContactList::query()->orderBy('name')->pluck('name', 'id'),
             'canManage' => Gate::allows(Permission::ManageContacts->value),
+            'canLists' => Gate::allows(Permission::ManageCampaigns->value),
+            'canConsent' => Gate::allows(Permission::ManageConsent->value),
         ]);
     }
 
