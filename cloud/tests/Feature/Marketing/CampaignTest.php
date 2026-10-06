@@ -127,7 +127,11 @@ final class CampaignTest extends TestCase
         $this->get($base)->assertOk()->assertSee('contacte vor primi campania')->assertSee('Fără consimțământ de marketing')->assertSee('Maria, 20% reducere');
 
         $this->post("{$base}/test", ['test_to' => 'ana@firma.ro'])->assertSessionHas('ok');
-        $this->assertSame('[TEST] Ana, 20% reducere', $this->lastMail()->getSubject());
+        // proba nu folosește numele celui conectat (Ana), ci exemplul din previzualizare sau contactul cu adresa de test
+        $this->assertSame('[TEST] Maria, 20% reducere', $this->lastMail()->getSubject());
+        $this->post("{$base}/test", ['test_to' => 'ion@ex.ro'])->assertSessionHas('ok');
+        $this->assertSame('[TEST] Ion, 20% reducere', $this->lastMail()->getSubject());
+        $this->assertStringContainsString('Bună Ion', $this->lastMail()->getTextBody());
 
         $this->post("{$base}/aprobare", [])->assertSessionHasErrors('confirm');
         $this->post("{$base}/aprobare", ['confirm' => '1'])->assertSessionHas('ok');

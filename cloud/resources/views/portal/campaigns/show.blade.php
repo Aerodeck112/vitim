@@ -136,6 +136,7 @@
         <div class="fl" style="margin:0;flex:1"><label for="test_to">{{ $ch === 'email' ? 'Adresa ta de email' : 'Numărul tău de telefon' }}</label><input id="test_to" type="text" name="test_to" required value="{{ $ch === 'email' ? auth()->user()->email : '' }}"></div>
         <button class="btn" type="submit">Trimite testul</button></form>
       @error('test')<div class="err">{{ $message }}</div>@enderror @error('test_to')<div class="err">{{ $message }}</div>@enderror
+      <p class="hint small muted" style="margin:8px 0 0">În test, @{{prenume}} se completează cu prenumele contactului cu {{ $ch === 'email' ? 'această adresă' : 'acest număr' }} (dacă există în contacte), altfel cu „Maria”. În campania reală, fiecare destinatar își vede propriul prenume.</p>
     </div>
     <div class="card" style="border-color:var(--brand)">
       <h2>2. Aprobă și trimite</h2>

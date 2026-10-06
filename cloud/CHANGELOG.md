@@ -1,5 +1,9 @@
 # VITIM AI Cloud — versiuni
 
+## 0.21.1 — emailul de test al campaniilor
+
+- Emailul de test nu mai pune numele tău în salut. {{prenume}} se completează cu prenumele contactului care are adresa de test, dacă există în contacte, altfel cu exemplul „Maria”, ca în previzualizare. În campania reală, fiecare destinatar își vede propriul prenume.
+
 ## 0.21.0 — asistentul AI, mai clar în setări
 
 - În setările agentului, modurile de răspuns se numesc acum simplu: „Automat”, „Doar din informațiile firmei” și „Doar AI”. Ecranul arată și când răspunsurile AI sunt oprite pe site-ul tău.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\Channel;
+use App\Enums\IdentityType;
 use App\Messaging\Accounts\AccountSender;
 use App\Messaging\Accounts\SmsLinkSender;
 use App\Messaging\Accounts\SmtpSender;
@@ -47,6 +48,7 @@ final class CampaignService
         private readonly AuditLogger $audit,
         private readonly UsageMeter $usage,
         private readonly Deliverer $deliverer,
+        private readonly ContactService $contacts,
     ) {}
 
     public static function sender(Channel $channel): AccountSender
@@ -131,7 +133,10 @@ final class CampaignService
         if ($address === null) {
             throw ValidationException::withMessages(['test_to' => $campaign->channel === Channel::Email ? 'Adresa de email nu e validă.' : 'Numărul de telefon nu e valid.']);
         }
-        $sample = new Contact(['first_name' => Str::before(trim($user->name), ' '), 'last_name' => Str::after(trim($user->name), ' ')]);
+        // {{prenume}} vine de la contactul cu adresa de test (dacă există), altfel exemplul din previzualizare —
+        // nu de la utilizatorul conectat, ca proba să nu arate „Bună (numele proprietarului)”
+        $sample = $this->contacts->findByIdentity($campaign->channel === Channel::Email ? IdentityType::Email : IdentityType::Phone, $address)
+            ?? new Contact(['first_name' => 'Maria', 'last_name' => 'Popescu']);
         $rendered = $this->renderer->render($campaign, $this->context->organization(), $sample, route('unsubscribe', 'TEST'), (bool) $account->setting('ascii', true));
         $result = self::sender($campaign->channel)->send($account, $this->outbound($campaign, $address, $rendered, $rendered['subject'] ? '[TEST] '.$rendered['subject'] : null));
         $this->audit->record('campaign.test_sent', $campaign, ['status' => $result->status->value]);
