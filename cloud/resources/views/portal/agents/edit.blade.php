@@ -10,6 +10,12 @@
 @if ($errors->count() > 1)
   <div class="alert alert-err" role="alert">Nu am salvat. Corectează câmpurile marcate cu roșu:<ul style="margin:6px 0 0 18px;padding:0">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
 @endif
+@php($learned = $agent->site_id ? \App\Models\SitePage::query()->where('site_id', $agent->site_id)->where('status', 'ok')->where('excluded', false)->count() : 0)
+<div class="card kn-banner">
+  <div><h2 style="margin:0 0 4px">Ce știe din site</h2>
+    <p class="small muted" style="margin:0">@if (! $agent->site)Alege site-ul agentului mai jos; agentul îi citește apoi singur paginile (servicii, produse, prețuri).@elseif ($learned)Agentul a citit <strong>{{ $learned }}</strong> pagini de pe {{ $agent->site->domain }}@if ($agent->site->learned_at), ultima dată la {{ $agent->site->learned_at->setTimezone('Europe/Bucharest')->format('d.m.Y') }}@endif și caută în ele când un client întreabă de un produs sau un serviciu.@elseif (in_array($agent->site->learn_status, ['queued', 'running'], true))Citesc acum paginile de pe {{ $agent->site->domain }}…@else Site-ul {{ $agent->site->domain }} nu a fost citit încă.@endif</p></div>
+  @if ($agent->site)<a class="btn" href="{{ route('portal.agents.knowledge', [$organization->slug, $agent->id]) }}">Vezi și testează</a>@endif
+</div>
 <form method="post" action="{{ route('portal.agents.update', [$organization->slug, $agent->id]) }}" id="agent-form">
   @csrf @method('put')
   <fieldset @disabled(! $canManage) style="border:0;padding:0;margin:0">
@@ -33,7 +39,7 @@
   </div>
   <div class="card">
     <h2>Informații despre firmă</h2>
-    <p class="muted small" style="margin-top:-6px">Agentul răspunde doar din ce scrie aici. Scrie istoria firmei, serviciile, prețurile, programul, adresa, livrarea, garanția, întrebările frecvente. Fără AI, răspunsurile sunt găsite cel mai bine dacă scrii pe rânduri de forma <span class="mono">Program: L–V 8–17</span> sau întrebare + răspuns:</p>
+    <p class="muted small" style="margin-top:-6px">Agentul răspunde din ce scrie aici și din paginile site-ului (vezi „Ce știe din site”); ce scrie aici are prioritate. Scrie istoria firmei, serviciile, prețurile, programul, adresa, livrarea, garanția, întrebările frecvente. Fără AI, răspunsurile sunt găsite cel mai bine dacă scrii pe rânduri de forma <span class="mono">Program: L–V 8–17</span> sau întrebare + răspuns:</p>
     <pre class="code small" style="margin:0 0 12px">Prețuri: cabanele la roșu de la 375 EUR/mp, la cheie de la 690 EUR/mp.
 Program: luni–vineri 8–17, sâmbătă 9–13.
 

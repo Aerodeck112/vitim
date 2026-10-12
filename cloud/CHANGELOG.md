@@ -1,5 +1,18 @@
 # VITIM AI Cloud — versiuni
 
+## 0.24.0 — agentul învață din site
+
+- Agentul citește singur paginile publice ale site-ului (servicii, produse, prețuri, condiții) și caută în ele când un client întreabă. Răspunde cu informația găsită și cu linkul paginii.
+- Prima citire pornește automat, iar site-ul se recitește în fiecare săptămână. Poți porni o citire oricând, din pagina agentului.
+- Pagina nouă **Ce știe din site** (din pagina agentului):
+  - arată paginile citite și prețurile produselor;
+  - are un test „Întreabă ca un client”, care arată ce găsește agentul pentru o întrebare;
+  - îți permite să scoți paginile pe care nu vrei să le folosească.
+- „Informații despre firmă” au în continuare prioritate față de site. Acolo completezi ce nu scrie pe site.
+- Funcționează și fără AI: agentul gratuit caută și el pe site când nu găsește răspunsul în informațiile firmei.
+
+**Actualizare:** migrare nouă (tabelul `site_pages` și coloanele `learn_*` pe `sites`) și comanda `vitim:learn`, pornită automat din cron la fiecare minut. Citirea respectă robots.txt, rămâne pe domeniul site-ului (doar adrese publice) și citește cel mult 300 de pagini, câte 25 pe minut.
+
 ## 0.23.0 — reluare campanie
 
 - O campanie trimisă sau anulată se poate relua cu butonul **Reluare**. Alegi cui pleacă din nou:

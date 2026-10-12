@@ -44,9 +44,10 @@ final class Knowledge
     /** @var array<string, int> */
     private array $df = [];
 
-    public function __construct(string $text)
+    /** @param string|list<array{0: string, 1: string}> $text textul firmei sau bucăți deja împărțite [titlu, conținut] */
+    public function __construct(string|array $text)
     {
-        foreach (self::split($text) as [$title, $body]) {
+        foreach (is_array($text) ? $text : self::split($text) as [$title, $body]) {
             $terms = [];
             foreach (self::terms($title) as $t) {
                 $terms[$t] = ($terms[$t] ?? 0) + 2.0;

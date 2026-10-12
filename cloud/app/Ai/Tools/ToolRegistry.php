@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Ai\Tools;
 
+use App\Knowledge\SiteKnowledge;
 use App\Models\Agent;
 
 /** Catalogul de tool-uri (cod). Fiecare agent folosește doar acțiunile permise în configurația lui. */
@@ -24,6 +25,11 @@ final class ToolRegistry
             if (in_array($name, $allowed, true)) {
                 $tools[$name] = app($class);
             }
+        }
+
+        // ce știe din site nu e o acțiune de permis: e disponibil când site-ul agentului a fost citit
+        if (SiteKnowledge::available($agent->site_id)) {
+            $tools['search_site'] = app(SearchSiteTool::class);
         }
 
         return $tools;

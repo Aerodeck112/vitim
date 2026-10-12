@@ -147,6 +147,10 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/agent', [Portal\AgentController::class, 'store'])->middleware('can:manage_agents')->name('agents.store');
         Route::get('/agent/{agent}', [Portal\AgentController::class, 'edit'])->middleware('can:view_reports')->where('agent', $id)->name('agents.edit');
         Route::put('/agent/{agent}', [Portal\AgentController::class, 'update'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.update');
+        Route::get('/agent/{agent}/site', [Portal\AgentKnowledgeController::class, 'show'])->middleware('can:view_reports')->where('agent', $id)->name('agents.knowledge');
+        Route::post('/agent/{agent}/site/citeste', [Portal\AgentKnowledgeController::class, 'learn'])->middleware(['can:manage_knowledge', 'throttle:6,1'])->where('agent', $id)->name('agents.knowledge.learn');
+        Route::post('/agent/{agent}/site/auto', [Portal\AgentKnowledgeController::class, 'auto'])->middleware('can:manage_knowledge')->where('agent', $id)->name('agents.knowledge.auto');
+        Route::post('/agent/{agent}/site/pagini/{page}', [Portal\AgentKnowledgeController::class, 'page'])->middleware('can:manage_knowledge')->where(['agent' => $id, 'page' => $id])->name('agents.knowledge.page');
         Route::put('/agent/{agent}/widget', [Portal\AgentController::class, 'widget'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.widget');
         // testul consumă din plafonul de cost AI, deci cere drept de administrare a agentului
         Route::get('/agent/{agent}/test', [Portal\AgentTestController::class, 'show'])->middleware('can:manage_agents')->where('agent', $id)->name('agents.test');

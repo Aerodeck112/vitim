@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Ai\Local;
 
 use App\Ai\Tools\ToolResult;
+use App\Knowledge\SiteKnowledge;
 use App\Models\Agent;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -23,6 +24,8 @@ final class LocalAgent
     private Closure $run;
 
     private bool $formal = false;
+
+    public function __construct(private readonly SiteKnowledge $site) {}
 
     /**
      * @param  array<string, mixed>  $tools  acțiunile permise agentului (doar cheile contează aici)
@@ -103,6 +106,27 @@ final class LocalAgent
                 }
 
                 return implode("\n\n", $parts);
+            }
+
+            // 5b. răspunsul din paginile site-ului (citite de panou) și din produsele magazinului
+            if ($agent->site_id !== null && ! $this->greetingOnly($folded)) {
+                $products = $this->site->products((int) $agent->site_id, $text, 3);
+                $pages = $this->site->search((int) $agent->site_id, $text, 2);
+                $page = $pages[0] ?? null;
+                if ($products !== [] || ($page && $page['score'] >= 1.5)) {
+                    $parts = [];
+                    if ($products !== []) {
+                        $parts[] = $this->say('Am găsit pe site:', 'Am găsit pe site:')."\n".implode("\n", array_map(fn ($p) => '- '.$p['name'].($p['price'] ? ' — '.$p['price'] : '').($p['in_stock'] ? '' : ' (stoc epuizat)').($p['url'] ? ' — '.$p['url'] : ''), $products));
+                    }
+                    if ($page && $page['score'] >= 1.5) {
+                        $parts[] = '**'.$page['title'].'**: '.Knowledge::excerpt($page['excerpt'], $text, 420).($page['price'] ? "\n".$this->say('Preț afișat: ', 'Preț afișat: ').$page['price'] : '')."\n".$this->say('Detalii: ', 'Detalii: ').$page['url'];
+                    }
+                    if ($canLead && ! $state['lead_saved']) {
+                        $parts[] = $this->say('Dacă vrei o ofertă sau o programare, lasă-mi un telefon sau un email.', 'Pentru o ofertă sau o programare, ne puteți lăsa un telefon sau un email.');
+                    }
+
+                    return implode("\n\n", $parts);
+                }
             }
 
             // 6. nu știe: comportamentul ales în pagina agentului
@@ -236,6 +260,12 @@ final class LocalAgent
     private function isYes(string $folded): bool
     {
         return (bool) preg_match('/^\W*(da|sigur|desigur|ok|okay|bine|accept|confirm|sunt de acord|de acord|evident|fireste|yes)\b/', $folded);
+    }
+
+    /** Mesaj fără conținut de căutat (doar „ok”, „da”, semne). */
+    private function greetingOnly(string $folded): bool
+    {
+        return Knowledge::groups($folded) === [];
     }
 
     private function isNo(string $folded): bool
