@@ -1,5 +1,15 @@
 # VITIM AI Cloud — versiuni
 
+## 0.25.0 — cine e pe site acum și notificări la mesaje
+
+- În meniul din stânga vezi permanent **câți vizitatori sunt acum pe site**. Pe pagina Prezentare, caseta **Acum pe site** arată și paginile pe care se află.
+- Când un vizitator scrie în chat, panoul deschis **sună**, afișează mesajul în colțul ecranului și pune un număr lângă „Conversații”. Un click pe mesaj deschide conversația.
+- Opțional, **notificări pe desktop**: apar și când panoul e într-o filă din spate. Le activezi din butonul din meniu.
+- Sunetul se pornește și se oprește din butonul **Sunet la mesaje noi**. Browserul permite sunetul după primul click în panou.
+- Vizitatorii sunt numărați anonim: fără cookie-uri, fără IP, doar adresa paginii, fără parametri.
+
+**Actualizare:** migrare nouă (tabelul `site_visitors`), endpointul widgetului `POST /widget/v1/presence` și ruta din panou `/app/{firma}/acum`. Widgetul (`loader.js`) trimite un semn la 30 de secunde cât fila e vizibilă. Se dezactivează pe un site cu `data-presence="0"` pe scriptul widgetului.
+
 ## 0.24.0 — agentul învață din site
 
 - Agentul citește singur paginile publice ale site-ului (servicii, produse, prețuri, condiții) și caută în ele când un client întreabă. Răspunde cu informația găsită și cu linkul paginii.

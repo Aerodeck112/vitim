@@ -15,6 +15,7 @@ use App\Models\CookieConsent;
 use App\Models\Message;
 use App\Models\SignupForm;
 use App\Models\Site;
+use App\Models\SiteVisitor;
 use App\Models\User;
 use App\Services\ContactService;
 use App\Services\CookieSettings;
@@ -274,6 +275,38 @@ final class WidgetController extends Controller
 
             // tokenul ajunge în cookie-ul site-ului: magazinul recunoaște abonatul (coș abandonat, produse văzute)
             return $this->json($origin, ['status' => $status, 'contact' => $contact ? ShopEvents::token($contact) : null]);
+        });
+    }
+
+    /**
+     * Semnul de viață al unei file deschise pe site (la încărcare, apoi la 30 de secunde cât e vizibilă; „leave” la plecare).
+     * Anonim: identificator aleator ținut doar în memoria paginii, doar adresa paginii fără parametri, fără IP.
+     */
+    public function presence(Request $request): JsonResponse
+    {
+        [$site, $origin, $body] = $this->site($request);
+        if (! $site) {
+            return $this->deny($origin);
+        }
+        $visitor = (string) ($body['v'] ?? '');
+        if (! preg_match('/^[A-Za-z0-9]{16,32}$/', $visitor)) {
+            return $this->json($origin, ['error' => 'invalid'], 422);
+        }
+
+        return $this->context->runAs($site->organization, function () use ($site, $origin, $body, $visitor): JsonResponse {
+            if (! empty($body['leave'])) {
+                SiteVisitor::query()->where('site_id', $site->id)->where('visitor', $visitor)->delete();
+
+                return $this->json($origin, ['ok' => true]);
+            }
+            $path = (string) parse_url((string) ($body['page'] ?? ''), PHP_URL_PATH);
+            $values = ['page' => mb_substr($path !== '' ? $path : '/', 0, 255), 'title' => mb_substr(trim((string) ($body['title'] ?? '')), 0, 160) ?: null, 'seen_at' => now()];
+            $updated = SiteVisitor::query()->where('site_id', $site->id)->where('visitor', $visitor)->update($values);
+            if ($updated === 0) {
+                SiteVisitor::query()->insertOrIgnore([$values + ['organization_id' => $site->organization_id, 'site_id' => $site->id, 'visitor' => $visitor, 'started_at' => now()]]);
+            }
+
+            return $this->json($origin, ['ok' => true]);
         });
     }
 

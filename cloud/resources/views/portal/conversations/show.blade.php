@@ -21,7 +21,7 @@
     @endforeach
   @endif
 </div>
-<div class="card chat live-chat" id="chat" data-last="{{ $messages->max('id') ?? 0 }}" data-poll="{{ route('portal.conversations.poll', [$organization->slug, $conversation->id]) }}">
+<div class="card chat live-chat" id="chat" data-conversation="{{ $conversation->id }}" data-last="{{ $messages->max('id') ?? 0 }}" data-poll="{{ route('portal.conversations.poll', [$organization->slug, $conversation->id]) }}">
   @foreach ($messages as $m)
     <div class="bubble {{ \App\Http\Controllers\Portal\ConversationController::bubble($m) }}">{{ $m->direction === 'inbound' ? $m->content : \App\Support\ChatText::render($m->content) }}<span class="t">{{ $m->created_at?->format('H:i') }}</span></div>
     @foreach ($m->metadata['tools'] ?? [] as $id)

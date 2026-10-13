@@ -6,6 +6,30 @@
   @foreach ($kpi as [$label, $value])<div class="kpi"><small>{{ $label }}</small><b>{{ $value }}</b></div>@endforeach
 </div>
 @if ($sites->isNotEmpty())
+<div class="card" id="acum" aria-labelledby="acum-h">
+  <h2 id="acum-h">Acum pe site <span class="badge" data-now-total>–</span></h2>
+  <div data-now-body><p class="muted small" style="margin:0">Se încarcă…</p></div>
+  <p class="hint small muted" style="margin:10px 0 0">Se actualizează la câteva secunde. Numărăm filele deschise și vizibile, anonim (fără cookie-uri, fără IP), doar pe site-urile cu codul VITIM AI instalat.</p>
+</div>
+<script>
+document.addEventListener('vitim:live', function (e) {
+  var j = e.detail, body = document.querySelector('[data-now-body]'), total = document.querySelector('[data-now-total]');
+  if (!body) return;
+  total.textContent = j.visitors;
+  body.textContent = '';
+  if (!j.visitors) { var p = document.createElement('p'); p.className = 'muted small'; p.style.margin = '0'; p.textContent = 'Niciun vizitator în acest moment (actualizat la ' + j.at + ').'; body.appendChild(p); return; }
+  j.sites.forEach(function (s) {
+    var h = document.createElement('div'); h.className = 'small muted'; h.style.margin = '6px 0 4px'; h.textContent = s.domain + ' · ' + s.count + (s.count === 1 ? ' vizitator' : ' vizitatori'); body.appendChild(h);
+    var ul = document.createElement('ul'); ul.className = 'now-list';
+    s.pages.forEach(function (pg) {
+      var li = document.createElement('li'), a = document.createElement('a'), n = document.createElement('span');
+      a.href = 'https://' + s.domain + pg.page; a.target = '_blank'; a.rel = 'noopener'; a.textContent = pg.title || pg.page;
+      n.className = 'n'; n.textContent = pg.count; li.appendChild(a); li.appendChild(n); ul.appendChild(li);
+    });
+    body.appendChild(ul);
+  });
+});
+</script>
 <div class="card">
   <h2>Site-urile tale</h2>
   @foreach ($sites as $site)

@@ -12,3 +12,4 @@ Route::post('contact', [WidgetController::class, 'contact']);
 Route::post('forms/view', [WidgetController::class, 'formView']);
 Route::post('forms/submit', [WidgetController::class, 'formSubmit']);
 Route::post('consent', [WidgetController::class, 'consent']);
+Route::post('presence', [WidgetController::class, 'presence']);

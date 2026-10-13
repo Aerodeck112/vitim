@@ -507,9 +507,33 @@
     var s = document.createElement('script'); s.src = API + '/cookies.js?v=1'; s.async = true; s.onload = start; document.head.appendChild(s);
   }
 
+  // cine e pe site acum: un identificator aleator ținut doar în memoria paginii (nimic salvat pe dispozitiv, fără cookie)
+  var VID = (function () {
+    var a = new Uint8Array(12), s = '', i;
+    try { crypto.getRandomValues(a); } catch (e) { for (i = 0; i < 12; i++) a[i] = Math.floor(Math.random() * 256); }
+    for (i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2);
+    return s;
+  })();
+  var presenceTimer = null, presenceOn = false;
+  function presence() { call('presence', { v: VID, page: location.pathname, title: (document.title || '').slice(0, 160) }).catch(function () {}); }
+  function presenceLoop() {
+    clearInterval(presenceTimer);
+    // fila ascunsă nu mai trimite semne: după un minut nu mai e numărată
+    if (!presenceOn || document.hidden) return;
+    presence();
+    presenceTimer = setInterval(function () { if (!document.hidden) presence(); }, 30000);
+  }
+  function presenceLeave() {
+    if (!presenceOn || !navigator.sendBeacon) return;
+    try { navigator.sendBeacon(API + '/presence', new Blob([JSON.stringify({ key: KEY, v: VID, leave: 1 })], { type: 'text/plain;charset=UTF-8' })); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', presenceLoop);
+  window.addEventListener('pagehide', presenceLeave);
+
   function init() {
     call('config').then(function (cfg) {
-      if (!cfg) return;
+      if (!cfg || cfg.__status !== 200) return;
+      if (script.getAttribute('data-presence') !== '0') { presenceOn = true; presenceLoop(); }
       if (cfg.cookies) cookies(cfg.cookies); else if (pendingVtm) identify(pendingVtm);
       if (cfg.enabled && script.getAttribute('data-chat') !== '0') build(cfg);
       if (cfg.forms && cfg.forms.length) forms(cfg.forms);

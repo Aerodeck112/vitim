@@ -141,6 +141,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
     Route::prefix('app/{organization}')->name('portal.')->middleware('org')->group(function () {
         $id = '[0-9]+';
         Route::get('/', [Portal\OverviewController::class, 'show'])->middleware('can:view_reports')->name('home');
+        Route::get('/acum', Portal\LiveController::class)->middleware('throttle:60,1')->name('live');
         Route::get('/in-curand/{section}', [Portal\OverviewController::class, 'upcoming'])->middleware('can:view_reports')->name('upcoming');
 
         Route::get('/agent', [Portal\AgentController::class, 'index'])->middleware('can:view_reports')->name('agents.index');

@@ -28,6 +28,7 @@
     @endif
     @isset($organization)
       <div class="grp">{{ $organization->name }}</div>
+      @if ($inPortal)<a class="live-pill" href="{{ route('portal.home', $slug) }}#acum" data-live-pill title="Vizitatori pe site-urile firmei în acest moment"><span class="live-dot" aria-hidden="true"></span><b data-live-count>–</b> <span data-live-label>pe site acum</span></a>@endif
       @if ($user->isPlatformStaff())
         <a href="{{ route('admin.organizations.show', $slug) }}" @class(['on' => request()->routeIs('admin.organizations.show')])>Fișa clientului</a>
         <a href="{{ route('admin.worklogs.index', $slug) }}" @class(['on' => request()->routeIs('admin.worklogs.*')])>Adaugă lucrări</a>
@@ -38,7 +39,7 @@
       <a href="{{ route('portal.reports.index', $slug) }}" @class(['on' => request()->routeIs('portal.reports.*')])>Rapoarte lunare</a>
       <a href="{{ route('portal.news', $slug) }}" @class(['on' => request()->routeIs('portal.news*')])>Noutăți VITIM</a>
       <a href="{{ route('portal.agents.index', $slug) }}" @class(['on' => request()->routeIs('portal.agents.*')])>Agent AI</a>
-      @can('view_contacts')<a href="{{ route('portal.conversations.index', $slug) }}" @class(['on' => request()->routeIs('portal.conversations.*')])>Conversații</a>@endcan
+      @can('view_contacts')<a href="{{ route('portal.conversations.index', $slug) }}" @class(['on' => request()->routeIs('portal.conversations.*')])>Conversații <span class="nav-badge" data-live-badge hidden></span></a>@endcan
       @can('view_contacts')<a href="{{ route('portal.contacts.index', $slug) }}" @class(['on' => request()->routeIs('portal.contacts.*')])>Contacte</a>@endcan
       @can('view_leads')<a href="{{ route('portal.leads.index', $slug) }}" @class(['on' => request()->routeIs('portal.leads.*')])>Lead-uri</a>@endcan
       @can('manage_campaigns')<a href="{{ route('portal.campaigns.index', $slug) }}" @class(['on' => request()->routeIs('portal.campaigns.*', 'portal.channels', 'portal.forms.*')])>Campanii</a>@endcan
@@ -50,6 +51,12 @@
       <a href="{{ route('portal.settings', $slug) }}" @class(['on' => request()->routeIs('portal.settings')])>Setări</a>
     @endisset
     <div class="grow"></div>
+    @if ($inPortal)
+      <div class="live-tools">
+        <button type="button" class="live-btn" data-live-sound aria-pressed="true">🔔 Sunet la mesaje noi</button>
+        <button type="button" class="live-btn" data-live-desktop hidden>Notificări pe desktop</button>
+      </div>
+    @endif
     <span class="small" style="padding:8px 12px">{{ $user->email }}</span>
     <form method="post" action="{{ route('logout') }}">@csrf<button type="submit">Ieșire</button></form>
   </nav>
@@ -58,5 +65,6 @@
     @yield('content')
   </main>
 </div>
+@if ($inPortal)@include('partials.live', ['liveUrl' => route('portal.live', $slug)])@endif
 </body>
 </html>
