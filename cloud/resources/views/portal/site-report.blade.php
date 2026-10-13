@@ -4,6 +4,9 @@
 <div class="head"><div><h1>{{ $site->domain }}</h1>
   <p>Raport de sănătate al site-ului · verificat {{ $site->last_audit_at ? $site->last_audit_at->format('d.m.Y H:i') : 'în curând' }}</p></div></div>
 @include('partials.site-scores', ['site' => $site])
+@if ($site->seo_autopilot && \App\Services\SeoAutopilot::supported($site))
+  <div class="alert alert-ok">Pilot automat SEO pornit: o dată pe săptămână reparăm automat descrierile, titlurile, sitemap-ul, textul alternativ al imaginilor și datele structurate. @if ($site->seo_autopilot_at)Ultima verificare: {{ $site->seo_autopilot_at->setTimezone('Europe/Bucharest')->format('d.m.Y') }}. @endif Fiecare remediere apare mai jos, la lucrări.</div>
+@endif
 <div class="card">
   <h2>Rezolvate de VITIM în ultimele 90 de zile ({{ $resolved->count() }})</h2>
   @forelse ($resolved as $issue)

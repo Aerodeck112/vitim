@@ -1,5 +1,20 @@
 # VITIM AI Cloud — versiuni
 
+## 0.26.0 — pilot automat SEO
+
+- Pe site-urile WordPress cu pluginul VITIM, problemele SEO obișnuite se rezolvă singure, o dată pe săptămână. Pilotul automat reface:
+  - descrierile paginilor, canonical și Open Graph;
+  - titlurile;
+  - sitemap-ul;
+  - limba paginii și viewport-ul pentru telefon;
+  - textul alternativ al imaginilor;
+  - datele structurate ale firmei.
+- După reparare, auditul se reface imediat. Fiecare remediere apare în **Lucrări VITIM**, la SEO.
+- Raportul site-ului arată că pilotul automat e pornit și când a verificat ultima dată.
+- Auditul SEO, de securitate și legal rulează în continuare zilnic, pe toate site-urile.
+
+**Actualizare:** migrare nouă (`sites.seo_autopilot`, pornit implicit, și `sites.seo_autopilot_at`). Pilotul rulează din `vitim:audit`, cel mult o dată la 7 zile pe site, doar pe WordPress cu pluginul 1.4.0+, conectat și cu remedierile de la distanță permise. Remedierile care schimbă comportamentul întregului site (HTTPS, www, robots.txt, indexare, antete de securitate, compresie) rămân pe buton. În pagina site-ului din Admin există comutatorul pilotului și butonul „Rulează pilotul acum”.
+
 ## 0.25.1 — citirea site-urilor WooCommerce
 
 - Agentul citește acum corect și site-urile de magazin (WooCommerce). Până acum, unele dintre ele apăreau greșit ca „nu s-a putut citi”.

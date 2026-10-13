@@ -23,6 +23,28 @@
     @endforeach
   @endif
 </div>
+@php($pilotOk = \App\Services\SeoAutopilot::supported($site))
+@php($pilotPending = app(\App\Services\SeoAutopilot::class)->pending($site))
+<div class="card pilot" aria-labelledby="pilot-h">
+  <div class="pilot-head">
+    <div><h2 id="pilot-h" style="margin:0 0 4px">Pilot automat SEO</h2>
+      <p class="small muted" style="margin:0">O dată pe săptămână, după audit, aplică singur remedierile sigure: {{ implode(', ', array_map(fn ($t) => mb_strtolower(\App\Services\Remediation::SEO_FIXES[$t]), \App\Services\SeoAutopilot::SAFE)) }}. Apoi reface auditul. HTTPS, www, robots.txt, indexarea, antetele și compresia rămân pe buton.</p></div>
+    <form method="post" action="{{ route('admin.sites.autopilot', [$slug, $site->id]) }}">@csrf
+      <input type="hidden" name="on" value="{{ $site->seo_autopilot ? 0 : 1 }}">
+      <button type="submit" class="sw-btn{{ $site->seo_autopilot ? ' on' : '' }}" role="switch" aria-checked="{{ $site->seo_autopilot ? 'true' : 'false' }}">
+        <span class="sw-track" aria-hidden="true"><span class="sw-knob"></span></span>
+        <span class="sw-text"><span class="sw-label">Pilot automat</span><span class="sw-state">{{ $site->seo_autopilot ? 'pornit' : 'oprit' }}</span></span></button></form>
+  </div>
+  <p class="small" style="margin:10px 0 0">
+    @if (! $pilotOk)<span class="badge warn">nu se poate aplica</span> Are nevoie de WordPress cu pluginul VITIM {{ \App\Services\Remediation::SEO_PLUGIN_VERSION }}+ și remedierile de la distanță permise. Pe alte site-uri, problemele rămân cu pașii din „Cum rezolvi”.
+    @else Ultima rulare: <strong>{{ $site->seo_autopilot_at ? $site->seo_autopilot_at->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') : 'încă nu' }}</strong>@if ($site->seo_autopilot) · următoarea: {{ $site->seo_autopilot_at ? $site->seo_autopilot_at->addDays(\App\Services\SeoAutopilot::EVERY_DAYS)->setTimezone('Europe/Bucharest')->format('d.m.Y') : 'la următorul audit' }}@endif
+      · de reparat acum: {{ $pilotPending ? implode(', ', array_map(fn ($t) => mb_strtolower(\App\Services\Remediation::SEO_FIXES[$t]), $pilotPending)) : 'nimic' }}
+    @endif
+  </p>
+  @if ($pilotOk && $pilotPending)
+    <form method="post" action="{{ route('admin.sites.autopilot.run', [$slug, $site->id]) }}" style="margin-top:10px" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se repară și se reface auditul…'">@csrf<button class="btn btn-s" type="submit">Rulează pilotul acum</button></form>
+  @endif
+</div>
 @php($autoFix = ! empty($h['command_url']) ? \App\Services\Remediation::combine($open->pluck('fix')) : null)
 @if ($autoFix)
   @php($autoCount = $open->filter(fn ($i) => $i->fix && str_starts_with($i->fix, 'seo_fix:'))->count())
@@ -85,7 +107,7 @@
   @forelse ($commands as $c)
     <p style="margin:6px 0" class="small"><span class="badge {{ $c->status === 'done' ? 'ok' : ($c->status === 'failed' ? 'err' : '') }}">{{ $c->status === 'done' ? 'reușit' : ($c->status === 'failed' ? 'eșuat' : 'în curs') }}</span>
       {{ $c->created_at->format('d.m.Y H:i') }} · <strong>{{ \App\Services\Remediation::label($c->action.($c->target ? ':'.$c->target : '')) }}</strong>{{ $c->target && $c->action !== 'seo_fix' ? ' ('.$c->target.')' : '' }}
-      · {{ $c->requester?->name ?? 'sistem' }} <span class="muted">· {{ $c->result }}</span></p>
+      · {{ $c->requester?->name ?? 'pilot automat / sistem' }} <span class="muted">· {{ $c->result }}</span></p>
   @empty
     <p class="muted" style="margin:0">Nicio remediere încă.</p>
   @endforelse

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\Site;
+use App\Services\SeoAutopilot;
 use App\Services\SiteAuditService;
 use App\Tenancy\TenantContext;
 use Illuminate\Console\Attributes\Description;
@@ -20,7 +21,7 @@ use Throwable;
 #[Description('Auditul SEO / securitate / legal al site-urilor clienților')]
 final class AuditSites extends Command
 {
-    public function handle(TenantContext $context, SiteAuditService $audits): int
+    public function handle(TenantContext $context, SiteAuditService $audits, SeoAutopilot $autopilot): int
     {
         // cod de platformă: alege site-urile tuturor firmelor; fiecare audit rulează apoi în contextul firmei lui
         $sites = Site::withoutTenancy()->with('organization')->where('status', 'active')
@@ -34,6 +35,11 @@ final class AuditSites extends Command
             try {
                 $count = $context->runAs($site->organization, fn () => $audits->run($site));
                 $this->line("{$site->domain}: {$count} constatări");
+                // o dată pe săptămână: remedierile SEO sigure se aplică singure, apoi auditul se reface
+                $command = $context->runAs($site->organization, fn () => $autopilot->due($site) ? $autopilot->run($site) : null);
+                if ($command) {
+                    $this->line("{$site->domain}: pilot SEO {$command->status} ({$command->target})");
+                }
             } catch (Throwable $e) {
                 report($e);
                 $this->error("{$site->domain}: {$e->getMessage()}");

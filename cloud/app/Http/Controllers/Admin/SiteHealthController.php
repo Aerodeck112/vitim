@@ -8,7 +8,9 @@ use App\Audit\Guidance;
 use App\Http\Controllers\Controller;
 use App\Models\Site;
 use App\Models\SiteIssue;
+use App\Services\AuditLogger;
 use App\Services\Remediation;
+use App\Services\SeoAutopilot;
 use App\Services\SiteAuditService;
 use App\Services\SiteCommandService;
 use App\Tenancy\TenantContext;
@@ -59,5 +61,28 @@ final class SiteHealthController extends Controller
 
         return redirect()->route('admin.sites.health', [$this->context->organization()->slug, $model->id])
             ->with($command->status === 'done' ? 'ok' : 'error', "{$label}: {$command->result}");
+    }
+
+    public function autopilot(Request $request, AuditLogger $audit, int $site): RedirectResponse
+    {
+        $model = Site::query()->findOrFail($site);
+        $model->forceFill(['seo_autopilot' => $request->boolean('on')])->save();
+        $audit->record('site.seo_autopilot', $model, ['on' => $model->seo_autopilot]);
+
+        return redirect()->route('admin.sites.health', [$this->context->organization()->slug, $model->id])
+            ->with('ok', $model->seo_autopilot ? 'Pilotul automat SEO e pornit pe acest site.' : 'Pilotul automat SEO e oprit pe acest site.');
+    }
+
+    public function autopilotRun(SeoAutopilot $autopilot, int $site): RedirectResponse
+    {
+        $model = Site::query()->findOrFail($site);
+        $command = SeoAutopilot::supported($model) ? $autopilot->run($model) : null;
+        $back = redirect()->route('admin.sites.health', [$this->context->organization()->slug, $model->id]);
+
+        return match (true) {
+            $command === null => $back->with('ok', 'Nu era nimic de reparat automat.'),
+            $command->status === 'done' => $back->with('ok', 'Pilot SEO: '.Remediation::label('seo_fix:'.$command->target).' — '.$command->result),
+            default => $back->with('error', 'Pilot SEO: '.$command->result),
+        };
     }
 }

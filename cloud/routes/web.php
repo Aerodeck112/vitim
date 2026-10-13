@@ -124,6 +124,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::get('/site-uri/{site}', [SiteHealthController::class, 'show'])->whereNumber('site')->name('sites.health');
             Route::post('/site-uri/{site}/audit', [SiteHealthController::class, 'audit'])->whereNumber('site')->middleware('throttle:10,1')->name('sites.audit');
             Route::post('/site-uri/{site}/remediere', [SiteHealthController::class, 'command'])->whereNumber('site')->middleware('throttle:20,1')->name('sites.command');
+            Route::post('/site-uri/{site}/pilot-seo', [SiteHealthController::class, 'autopilot'])->whereNumber('site')->name('sites.autopilot');
+            Route::post('/site-uri/{site}/pilot-seo/ruleaza', [SiteHealthController::class, 'autopilotRun'])->whereNumber('site')->middleware('throttle:10,1')->name('sites.autopilot.run');
             Route::get('/rapoarte', [ReportController::class, 'index'])->name('reports.index');
             Route::post('/servicii', [ReportController::class, 'services'])->name('reports.services');
             Route::get('/rapoarte/{period}', [ReportController::class, 'edit'])->where('period', '\d{4}-\d{2}')->name('reports.edit');
