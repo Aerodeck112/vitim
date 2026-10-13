@@ -74,8 +74,7 @@ final class SiteLearner
             return false;
         }
         $origin = $this->origin($first['url']);
-        $disallow = $this->robots($http, $origin);
-        Cache::put($this->robotsKey($site), $disallow, now()->addDay());
+        Cache::put($this->robotsKey($site), $this->robots($http, $origin), now()->addDay());
 
         $site->forceFill(['learn_status' => 'running', 'learn_run' => $site->learn_run + 1, 'learn_error' => null])->save();
         $urls = [$first['url']];
@@ -160,11 +159,9 @@ final class SiteLearner
         if ($url === null || ! $http->allowedHost($host) || preg_match(self::SKIP, (string) parse_url($url, PHP_URL_PATH).(parse_url($url, PHP_URL_QUERY) ? '?' : ''))) {
             return;
         }
-        $path = (string) (parse_url($url, PHP_URL_PATH) ?: '/');
-        foreach ((array) Cache::get($this->robotsKey($site), []) as $rule) {
-            if ($rule !== '' && str_starts_with($path, $rule)) {
-                return;
-            }
+        $query = parse_url($url, PHP_URL_QUERY);
+        if (! self::robotsAllow((array) Cache::get($this->robotsKey($site), []), (string) (parse_url($url, PHP_URL_PATH) ?: '/').($query ? '?'.$query : ''))) {
+            return;
         }
         $hash = SitePage::hash($url);
         $existing = SitePage::query()->where('site_id', $site->id)->where('url_hash', $hash)->first(['id', 'run']);
@@ -198,7 +195,12 @@ final class SiteLearner
         return 'https://'.strtolower($p['host']).(isset($p['port']) && ! in_array((int) $p['port'], [80, 443], true) ? ':'.$p['port'] : '').($p['path'] ?? '/').$query;
     }
 
-    /** Regulile „Disallow” pentru toți roboții (User-agent: *). @return list<string> */
+    /**
+     * Regulile pentru toți roboții (User-agent: *), ca în standardul robots.txt: „*” = orice, „$” = sfârșitul adresei,
+     * câștigă regula cea mai lungă care se potrivește, iar la egalitate „Allow”.
+     *
+     * @return list<array{0: bool, 1: string, 2: int}> [permis, expresie, lungime]
+     */
     private function robots(SafeFetcher $http, string $origin): array
     {
         $r = $http->get($origin.'/robots.txt', 2);
@@ -207,16 +209,43 @@ final class SiteLearner
         }
         $rules = [];
         $applies = false;
+        $group = false; // rânduri User-agent consecutive formează același grup
         foreach (preg_split('/\R/', $r['body']) ?: [] as $line) {
             $line = trim((string) preg_replace('/#.*$/', '', $line));
             if (preg_match('/^User-agent:\s*(.+)$/i', $line, $m)) {
-                $applies = trim($m[1]) === '*';
-            } elseif ($applies && preg_match('/^Disallow:\s*(\S*)/i', $line, $m) && $m[1] !== '') {
-                $rules[] = rtrim(explode('*', $m[1])[0], '$');
+                $applies = ($group && $applies) || trim($m[1]) === '*';
+                $group = true;
+
+                continue;
+            }
+            $group = false;
+            if ($applies && preg_match('/^(Allow|Disallow):\s*(\S*)/i', $line, $m) && $m[2] !== '') {
+                $rules[] = [strtolower($m[1]) === 'allow', self::robotsPattern($m[2]), strlen($m[2])];
             }
         }
 
-        return array_values(array_unique(array_filter($rules)));
+        return $rules;
+    }
+
+    private static function robotsPattern(string $rule): string
+    {
+        $anchored = str_ends_with($rule, '$');
+        $rule = rtrim($rule, '$');
+
+        return '#^'.str_replace('\\*', '.*', preg_quote($rule, '#')).($anchored ? '$' : '').'#';
+    }
+
+    /** @param list<array{0: bool, 1: string, 2: int}> $rules */
+    public static function robotsAllow(array $rules, string $path): bool
+    {
+        $best = null;
+        foreach ($rules as [$allow, $pattern, $length]) {
+            if (is_string($pattern) && @preg_match($pattern, $path) === 1 && ($best === null || $length > $best[1] || ($length === $best[1] && $allow))) {
+                $best = [$allow, $length];
+            }
+        }
+
+        return $best === null || $best[0];
     }
 
     /** Adresele din sitemap (inclusiv indexul de sitemap-uri: pagini, produse, articole). @return list<string> */

@@ -27,7 +27,10 @@ final class LearnSites extends Command
         if (! $this->option('site')) {
             $withAgent = Agent::withoutTenancy()->whereNotNull('site_id')->select('site_id');
             $due = Site::withoutTenancy()->where('status', 'active')->where('learn_auto', true)->whereIn('id', $withAgent)
-                ->where(fn ($q) => $q->whereNull('learn_status')->orWhere(fn ($q) => $q->whereIn('learn_status', ['done', 'failed'])->where('learned_at', '<', now()->subWeek())))
+                ->where(fn ($q) => $q->whereNull('learn_status')
+                    ->orWhere(fn ($q) => $q->where('learn_status', 'done')->where('learned_at', '<', now()->subWeek()))
+                    // o citire eșuată (site căzut, blocaj temporar) se reîncearcă după câteva ore
+                    ->orWhere(fn ($q) => $q->where('learn_status', 'failed')->where(fn ($q) => $q->whereNull('learned_at')->orWhere('learned_at', '<', now()->subHours(6)))))
                 ->limit(20)->pluck('id');
             Site::withoutTenancy()->whereIn('id', $due)->update(['learn_status' => 'queued', 'learn_error' => null]);
         }

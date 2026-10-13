@@ -1,5 +1,12 @@
 # VITIM AI Cloud — versiuni
 
+## 0.25.1 — citirea site-urilor WooCommerce
+
+- Agentul citește acum corect și site-urile de magazin (WooCommerce). Până acum, unele dintre ele apăreau greșit ca „nu s-a putut citi”.
+- O citire eșuată se reîncearcă singură după câteva ore. O poți porni și imediat, cu „Citește site-ul acum”.
+
+**Actualizare:** regulile din robots.txt cu `*` (de exemplu `Disallow: /*?add-to-cart=`, standard în WooCommerce) erau interpretate ca „interzis tot site-ul”. Acum se aplică după standard: `*`, `$`, `Allow`, regula cea mai lungă câștigă.
+
 ## 0.25.0 — cine e pe site acum și notificări la mesaje
 
 - În meniul din stânga vezi permanent **câți vizitatori sunt acum pe site**. Pe pagina Prezentare, caseta **Acum pe site** arată și paginile pe care se află.

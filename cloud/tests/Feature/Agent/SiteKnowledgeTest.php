@@ -50,7 +50,8 @@ final class SiteKnowledgeTest extends TestCase
             .'<main>'.$main.'</main><footer>© Service Auto Test · Termeni</footer></body></html>';
         $pages = $extra + [
             '/' => $layout('<h1>Service auto în Cluj</h1><p>Reparații, revizii și diagnoză pentru toate mărcile, cu piese originale și garanție.</p><a href="/contact/?utm_source=nl">Contact</a>'),
-            '/robots.txt' => "User-agent: *\nDisallow: /privat/\n",
+            // regulile standard WooCommerce (cu „*”) nu trebuie să blocheze tot site-ul
+            '/robots.txt' => "User-agent: *\nDisallow: /privat/\nDisallow: /*?add-to-cart=\nDisallow: /*?*add-to-cart=\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n\nUser-agent: AltRobot\nDisallow: /\n",
             '/sitemap.xml' => '<?xml version="1.0"?><urlset><url><loc>https://'.self::D.'/servicii/</loc></url><url><loc>https://'.self::D.'/produs/anvelope-iarna/</loc></url><url><loc>https://'.self::D.'/privat/intern/</loc></url></urlset>',
             '/servicii/' => $layout('<h1>Servicii</h1><h2>Schimb ulei</h2><p>Schimbul de ulei și filtre costă 150 lei manopera, durează aproximativ o oră și include verificarea nivelurilor.</p><h2>Diagnoză</h2><p>Diagnoza computerizată costă 100 lei și se face pe loc, fără programare în zilele lucrătoare.</p>'),
             '/produs/anvelope-iarna/' => $layout('<h1>Anvelope iarnă 205/55 R16</h1><p>Anvelope de iarnă premium, montaj inclus în prețul afișat pentru set complet.</p>')
@@ -129,6 +130,19 @@ final class SiteKnowledgeTest extends TestCase
         $this->assertSame(2, $site->fresh()->learn_run);
         $this->assertFalse($this->tenant()->runAs($org, fn () => SitePage::query()->where('url', "{$base}/contact/")->exists()));
         $this->assertTrue($this->tenant()->runAs($org, fn () => SitePage::query()->where('url', "{$base}/servicii/")->where('status', 'ok')->exists()));
+    }
+
+    public function test_robots_rules_follow_the_standard(): void
+    {
+        $pattern = new \ReflectionMethod(SiteLearner::class, 'robotsPattern');
+        $rules = array_map(fn ($r) => [$r[0], $pattern->invoke(null, $r[1]), strlen($r[1])],
+            [[false, '/*?add-to-cart='], [false, '/wp-admin/'], [true, '/wp-admin/admin-ajax.php'], [false, '/*.pdf$']]);
+        $this->assertTrue(SiteLearner::robotsAllow($rules, '/cabane-din-lemn/'));
+        $this->assertFalse(SiteLearner::robotsAllow($rules, '/produs/x/?add-to-cart=12'));
+        $this->assertFalse(SiteLearner::robotsAllow($rules, '/wp-admin/options.php'));
+        $this->assertTrue(SiteLearner::robotsAllow($rules, '/wp-admin/admin-ajax.php'));
+        $this->assertFalse(SiteLearner::robotsAllow($rules, '/oferta.pdf'));
+        $this->assertTrue(SiteLearner::robotsAllow([], '/orice'));
     }
 
     public function test_ai_agent_searches_the_site_and_answers_with_the_link(): void
