@@ -57,6 +57,33 @@ final class SettingsController extends PortalController
         return $this->to('portal.settings', [], 'Datele firmei au fost salvate.');
     }
 
+    /** Profilul public (Google și asistenții AI): ajunge pe site prin datele structurate și llms.txt la următoarea remediere. */
+    public function updatePublicProfile(Request $request, AuditLogger $audit): RedirectResponse
+    {
+        $data = $request->validate([
+            'about' => ['nullable', 'string', 'max:600'],
+            'area' => ['nullable', 'string', 'max:255'],
+            'hours' => ['nullable', 'string', 'max:255'],
+            'price_range' => ['nullable', 'string', 'max:40'],
+            'phone' => ['nullable', 'string', 'max:40'],
+            'email' => ['nullable', 'email', 'max:160'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:80'],
+            'same_as' => ['nullable', 'string', 'max:2000'],
+        ], ['email.email' => 'Adresa de email nu e validă.']);
+        $links = array_values(array_unique(array_filter(array_map('trim', preg_split('/\R/', (string) ($data['same_as'] ?? '')) ?: []))));
+        foreach ($links as $link) {
+            if (! preg_match('#^https://[^\s]+$#i', $link) || filter_var($link, FILTER_VALIDATE_URL) === false) {
+                return back()->withInput()->withErrors(['same_as' => "Adresa „{$link}” nu e validă (trebuie să înceapă cu https://)."]);
+            }
+        }
+        $organization = $this->organization();
+        $organization->forceFill(['public_profile' => array_filter(array_map(fn ($v) => is_string($v) ? trim($v) : $v, array_merge($data, ['same_as' => array_slice($links, 0, 8)])))])->save();
+        $audit->record('organization.public_profile', $organization);
+
+        return $this->to('portal.settings', [], 'Profilul public a fost salvat. Ajunge pe site la următoarea actualizare a datelor structurate.');
+    }
+
     public function invite(Request $request, MembershipService $members): RedirectResponse
     {
         $data = $request->validate(['email' => ['required', 'email', 'max:190'], 'name' => ['required', 'string', 'max:120'], 'role' => ['required', Rule::enum(OrgRole::class)]]);

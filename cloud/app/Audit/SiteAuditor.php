@@ -15,6 +15,9 @@ final class SiteAuditor
 {
     private const MAX_PAGES = 12;
 
+    /** Roboții prin care asistenții AI caută pe internet și citesc paginile la cererea utilizatorului (nu cei de antrenare). */
+    private const AI_SEARCH_BOTS = ['oai-searchbot', 'chatgpt-user', 'perplexitybot', 'perplexity-user', 'claude-searchbot', 'claude-user', 'bingbot'];
+
     /** Urmăritori care, conform Legii 506/2004 / GDPR, cer consimțământ înainte de încărcare. */
     private const TRACKERS = ['googletagmanager.com/gtag', 'google-analytics.com', 'googletagmanager.com/gtm.js', 'connect.facebook.net', 'fbq(', 'static.hotjar.com', 'clarity.ms', 'snap.licdn.com', 'analytics.tiktok.com'];
 
@@ -45,6 +48,7 @@ final class SiteAuditor
         $pages = $this->pages($home, $robots);
         $this->seo($home, $pages);
         $this->legal($home, $pages);
+        $this->ai($home, $pages, $robots);
 
         return $this->findings;
     }
@@ -354,6 +358,111 @@ final class SiteAuditor
     // ---------- legal (România) ----------
 
     /** @param array<string, array{body: string}> $pages */
+    // ---------- vizibilitate în asistenții AI ----------
+
+    /**
+     * @param  array{status: int, url: string, headers: array<string, string>, body: string}  $home
+     * @param  array<string, array{status: int, url: string, headers: array<string, string>, body: string}>  $pages
+     * @param  array{body: ?string, sitemaps: list<string>}  $robots
+     */
+    private function ai(array $home, array $pages, array $robots): void
+    {
+        // roboții de căutare ai asistenților AI blocați în robots.txt (blocarea tuturor roboților e semnalată la SEO)
+        if ($robots['body'] !== null) {
+            $blocked = [];
+            $agents = [];
+            $inRules = false;
+            foreach (preg_split('/\R/', $robots['body']) ?: [] as $line) {
+                $line = trim((string) preg_replace('/#.*$/', '', $line));
+                if (preg_match('/^User-agent:\s*(.+)$/i', $line, $m)) {
+                    $agents = $inRules ? [] : $agents;
+                    $agents[] = strtolower(trim($m[1]));
+                    $inRules = false;
+                } elseif (preg_match('/^(Dis)?allow:\s*(\S*)/i', $line, $m)) {
+                    $inRules = true;
+                    if ($m[1] !== '' && $m[2] === '/') {
+                        array_push($blocked, ...array_intersect($agents, self::AI_SEARCH_BOTS));
+                    }
+                }
+            }
+            if ($blocked) {
+                $this->add('ai.bots_blocked', 'warning', 'robots.txt blochează asistenții AI care caută pe internet', implode(', ', array_unique($blocked)));
+            }
+        }
+
+        $origin = $this->origin($home['url']);
+        $llms = $this->http->get($origin.'/llms.txt', 2);
+        if (! $llms || $llms['status'] !== 200 || stripos($llms['headers']['content-type'] ?? 'text/plain', 'html') !== false || trim($llms['body']) === '') {
+            $this->add('ai.llms_missing', 'info', 'Lipsește rezumatul pentru asistenții AI (llms.txt)');
+        }
+
+        // datele structurate ale firmei: ce le lipsește ca un asistent AI să confirme cine e firma și unde lucrează
+        $business = null;
+        foreach ($this->jsonLd($home['body']) as $node) {
+            if (preg_match('/Organization|Business|Store|Restaurant|Dentist|Clinic|Repair|Service|Agency|Contractor|Physician|Hotel/i', implode(' ', (array) ($node['@type'] ?? '')))) {
+                $business = $node;
+                break;
+            }
+        }
+        if ($business !== null) {
+            $missing = array_keys(array_filter([
+                'telefon' => empty($business['telephone']),
+                'adresă' => empty($business['address']),
+                'zonă deservită' => empty($business['areaServed']) && empty($business['address']['addressLocality'] ?? null),
+                'descriere' => empty($business['description']),
+                'profiluri oficiale (sameAs)' => empty($business['sameAs']),
+            ]));
+            if (count($missing) >= 2) {
+                $this->add('ai.schema_incomplete', 'info', 'Datele structurate ale firmei sunt incomplete', 'Lipsesc: '.implode(', ', $missing));
+            }
+        }
+
+        $all = $pages + [$home['url'] => $home];
+        $links = $this->links($home['body']);
+        $hasFaq = false;
+        foreach ($all as $url => $page) {
+            if (preg_match('/faq|intrebari|întrebări/i', rawurldecode((string) $url)) || preg_match('/"@type"\s*:\s*"FAQPage"/', $page['body'])) {
+                $hasFaq = true;
+                break;
+            }
+        }
+        foreach ($links as $link) {
+            if (preg_match('/faq|intrebari-frecvente|întrebări frecvente|intrebari frecvente/iu', $link['href'].' '.$link['text'])) {
+                $hasFaq = true;
+                break;
+            }
+        }
+        if (! $hasFaq) {
+            $this->add('ai.faq_missing', 'info', 'Lipsește o pagină de întrebări frecvente');
+        }
+        $hasAbout = (bool) array_filter(array_keys($all), fn ($u) => preg_match('/despre|about|cine-suntem|povestea/i', (string) $u))
+            || (bool) array_filter($links, fn ($l) => preg_match('/despre|about|cine-suntem|cine suntem|povestea/iu', $l['href'].' '.$l['text']));
+        if (! $hasAbout) {
+            $this->add('ai.about_missing', 'info', 'Lipsește o pagină „Despre noi”');
+        }
+    }
+
+    /** Nodurile JSON-LD ale paginii (inclusiv din @graph). @return list<array<string, mixed>> */
+    private function jsonLd(string $html): array
+    {
+        preg_match_all('#<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#is', $html, $m);
+        $nodes = [];
+        foreach ($m[1] as $json) {
+            $data = json_decode(html_entity_decode(trim($json)), true);
+            if (! is_array($data)) {
+                continue;
+            }
+            $list = isset($data['@graph']) && is_array($data['@graph']) ? $data['@graph'] : (array_is_list($data) ? $data : [$data]);
+            foreach ($list as $node) {
+                if (is_array($node)) {
+                    $nodes[] = $node;
+                }
+            }
+        }
+
+        return $nodes;
+    }
+
     private function legal(array $home, array $pages): void
     {
         $html = $home['body'];

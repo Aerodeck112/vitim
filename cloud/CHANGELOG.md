@@ -1,5 +1,20 @@
 # VITIM AI Cloud — versiuni
 
+## 0.27.0 — vizibilitate în asistenții AI
+
+- Scor nou în raportul site-ului: **Vizibilitate AI**. Verificăm ce ajută ca firma să fie găsită și recomandată de asistenți precum ChatGPT, Perplexity, Gemini sau Copilot:
+  - dacă robots.txt îi blochează;
+  - dacă există un rezumat al firmei pentru ei (llms.txt);
+  - dacă datele structurate sunt complete (telefon, adresă, zonă deservită, descriere, profiluri oficiale);
+  - dacă există paginile „Întrebări frecvente” și „Despre noi”.
+- Fiecare problemă are pașii din „Cum rezolvi”.
+- În **Setări** există secțiunea nouă **Profil public (Google și asistenții AI)**: ce face firma, zona deservită, programul, contactul public și profilurile oficiale (Facebook, Google Business Profile). Din aceste date se completează datele structurate ale site-ului și rezumatul pentru asistenții AI.
+- Pe site-urile WordPress cu pluginul VITIM 1.7.0, rezumatul llms.txt și datele structurate complete se adaugă automat, prin pilotul SEO săptămânal sau la buton. Recomandarea de către asistenții AI nu se poate garanta; aceste date doar îi ajută să găsească informații clare și corecte despre firmă.
+
+**Actualizare:**
+- **Panou:** migrare nouă (`organizations.public_profile`) și categoria de audit `ai`, cu codurile `ai.bots_blocked`, `ai.llms_missing`, `ai.schema_incomplete`, `ai.faq_missing` și `ai.about_missing`.
+- **Plugin 1.7.0:** remedierea `seo_fix:llms` (llms.txt generat din profilul public, din pagini și din produse; nu înlocuiește un llms.txt existent), plus datele structurate extinse (`description`, `areaServed`, `priceRange`, `sameAs`). Remedierea llms cere pluginul 1.7.0; pe pluginurile mai vechi rămâne doar ghidul.
+
 ## 0.26.1 — exemple potrivite fiecărei firme
 
 - În pagina agentului, exemplul de la „Informații despre firmă” ține acum de domeniul agentului (service auto, clinică, magazin online sau general). Până acum, toți clienții vedeau același exemplu, cu prețuri de cabane.

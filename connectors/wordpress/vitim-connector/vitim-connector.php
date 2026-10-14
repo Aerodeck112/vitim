@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       VITIM Connector
  * Description:       Conectează site-ul la panoul VITIM: asistentul AI pe site, formulare de abonare, magazinul WooCommerce (coș abandonat, comenzi), starea site-ului, scanarea problemelor, remedieri, backup și jurnalul automat al lucrărilor.
- * Version:           1.6.0
+ * Version:           1.7.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            VITIM
@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('VITIM_CONNECTOR_VERSION', '1.6.0');
+define('VITIM_CONNECTOR_VERSION', '1.7.0');
 require_once __DIR__.'/includes-backup.php';
 require_once __DIR__.'/includes-seo.php';
 require_once __DIR__.'/includes-shop.php';

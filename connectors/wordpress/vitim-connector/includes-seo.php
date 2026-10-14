@@ -28,6 +28,7 @@ final class Vitim_Connector_Seo
         'schema' => 'Date structurate despre firmă',
         'headers' => 'Antete de securitate',
         'gzip' => 'Compresie (gzip)',
+        'llms' => 'Rezumat pentru asistenții AI (llms.txt)',
     ];
 
     public static function boot()
@@ -64,6 +65,9 @@ final class Vitim_Connector_Seo
         }
         if (isset($on['headers'])) {
             add_action('send_headers', [__CLASS__, 'headers']);
+        }
+        if (isset($on['llms'])) {
+            add_action('parse_request', [__CLASS__, 'llms'], 0);
         }
     }
 
@@ -163,7 +167,13 @@ final class Vitim_Connector_Seo
 
                 return [true, $filled ? "Am completat textul alternativ la {$filled} imagini din bibliotecă." : null];
             case 'schema':
-                update_option(self::DATA, self::cleanData($data), false);
+            case 'llms':
+                if ($data) {
+                    update_option(self::DATA, self::cleanData($data), false);
+                }
+                if ($fix === 'llms' && file_exists(ABSPATH.'llms.txt')) {
+                    return [false, 'Site-ul are deja un fișier llms.txt scris de mână; nu îl înlocuiesc.'];
+                }
 
                 return [true, null];
             case 'gzip':
@@ -308,6 +318,18 @@ final class Vitim_Connector_Seo
         if (! empty($d['address'])) {
             $schema['address'] = array_filter(['@type' => 'PostalAddress', 'streetAddress' => $d['address'], 'addressLocality' => isset($d['city']) ? $d['city'] : null, 'addressCountry' => 'RO']);
         }
+        if (! empty($d['about'])) {
+            $schema['description'] = $d['about'];
+        }
+        if (! empty($d['area'])) {
+            $schema['areaServed'] = array_values(array_filter(array_map('trim', explode(',', $d['area']))));
+        }
+        if (! empty($d['price_range'])) {
+            $schema['priceRange'] = $d['price_range'];
+        }
+        if (! empty($d['same_as'])) {
+            $schema['sameAs'] = array_values($d['same_as']);
+        }
 
         return $schema;
     }
@@ -315,13 +337,114 @@ final class Vitim_Connector_Seo
     private static function cleanData($data)
     {
         $out = [];
-        foreach (['name' => 160, 'phone' => 40, 'email' => 160, 'address' => 255, 'city' => 80] as $key => $max) {
+        foreach (['name' => 160, 'phone' => 40, 'email' => 160, 'address' => 255, 'city' => 80, 'about' => 600, 'area' => 255, 'hours' => 255, 'price_range' => 40] as $key => $max) {
             if (isset($data[$key]) && is_string($data[$key]) && trim($data[$key]) !== '') {
-                $out[$key] = substr(sanitize_text_field($data[$key]), 0, $max);
+                $out[$key] = mb_substr(sanitize_text_field($data[$key]), 0, $max);
+            }
+        }
+        if (isset($data['same_as']) && is_array($data['same_as'])) {
+            $links = [];
+            foreach (array_slice($data['same_as'], 0, 8) as $url) {
+                $url = is_string($url) ? esc_url_raw(trim($url), ['https']) : '';
+                if ($url !== '') {
+                    $links[] = $url;
+                }
+            }
+            if ($links) {
+                $out['same_as'] = $links;
             }
         }
 
         return $out;
+    }
+
+    /**
+     * /llms.txt: un rezumat al firmei pentru asistenții AI (ChatGPT, Perplexity, Claude, Gemini) — cine e firma, unde
+     * lucrează, cum o contactezi și paginile importante. Generat din datele trimise de panou și din conținutul publicat.
+     */
+    public static function llms($wp)
+    {
+        $path = trim((string) wp_parse_url(isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '', PHP_URL_PATH), '/');
+        $home = trim((string) wp_parse_url(home_url('/'), PHP_URL_PATH), '/');
+        if ($path !== ltrim($home.'/llms.txt', '/')) {
+            return;
+        }
+        if (! get_option('blog_public')) {
+            status_header(404);
+            exit;
+        }
+        nocache_headers();
+        header('Content-Type: text/plain; charset=utf-8');
+        header('X-Robots-Tag: noindex');
+        echo self::llmsText();
+        exit;
+    }
+
+    public static function llmsText()
+    {
+        $d = get_option(self::DATA, []);
+        $d = is_array($d) ? $d : [];
+        $line = function ($text) {
+            return trim(preg_replace('/\s+/u', ' ', html_entity_decode(wp_strip_all_tags((string) $text), ENT_QUOTES, 'UTF-8')));
+        };
+        $name = ! empty($d['name']) ? $d['name'] : get_bloginfo('name');
+        $about = ! empty($d['about']) ? $d['about'] : get_bloginfo('description');
+        $out = ['# '.$line($name), ''];
+        if ($line($about) !== '') {
+            $out[] = '> '.$line($about);
+            $out[] = '';
+        }
+        $facts = array_filter([
+            ! empty($d['area']) ? 'Zonă deservită: '.$d['area'] : null,
+            ! empty($d['address']) ? 'Adresă: '.$d['address'].(! empty($d['city']) ? ', '.$d['city'] : '') : null,
+            ! empty($d['hours']) ? 'Program: '.$d['hours'] : null,
+            ! empty($d['phone']) ? 'Telefon: '.$d['phone'] : null,
+            ! empty($d['email']) ? 'Email: '.$d['email'] : null,
+            ! empty($d['price_range']) ? 'Prețuri: '.$d['price_range'] : null,
+            'Site: '.home_url('/'),
+        ]);
+        $out[] = '## Despre firmă';
+        foreach ($facts as $fact) {
+            $out[] = '- '.$line($fact);
+        }
+        if (! empty($d['same_as'])) {
+            $out[] = '- Profiluri oficiale: '.implode(', ', $d['same_as']);
+        }
+
+        $item = function ($post) use ($line) {
+            $excerpt = $line(has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words((string) $post->post_content, 28, '…'));
+
+            return '- ['.$line(get_the_title($post)).']('.get_permalink($post).')'.($excerpt !== '' ? ': '.$excerpt : '');
+        };
+        $pages = get_posts(['post_type' => 'page', 'post_status' => 'publish', 'numberposts' => 40, 'orderby' => 'menu_order title', 'order' => 'ASC', 'has_password' => false]);
+        if ($pages) {
+            $out[] = '';
+            $out[] = '## Pagini';
+            foreach ($pages as $post) {
+                $out[] = $item($post);
+            }
+        }
+        if (function_exists('wc_get_products')) {
+            $products = wc_get_products(['status' => 'publish', 'limit' => 40, 'orderby' => 'popularity', 'visibility' => 'catalog']);
+            if ($products) {
+                $out[] = '';
+                $out[] = '## Produse';
+                foreach ($products as $product) {
+                    $price = $product->get_price();
+                    $out[] = '- ['.$line($product->get_name()).']('.$product->get_permalink().')'.($price !== '' ? ' — '.$line(wc_price($price)) : '').($product->is_in_stock() ? '' : ' (stoc epuizat)');
+                }
+            }
+        }
+        $posts = get_posts(['post_type' => 'post', 'post_status' => 'publish', 'numberposts' => 10, 'has_password' => false]);
+        if ($posts) {
+            $out[] = '';
+            $out[] = '## Articole recente';
+            foreach ($posts as $post) {
+                $out[] = $item($post);
+            }
+        }
+
+        return implode("\n", $out)."\n";
     }
 
     public static function robots($output, $public)

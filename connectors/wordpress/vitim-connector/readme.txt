@@ -1,7 +1,7 @@
 === VITIM Connector ===
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 
 Conectează site-ul la panoul VITIM.
@@ -12,6 +12,7 @@ Conectează site-ul la panoul VITIM.
 * Afișează formularele de abonare publicate în panoul VITIM (popup, flyout, bară, în pagină).
 * WooCommerce: trimite produsele văzute, coșurile, comenzile începute și plasate, catalogul de produse; linkul din emailul de coș abandonat reface coșul.
 * Bannerul de cookie-uri VITIM (setat din panou): Google Consent Mode v2 în <head>, shortcode [vitim_cookies] pentru politica de cookie-uri, urmărirea din magazin doar cu acord de marketing.
+* Vizibilitate în asistenții AI (la cerere din panou): /llms.txt cu rezumatul firmei și date structurate complete (zonă deservită, profiluri oficiale).
 * Comunicarea e semnată (HMAC-SHA256); pluginul nu primește comenzi de la distanță.
 
 == Installation ==

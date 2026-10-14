@@ -17,7 +17,7 @@ use Throwable;
  */
 final class SeoAutopilot
 {
-    public const SAFE = ['meta', 'title', 'sitemap', 'lang', 'viewport', 'alt', 'schema'];
+    public const SAFE = ['meta', 'title', 'sitemap', 'lang', 'viewport', 'alt', 'schema', 'llms'];
 
     public const EVERY_DAYS = 7;
 

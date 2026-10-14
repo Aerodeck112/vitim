@@ -25,6 +25,33 @@
   </fieldset>
 </form>
 
+@php($pp = (array) ($organization->public_profile ?? []))
+<form method="post" action="{{ route('portal.settings.public', $organization->slug) }}" class="card" id="profil-public">
+  @csrf @method('put')
+  <h2>Profil public (Google și asistenții AI)</h2>
+  <p class="small muted" style="margin-top:-6px">Datele de aici ajung pe site în datele structurate și în rezumatul pentru asistenții AI (llms.txt), ca Google, ChatGPT sau Gemini să înțeleagă corect ce face firma, unde și cum o contactezi. Scrie doar date reale și aceleași ca în Google Business Profile.</p>
+  <fieldset @disabled(! $can['organization']) style="border:0;padding:0;margin:0">
+  <div class="fl"><label for="about">Ce face firma, într-o frază sau două</label><textarea id="about" name="about" rows="3" maxlength="600" placeholder="ex. Service auto pentru toate mărcile în Târgu Mureș: revizii, diagnoză, distribuție, ITP.">{{ old('about', $pp['about'] ?? '') }}</textarea>@error('about')<div class="err">{{ $message }}</div>@enderror</div>
+  <div class="row">
+    <div class="fl"><label for="area">Zonă deservită (separate prin virgulă)</label><input id="area" type="text" name="area" maxlength="255" value="{{ old('area', $pp['area'] ?? '') }}" placeholder="ex. Târgu Mureș, Reghin, județul Mureș">@error('area')<div class="err">{{ $message }}</div>@enderror</div>
+    <div class="fl"><label for="hours">Program</label><input id="hours" type="text" name="hours" maxlength="255" value="{{ old('hours', $pp['hours'] ?? '') }}" placeholder="ex. luni–vineri 8–17, sâmbătă 9–13">@error('hours')<div class="err">{{ $message }}</div>@enderror</div>
+  </div>
+  <div class="row">
+    <div class="fl"><label for="pp_phone">Telefon public</label><input id="pp_phone" type="text" name="phone" maxlength="40" value="{{ old('phone', $pp['phone'] ?? ($organization->billing_details['phone'] ?? '')) }}">@error('phone')<div class="err">{{ $message }}</div>@enderror</div>
+    <div class="fl"><label for="pp_email">Email public</label><input id="pp_email" type="email" name="email" maxlength="160" value="{{ old('email', $pp['email'] ?? ($organization->billing_details['email'] ?? '')) }}">@error('email')<div class="err">{{ $message }}</div>@enderror</div>
+  </div>
+  <div class="row">
+    <div class="fl"><label for="pp_address">Adresă (stradă, număr)</label><input id="pp_address" type="text" name="address" maxlength="255" value="{{ old('address', $pp['address'] ?? ($organization->billing_details['address'] ?? '')) }}"></div>
+    <div class="fl"><label for="pp_city">Localitate</label><input id="pp_city" type="text" name="city" maxlength="80" value="{{ old('city', $pp['city'] ?? ($organization->billing_details['city'] ?? '')) }}"></div>
+  </div>
+  <div class="row">
+    <div class="fl"><label for="price_range">Nivel de preț (opțional)</label><input id="price_range" type="text" name="price_range" maxlength="40" value="{{ old('price_range', $pp['price_range'] ?? '') }}" placeholder="ex. $$ sau „de la 150 lei”"></div>
+    <div class="fl"><label for="same_as">Profiluri oficiale (câte unul pe rând)</label><textarea id="same_as" name="same_as" rows="3" placeholder="https://www.facebook.com/firma&#10;https://maps.app.goo.gl/…">{{ old('same_as', implode("\n", $pp['same_as'] ?? [])) }}</textarea>@error('same_as')<div class="err">{{ $message }}</div>@enderror</div>
+  </div>
+  @if ($can['organization'])<button class="btn btn-p" type="submit">Salvează profilul public</button>@else<p class="tag-note">Doar proprietarul modifică profilul public.</p>@endif
+  </fieldset>
+</form>
+
 <div class="card">
   <h2>Utilizatori</h2>
   <div class="table-wrap"><table>

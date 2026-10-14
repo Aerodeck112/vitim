@@ -14,12 +14,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * Tenantul: firma client. Relațiile spre date de client trec prin scope-ul de organizație,
  * deci se citesc doar în contextul acestei organizații (TenantContext::runAs).
  */
-#[Fillable(['name', 'slug', 'status', 'country', 'timezone', 'default_language', 'company_name', 'vat_id', 'data_retention_days', 'billing_details', 'branding'])]
+#[Fillable(['name', 'slug', 'status', 'country', 'timezone', 'default_language', 'company_name', 'vat_id', 'data_retention_days', 'billing_details', 'branding', 'public_profile'])]
 class Organization extends Model
 {
     protected function casts(): array
     {
-        return ['billing_details' => 'array', 'branding' => 'array'];
+        return ['billing_details' => 'array', 'branding' => 'array', 'public_profile' => 'array'];
     }
 
     public function isActive(): bool

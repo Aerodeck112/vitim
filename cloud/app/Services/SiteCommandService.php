@@ -42,8 +42,8 @@ final class SiteCommandService
 
         $command = SiteCommand::create(['site_id' => $site->id, 'action' => $action, 'target' => $target, 'status' => 'running', 'requested_by' => $user?->id]);
         $payload = ['command_id' => $command->id, 'action' => $action, 'target' => $target];
-        if ($action === 'seo_fix' && in_array('schema', explode('.', (string) $target), true)) {
-            $payload['data'] = $this->companyData($site);
+        if ($action === 'seo_fix' && array_intersect(['schema', 'llms'], explode('.', (string) $target))) {
+            $payload['data'] = self::companyData($site);
         }
         $body = (string) json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $ts = (string) time();
@@ -90,18 +90,30 @@ final class SiteCommandService
         return $command;
     }
 
-    /** Datele firmei pentru datele structurate de pe site (doar ce e public: nume, contact, adresă). @return array<string, string> */
-    private function companyData(Site $site): array
+    /**
+     * Datele publice ale firmei pentru datele structurate și llms.txt: din profilul public (Setări → Profil public),
+     * completate cu datele de facturare. Doar ce e public: nume, contact, adresă, descriere, zonă, program, profiluri.
+     *
+     * @return array<string, string|list<string>>
+     */
+    public static function companyData(Site $site): array
     {
         $organization = $site->organization;
         $billing = (array) ($organization->billing_details ?? []);
+        $public = (array) ($organization->public_profile ?? []);
+        $pick = fn (string $key) => trim((string) ($public[$key] ?? '')) !== '' ? trim((string) $public[$key]) : trim((string) ($billing[$key] ?? ''));
 
         return array_filter([
             'name' => (string) ($organization->company_name ?: $organization->name),
-            'phone' => (string) ($billing['phone'] ?? ''),
-            'email' => (string) ($billing['email'] ?? ''),
-            'address' => (string) ($billing['address'] ?? ''),
-            'city' => (string) ($billing['city'] ?? ''),
+            'phone' => $pick('phone'),
+            'email' => $pick('email'),
+            'address' => $pick('address'),
+            'city' => $pick('city'),
+            'about' => trim((string) ($public['about'] ?? '')),
+            'area' => trim((string) ($public['area'] ?? '')),
+            'hours' => trim((string) ($public['hours'] ?? '')),
+            'price_range' => trim((string) ($public['price_range'] ?? '')),
+            'same_as' => array_values(array_filter((array) ($public['same_as'] ?? []))),
         ]);
     }
 

@@ -42,7 +42,11 @@ final class Remediation
         'schema' => 'Adaugă datele structurate ale firmei',
         'headers' => 'Adaugă antetele de securitate',
         'gzip' => 'Pornește compresia',
+        'llms' => 'Adaugă rezumatul pentru asistenții AI (llms.txt)',
     ];
+
+    /** Remedierile apărute în versiuni mai noi ale pluginului. */
+    public const MIN_PLUGIN = ['llms' => '1.7.0'];
 
     /** Problemele din audit care se rezolvă cu un buton pe site-urile WordPress cu pluginul 1.4.0+. */
     public const AUDIT_FIXES = [
@@ -62,6 +66,8 @@ final class Remediation
         'seo.schema_missing' => 'seo_fix:schema',
         'sec.headers_missing' => 'seo_fix:headers',
         'perf.no_compression' => 'seo_fix:gzip',
+        'ai.llms_missing' => 'seo_fix:llms',
+        'ai.schema_incomplete' => 'seo_fix:schema',
     ];
 
     public const SEO_PLUGIN_VERSION = '1.4.0';
@@ -69,7 +75,13 @@ final class Remediation
     /** Remedierea automată pentru o problemă din audit, dacă site-ul o poate primi. */
     public static function forAudit(string $code, ?string $connectorVersion): ?string
     {
-        return $connectorVersion !== null && version_compare($connectorVersion, self::SEO_PLUGIN_VERSION, '>=') ? (self::AUDIT_FIXES[$code] ?? null) : null;
+        $fix = self::AUDIT_FIXES[$code] ?? null;
+        if ($fix === null || $connectorVersion === null || version_compare($connectorVersion, self::SEO_PLUGIN_VERSION, '<')) {
+            return null;
+        }
+        $min = self::MIN_PLUGIN[substr($fix, 8)] ?? null;
+
+        return $min === null || version_compare($connectorVersion, $min, '>=') ? $fix : null;
     }
 
     /**

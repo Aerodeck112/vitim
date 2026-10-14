@@ -17,6 +17,7 @@ final class Guidance
         'updates' => 'Actualizări',
         'performance' => 'Viteză',
         'backup' => 'Backup',
+        'ai' => 'Vizibilitate AI',
     ];
 
     /** cod (sau prefix înainte de „:”) => [categorie, cum rezolvi] */
@@ -67,6 +68,13 @@ final class Guidance
         'seo.og_missing' => ['seo', 'Lipsesc etichetele Open Graph (titlu și imagine la distribuirea pe Facebook / WhatsApp). Pluginul SEO le adaugă: setează o imagine implicită de distribuire.'],
         'seo.schema_missing' => ['seo', 'Adaugă date structurate (JSON-LD) de tip LocalBusiness / Organization cu nume, adresă, telefon, program. Ajută la apariția în Google Maps și în rezultatele locale (Rank Math → Local SEO).'],
         'seo.broken_pages' => ['seo', 'Pagini din sitemap care dau eroare. Repară-le sau redirecționează-le (301) spre pagina cea mai apropiată și scoate-le din sitemap.'],
+
+        // ---------- vizibilitate în asistenții AI ----------
+        'ai.bots_blocked' => ['ai', "robots.txt blochează roboții prin care asistenții AI caută pe internet (ChatGPT, Perplexity, Claude, Copilot): firma nu poate fi găsită și recomandată de ei.\nDacă nu e o decizie intenționată, șterge din robots.txt grupurile „User-agent” pentru acești roboți (sau rândul „Disallow: /” de sub ei). Roboții de antrenare (GPTBot, Google-Extended, CCBot) pot rămâne blocați: nu influențează căutarea."],
+        'ai.llms_missing' => ['ai', "Lipsește /llms.txt: un rezumat al firmei pentru asistenții AI (cine sunteți, unde lucrați, cum vă contactează clienții, paginile importante).\nPe WordPress cu pluginul VITIM 1.7.0+ se generează automat. Pe alte site-uri: creează în rădăcină un fișier text llms.txt cu numele firmei, o descriere scurtă, zona deservită, contactul și lista paginilor principale."],
+        'ai.schema_incomplete' => ['ai', "Datele structurate ale firmei sunt incomplete. Asistenții AI și Google folosesc aceste date ca să confirme cine e firma și unde lucrează.\nCompletează în panou Setări → Profil public (descriere, zonă deservită, program, profiluri oficiale), apoi aplică remedierea. Pe alte site-uri: adaugă în JSON-LD telephone, address, areaServed și sameAs (Facebook, Google Business Profile)."],
+        'ai.faq_missing' => ['ai', "Nu am găsit o pagină de întrebări frecvente. Asistenții AI citează des răspunsuri directe la întrebări („Cât costă…?”, „În cât timp…?”, „Lucrați în…?”).\nCreează o pagină „Întrebări frecvente” cu 8–15 întrebări reale ale clienților (le găsești în Conversații, în panou) și răspunsuri scurte și concrete, cu prețuri orientative unde se poate."],
+        'ai.about_missing' => ['ai', 'Nu am găsit o pagină „Despre noi”. Spune cine e firma, de când lucrează, unde, ce face și pentru cine. Asistenții AI și clienții au încredere în firmele care se prezintă clar.'],
 
         // ---------- viteză ----------
         'perf.slow_response' => ['performance', 'Serverul răspunde greu. Pași: activează cache-ul de pagină (LiteSpeed Cache dacă hostingul e LiteSpeed, altfel WP Super Cache), PHP 8.2+, șterge pluginurile grele nefolosite, verifică planul de hosting.'],

@@ -240,6 +240,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::get('/cookie-uri/{site}/registru', [Portal\CookieController::class, 'export'])->middleware(['can:manage_sites', 'throttle:10,1'])->where('site', $id)->name('cookies.export');
         Route::get('/setari', [Portal\SettingsController::class, 'show'])->middleware('can:view_reports')->name('settings');
         Route::put('/setari/firma', [Portal\SettingsController::class, 'updateProfile'])->middleware('can:manage_organization')->name('settings.profile');
+        Route::put('/setari/profil-public', [Portal\SettingsController::class, 'updatePublicProfile'])->middleware('can:manage_organization')->name('settings.public');
         Route::post('/setari/utilizatori', [Portal\SettingsController::class, 'invite'])->middleware('can:manage_users')->name('settings.invite');
         Route::put('/setari/utilizatori/{member}', [Portal\SettingsController::class, 'changeRole'])->middleware('can:manage_users')->where('member', $id)->name('settings.role');
         Route::delete('/setari/utilizatori/{member}', [Portal\SettingsController::class, 'removeMember'])->middleware('can:manage_users')->where('member', $id)->name('settings.remove');

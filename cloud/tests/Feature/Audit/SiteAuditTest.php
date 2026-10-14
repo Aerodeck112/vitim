@@ -99,7 +99,8 @@ final class SiteAuditTest extends TestCase
             app(SiteAuditService::class)->run($site);
         });
 
-        $open = $this->tenant()->runAs($org, fn () => SiteIssue::query()->where('status', 'open')->pluck('code')->all());
+        // vizibilitatea în asistenții AI are testul ei (AiVisibilityTest)
+        $open = $this->tenant()->runAs($org, fn () => SiteIssue::query()->where('status', 'open')->where('category', '!=', 'ai')->pluck('code')->all());
         $this->assertSame(['xmlrpc'], $open, 'site-ul conform nu are constatări în audit: '.implode(', ', $open));
         $this->assertSame('resolved', $this->tenant()->runAs($org, fn () => SiteIssue::query()->where('code', 'legal.anpc')->sole()->status));
         $this->assertSame(100, Site::withoutTenancy()->find($site->id)->scores['legal']);
