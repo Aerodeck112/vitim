@@ -40,11 +40,8 @@
   <div class="card">
     <h2>Informații despre firmă</h2>
     <p class="muted small" style="margin-top:-6px">Agentul răspunde din ce scrie aici și din paginile site-ului (vezi „Ce știe din site”); ce scrie aici are prioritate. Scrie istoria firmei, serviciile, prețurile, programul, adresa, livrarea, garanția, întrebările frecvente. Fără AI, răspunsurile sunt găsite cel mai bine dacă scrii pe rânduri de forma <span class="mono">Program: L–V 8–17</span> sau întrebare + răspuns:</p>
-    <pre class="code small" style="margin:0 0 12px">Prețuri: cabanele la roșu de la 375 EUR/mp, la cheie de la 690 EUR/mp.
-Program: luni–vineri 8–17, sâmbătă 9–13.
-
-Cât durează construcția?
-O cabană de 60 mp e gata în 6–8 săptămâni.</pre>
+    <pre class="code small" style="margin:0 0 4px">{{ \App\Services\AgentTemplates::example($agent->template) }}</pre>
+    <p class="hint small muted" style="margin:0 0 12px">Exemplu orientativ; înlocuiește cu datele firmei tale.</p>
     <div class="fl"><label for="business_facts">Informații</label><textarea id="business_facts" name="business_facts" maxlength="{{ \App\Services\AgentConfiguration::MAX_FACTS }}" rows="16">{{ old('business_facts', $sys['business_facts'] ?? '') }}</textarea>
       <div class="hint"><span id="facts-count">0</span> / {{ number_format(\App\Services\AgentConfiguration::MAX_FACTS, 0, ',', '.') }} caractere</div>@error('business_facts')<div class="err">{{ $message }}</div>@enderror</div>
     <div class="fl"><label for="contact_line">Date de contact afișate când agentul nu poate răspunde</label><input id="contact_line" type="text" name="contact_line" maxlength="300" value="{{ old('contact_line', $sys['contact_line'] ?? '') }}" placeholder="0740 000 000 sau office@firma.ro">@error('contact_line')<div class="err">{{ $message }}</div>@enderror</div>

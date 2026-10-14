@@ -108,7 +108,7 @@
       <summary style="cursor:pointer;font-weight:600">Test A/B pe subiect @if ($abc)<span class="badge ok">activ</span>@endif</summary>
       <p class="small muted">O parte din destinatari primește subiectul A, o parte subiectul B. După câteva ore, varianta cu rezultate mai bune pleacă automat la restul.</p>
       <label class="chk"><input type="checkbox" name="ab_enabled" value="1" @checked($abc)> Activează testul</label>
-      <div class="fl"><label for="subject_b">Subiectul B</label><input id="subject_b" type="text" name="subject_b" maxlength="200" value="{{ old('subject_b', $abc['subject_b'] ?? '') }}" placeholder="ex. Doar până duminică: -20% la cabane">@error('subject_b')<div class="err">{{ $message }}</div>@enderror</div>
+      <div class="fl"><label for="subject_b">Subiectul B</label><input id="subject_b" type="text" name="subject_b" maxlength="200" value="{{ old('subject_b', $abc['subject_b'] ?? '') }}" placeholder="ex. Doar până duminică: -20% la toată gama">@error('subject_b')<div class="err">{{ $message }}</div>@enderror</div>
       <div class="fl"><label for="preheader_b">Textul de previzualizare B (opțional)</label><input id="preheader_b" type="text" name="preheader_b" maxlength="150" value="{{ old('preheader_b', $abc['preheader_b'] ?? '') }}"></div>
       <div class="row">
         <div class="fl"><label for="ab_percent">Grupul de test</label><select id="ab_percent" name="ab_percent">@foreach ([10 => '10% (5% A + 5% B)', 20 => '20% (10% + 10%)', 30 => '30%', 50 => '50%', 100 => 'toți (jumătate A, jumătate B)'] as $k => $l)<option value="{{ $k }}" @selected(($abc['test_percent'] ?? 20) == $k)>{{ $l }}</option>@endforeach</select></div>

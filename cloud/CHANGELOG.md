@@ -1,5 +1,9 @@
 # VITIM AI Cloud — versiuni
 
+## 0.26.1 — exemple potrivite fiecărei firme
+
+- În pagina agentului, exemplul de la „Informații despre firmă” ține acum de domeniul agentului (service auto, clinică, magazin online sau general). Până acum, toți clienții vedeau același exemplu, cu prețuri de cabane.
+
 ## 0.26.0 — pilot automat SEO
 
 - Pe site-urile WordPress cu pluginul VITIM, problemele SEO obișnuite se rezolvă singure, o dată pe săptămână. Pilotul automat reface:
