@@ -1,5 +1,11 @@
 # Istoric versiuni
 
+## 1.10.0 — studiu de caz Dental Arena
+
+- Studiu de caz nou: **Dental Arena: site nou și CRM pentru programările a două clinici stomatologice**, cu capturi noi de pe dentalarena.ro (calculator și telefon). Apare primul pe prima pagină și în colajul de proiecte.
+- Înlocuiește vechiul proiect „Dental Arena: marketing digital…”: marketingul rămâne menționat în noul studiu de caz, iar adresa veche redirecționează (301) spre cea nouă.
+- Fără cifre sau rezultate inventate; „Rezultatul” descrie ce s-a schimbat în modul de lucru al clinicii.
+
 ## 1.9.0 — VITIM ca companie, VITIM AI ca produs
 
 - **Despre noi**, refăcută la nivel de companie, fără echipă prezentată individual:
