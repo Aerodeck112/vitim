@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Admin\SiteHealthController;
+use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\WorkLogController;
 use App\Http\Controllers\Api\V1 as Api;
@@ -114,10 +115,12 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/noutati/{announcement}/trimite', [AnnouncementController::class, 'send'])->whereNumber('announcement')->name('announcements.send');
         Route::post('/noutati/{announcement}/opreste', [AnnouncementController::class, 'cancel'])->whereNumber('announcement')->name('announcements.cancel');
         Route::delete('/noutati/{announcement}', [AnnouncementController::class, 'destroy'])->whereNumber('announcement')->name('announcements.destroy');
+        Route::post('/abonamente/activeaza-expirate', [SubscriptionController::class, 'activateExpired'])->name('subscriptions.activate');
         Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
         Route::post('/clienti', [OrganizationController::class, 'store'])->name('organizations.store');
         Route::prefix('clienti/{organization}')->middleware('org')->group(function () {
             Route::get('/', [OrganizationController::class, 'show'])->name('organizations.show');
+            Route::put('/abonament', [SubscriptionController::class, 'update'])->name('organizations.subscription');
             Route::post('/site-uri', [SiteController::class, 'store'])->name('sites.store');
             Route::post('/utilizatori/{member}/invitatie', [OrganizationController::class, 'resendInvite'])->whereNumber('member')->middleware('throttle:10,1')->name('organizations.resend');
             Route::post('/site-uri/{site}/chei', [SiteController::class, 'rotate'])->whereNumber('site')->name('sites.rotate');

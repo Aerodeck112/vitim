@@ -1,5 +1,14 @@
 # VITIM AI Cloud — versiuni
 
+## 0.27.1 — abonamente: proba expirată nu mai oprește chatul pe ascuns
+
+- Pe pagina agentului apare clar când asistentul nu e afișat pe site pentru că abonamentul nu e activ.
+
+**Actualizare:**
+- **Fișa clientului:** caseta nouă **Abonament**, cu planul și starea (activ, probă, plată întârziată, suspendat, anulat).
+- **Prezentare (Admin):** avertisment când firmele au perioada de probă expirată (agentul și chatul se opresc) sau pe cale să expire, cu butonul **Activează toate** (doar super admin).
+- **Agent AI (Admin):** pe fiecare site apare „abonament inactiv: chat oprit” când e cazul.
+
 ## 0.27.0 — vizibilitate în asistenții AI
 
 - Scor nou în raportul site-ului: **Vizibilitate AI**. Verificăm ce ajută ca firma să fie găsită și recomandată de asistenți precum ChatGPT, Perplexity, Gemini sau Copilot:

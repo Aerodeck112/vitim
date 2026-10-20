@@ -9,6 +9,18 @@
   <a class="btn" href="{{ route('portal.home', $organization->slug) }}">Deschide dashboardul firmei</a>
 </div>
 
+@php($subOk = $subscription?->isServiceable() ?? false)
+<form method="post" action="{{ route('admin.organizations.subscription', $organization->slug) }}" class="card" id="abonament" @if (! $subOk) style="border-color:var(--err)" @endif>
+  @csrf @method('put')
+  <h2>Abonament</h2>
+  @if (! $subOk)<div class="alert alert-err" style="margin-bottom:12px">{{ $subscription && $subscription->status->value === 'trial' ? 'Perioada de probă a expirat' : 'Abonamentul nu e activ' }}: agentul AI și chatul sunt oprite pe site-urile firmei. Alege „Activ” și salvează.</div>@endif
+  <div class="row">
+    <div class="fl"><label for="plan">Plan</label><select id="plan" name="plan">@foreach (array_keys(config('plans.plans')) as $p)<option value="{{ $p }}" @selected(($subscription?->plan ?? 'start') === $p)>{{ strtoupper($p) }}</option>@endforeach</select></div>
+    <div class="fl"><label for="sub_status">Stare</label><select id="sub_status" name="status">@foreach (\App\Http\Controllers\Admin\SubscriptionController::CHOICES as $k => $l)<option value="{{ $k }}" @selected(($subscription?->status->value ?? 'active') === $k && ! ($k === 'trial' && ! $subOk))>{{ $l }}</option>@endforeach</select></div>
+  </div>
+  <button class="btn btn-p" type="submit">Salvează abonamentul</button>
+</form>
+
 @if (session('issued'))
   <div class="card">
     <h2>Cod de instalare</h2>

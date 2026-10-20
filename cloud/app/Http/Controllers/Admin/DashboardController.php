@@ -53,6 +53,9 @@ final class DashboardController extends Controller
             'totalOrganizations' => $all->count(),
             'counts' => $counts,
             'subscriptions' => Subscription::withoutTenancy()->get()->keyBy('organization_id'),
+            // proba expirată oprește agentul și chatul: echipa trebuie să vadă imediat
+            'trialsExpired' => Subscription::withoutTenancy()->where('status', 'trial')->where('trial_ends_at', '<', now())->count(),
+            'trialsEnding' => Subscription::withoutTenancy()->where('status', 'trial')->whereBetween('trial_ends_at', [now(), now()->addDays(3)])->count(),
             'kpi' => [
                 ['Organizații', $all->count(), null],
                 ['Agenți activi', Agent::withoutTenancy()->where('status', AgentStatus::Active->value)->count(), 'Agentul AI răspunde vizitatorilor din Faza 2.'],

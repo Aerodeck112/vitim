@@ -7,6 +7,9 @@
 <div class="head"><div><h1>{{ $agent->name }}</h1><p>status {{ $agent->status->value }} · versiunea {{ $versions->first()?->version ?? 1 }} ·
   {{ $engine === 'local' || ($engine === 'auto' && ! $hasKey) || ($agent->site && ! $agent->site->ai_enabled) ? 'răspunde din informațiile firmei (fără cost AI)' : 'răspunde cu AI' }}@if ($agent->site && ! $agent->site->ai_enabled) <span class="badge warn">AI oprit pe acest site de echipa VITIM</span>@endif</p></div>
   @if ($canManage)<a class="btn btn-p" href="{{ route('portal.agents.test', [$organization->slug, $agent->id]) }}">Testează agentul</a>@endif</div>
+@if (! $organization->subscription?->isServiceable())
+  <div class="alert alert-err">Asistentul nu apare acum pe site: abonamentul firmei nu e activ{{ $organization->subscription?->status?->value === 'trial' ? ' (perioada de probă a expirat)' : '' }}. Contactează echipa VITIM ca să-l reactiveze.</div>
+@endif
 @if ($errors->count() > 1)
   <div class="alert alert-err" role="alert">Nu am salvat. Corectează câmpurile marcate cu roșu:<ul style="margin:6px 0 0 18px;padding:0">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
 @endif

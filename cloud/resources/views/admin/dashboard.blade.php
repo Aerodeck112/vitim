@@ -5,6 +5,16 @@
   <div><h1>VITIM AI</h1><p>Toți clienții platformei. Cifrele sunt reale; secțiunile încă neconstruite apar cu 0 și o notă.</p></div>
   <a class="btn btn-p" href="{{ route('admin.organizations.create') }}">Client nou</a>
 </div>
+@if ($trialsExpired)
+  <div class="alert alert-err" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <span><strong>{{ $trialsExpired }} {{ $trialsExpired === 1 ? 'firmă are' : 'firme au' }} perioada de probă expirată:</strong> agentul AI și chatul sunt oprite pe site-urile lor. Activează abonamentul din fișa clientului sau pe toate deodată.</span>
+    @if (auth()->user()->platform_role === \App\Enums\PlatformRole::SuperAdmin)
+    <form method="post" action="{{ route('admin.subscriptions.activate') }}" onsubmit="return confirm('Activezi abonamentul tuturor firmelor cu proba expirată?')">@csrf<button class="btn btn-p" type="submit">Activează toate</button></form>
+    @endif
+  </div>
+@elseif ($trialsEnding)
+  <div class="alert alert-warn">{{ $trialsEnding }} {{ $trialsEnding === 1 ? 'firmă are' : 'firme au' }} perioada de probă care expiră în cel mult 3 zile. După expirare, agentul și chatul se opresc: activează abonamentul din fișa clientului.</div>
+@endif
 <div class="grid" style="margin-bottom:18px">
   @foreach ($kpi as [$label, $value, $note])
     <div class="kpi"><small>{{ $label }}</small><b>{{ number_format($value, 0, ',', '.') }}</b>@if ($note)<div class="tag-note">{{ $note }}</div>@endif</div>
@@ -36,7 +46,7 @@
           @unless ($org->isActive())<span class="badge err">suspendat</span>@endunless</td>
         <td>@forelse ($services[$org->id] ?? [] as $svc)<span class="badge ok" style="margin:1px">{{ ['maintenance' => 'Mentenanță', 'seo' => 'SEO', 'google_ads' => 'Ads', 'google_business' => 'GBP'][$svc] ?? $svc }}</span>@empty<span class="muted small">—</span>@endforelse</td>
         <td>{{ strtoupper($sub?->plan ?? '—') }}</td>
-        <td>@if ($sub)<span @class(['badge', 'ok' => $sub->isServiceable(), 'err' => ! $sub->isServiceable()])>{{ $sub->status->value }}</span>@endif</td>
+        <td>@if ($sub)<span @class(['badge', 'ok' => $sub->isServiceable(), 'err' => ! $sub->isServiceable()])>{{ $sub->status->value === 'trial' && ! $sub->isServiceable() ? 'probă expirată' : $sub->status->value }}</span>@endif</td>
         @foreach (['sites', 'agents', 'members', 'contacts', 'leads'] as $k)<td>{{ $counts[$k][$org->id] ?? 0 }}</td>@endforeach
       </tr>
     @empty

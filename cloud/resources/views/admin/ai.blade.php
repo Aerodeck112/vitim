@@ -91,6 +91,7 @@
           <b>{{ $site->domain }}</b>
           <span class="muted small">{{ $site->organization?->name }} · {{ $site->platform?->value ?? $site->platform }}</span>
           <span class="ai-tags">
+            @if ($stopped[$site->organization_id] ?? false)<a class="badge err" href="{{ route('admin.organizations.show', $site->organization->slug) }}#abonament">abonament inactiv: chat oprit</a>@endif
             @if ($activeAgent)<span class="badge ok">agent activ</span>@elseif ($siteAgents->isNotEmpty())<span class="badge warn">agent inactiv</span>@else<span class="badge">fără agent</span>@endif
             @if ($orgCost > 0)<span class="badge">${{ number_format($orgCost, 2) }} luna aceasta (firma)</span>@endif
             @if ($site->organization)<a class="small" href="{{ route('admin.organizations.show', $site->organization) }}">Firma →</a>@endif

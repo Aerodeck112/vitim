@@ -9,6 +9,7 @@ use App\Enums\PlatformRole;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\Site;
+use App\Models\Subscription;
 use App\Models\UsageRecord;
 use App\Services\AiKey;
 use App\Services\AuditLogger;
@@ -56,6 +57,8 @@ final class AiController extends Controller
             'chat' => $sites->mapWithKeys(fn (Site $s) => [$s->id => (bool) WidgetSettings::for($s)['enabled']]),
             'cost' => $cost,
             'check' => session('ai_check'),
+            // abonamentul inactiv (ex. proba expirată) oprește chatul oricum: îl arătăm lângă comutatoare
+            'stopped' => Subscription::withoutTenancy()->get()->keyBy('organization_id')->map(fn ($s) => ! $s->isServiceable()),
         ]);
     }
 
