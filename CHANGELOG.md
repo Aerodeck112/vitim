@@ -1,5 +1,14 @@
 # Istoric versiuni
 
+## 1.11.0 — proiecte noi
+
+- Trei studii de caz noi, cu capturi reale ale site-urilor, pe calculator și pe telefon:
+  - **Another World Cluj:** site și rezervări online pentru o arenă de realitate virtuală;
+  - **Sevalia:** site pentru o clinică de reumatologie și recuperare medicală, cu ghid „unde simțiți durere” și asistent virtual;
+  - **Autentik Market:** platformă bilingvă, în română și maghiară, pentru un târg lunar de producători și artizani.
+- Pe pagina Proiecte apar imediat după Dental Arena. Prima pagină rămâne neschimbată, cu Dental Arena primul.
+- Conținut doar din ce e vizibil pe site-uri, fără cifre sau rezultate inventate.
+
 ## 1.10.0 — studiu de caz Dental Arena
 
 - Studiu de caz nou: **Dental Arena: site nou și CRM pentru programările a două clinici stomatologice**, cu capturi noi de pe dentalarena.ro (calculator și telefon). Apare primul pe prima pagină și în colajul de proiecte.

@@ -4,13 +4,89 @@ declare(strict_types=1);
 /**
  * Proiecte VITIM (v1.9). Format: problema → soluția VITIM → ce am implementat → rezultatul.
  * Denumiri exacte (verificate): HiKeVet, Local Mureș, Podreg, Autohaus Westcar, Optica Optofarm, Optoplus,
- * Dental Arena, FerestrePartner.ro, SCProfil.ro, Argento Metal, Gelateria Da Michele.
+ * Dental Arena, FerestrePartner.ro, SCProfil.ro, Argento Metal, Gelateria Da Michele, Another World Cluj, Sevalia, Autentik Market.
  * Fără cifre și rezultate inventate: „Rezultatul” descrie ce s-a schimbat în mod de lucru; cifrele se adaugă din panou
  * („Rezultate în cifre”) doar când sunt confirmate de client.
  * `featured` = apare pe prima pagină; `own` = proiect propriu VITIM (nu apare în „Companii care au lucrat cu VITIM”).
  * `site` = adresa publică verificată; capturile sunt în app/Data/images/proiecte/{slug}.webp și {slug}-m.webp.
  */
 return [
+    [
+        'slug' => 'another-world-cluj-site-si-rezervari',
+        'client' => 'Another World Cluj',
+        'site' => 'anotherworldcluj.ro',
+        'title' => 'Another World Cluj: site și rezervări online pentru o arenă de realitate virtuală',
+        'service' => 'site-uri-web',
+        'tag' => 'Arenă VR · site + rezervări',
+        'featured' => 0,
+        'own' => 0,
+        'summary' => 'Un site pentru arena de realitate virtuală din Cluj-Napoca, construit în jurul rezervării online.',
+        'problem' => 'Arena avea nevoie de un site care să explice clar experiența pentru fiecare tip de grup (aniversări, prieteni, familii, companii) și să ducă vizitatorul direct spre rezervare sau spre o cerere de ofertă.',
+        'solution' => 'Am construit site-ul de la zero, cu pagini dedicate fiecărui tip de grup și cu rezervarea online în centrul lui. Vizitatorul alege experiența, ziua și ora și primește confirmarea pe e-mail, iar pentru aniversări și team building trimite o cerere cu detaliile grupului și primește oferta pe e-mail.',
+        'features' => [
+            'Site nou, construit de la zero și adaptat pentru telefon',
+            'Rezervare online: experiența, ziua și ora, cu confirmare pe e-mail',
+            'Pagini pentru aniversări, prieteni și grupuri, familii și companii',
+            'Cereri de ofertă pentru aniversări și team building',
+            'Tarife și pachete',
+            'Vouchere cadou',
+            'Cont de client',
+            'Întrebări frecvente și galerie',
+            'Politici, cookie-uri și link ANPC',
+        ],
+        'result' => 'Vizitatorii rezervă singuri, online, iar cererile pentru aniversări și evenimente de firmă ajung la echipă cu detaliile necesare pentru ofertă.',
+        'sort' => 6,
+    ],
+    [
+        'slug' => 'sevalia-site-clinica-recuperare',
+        'client' => 'Sevalia',
+        'site' => 'sevalia.ro',
+        'title' => 'Sevalia: site pentru o clinică de reumatologie și recuperare medicală, cu asistent virtual',
+        'service' => 'site-uri-web',
+        'tag' => 'Clinică medicală · site + asistent',
+        'featured' => 0,
+        'own' => 0,
+        'summary' => 'Un site care îl ajută pe pacient să ajungă repede de la „unde mă doare” la terapia potrivită.',
+        'problem' => 'Clinica oferă multe specialități și terapii, iar pacienții aveau nevoie să găsească repede ce li se potrivește și să ajungă ușor la o programare.',
+        'solution' => 'Am construit un site organizat după nevoia pacientului: un ghid rapid în care alege zona în care simte durere și vede terapiile potrivite, pagini pentru fiecare specialitate și terapie, ghiduri pentru pacienți și un asistent virtual care răspunde la întrebări direct pe site.',
+        'features' => [
+            'Ghid rapid: alegi zona durerii și vezi terapiile potrivite',
+            'Pagini pentru specialitățile medicale',
+            'Pagini pentru fiecare terapie, inclusiv terapiile premium',
+            'Ghid pentru pacienți, pe situații',
+            'Asistent virtual pe site',
+            'Blog cu articole medicale',
+            'Prezentarea echipei',
+            'Programare și apel direct de pe telefon',
+            'Politici, cookie-uri și termeni',
+        ],
+        'result' => 'Pacientul găsește terapia potrivită pentru problema lui și ajunge la programare fără să caute prin toate paginile site-ului.',
+        'sort' => 7,
+    ],
+    [
+        'slug' => 'autentik-market-platforma-targ-producatori',
+        'client' => 'Autentik Market',
+        'site' => 'autentikmarket.ro',
+        'title' => 'Autentik Market: platformă bilingvă pentru un târg lunar de producători și artizani',
+        'service' => 'agenti-ai-software-personalizat',
+        'tag' => 'Târg de producători · platformă RO/HU',
+        'featured' => 0,
+        'own' => 0,
+        'summary' => 'O platformă în română și maghiară care adună târgurile, producătorii și comunitatea Autentik Market într-un singur loc.',
+        'problem' => 'Târgul are loc lunar, în mai multe orașe, cu producători diferiți. Vizitatorii aveau nevoie să afle simplu când și unde e următorul târg și cine participă, iar producătorii, cum se pot înscrie.',
+        'solution' => 'Am construit o platformă în română și maghiară, cu calendarul târgurilor, paginile producătorilor pe categorii, conturi pentru vizitatori și cardul Autentik, plus o secțiune dedicată producătorilor care vor să participe.',
+        'features' => [
+            'Site bilingv, în română și maghiară',
+            'Calendarul târgurilor, cu numărătoare inversă până la următorul',
+            'Pagini pentru producători și artizani, pe categorii',
+            'Cont de utilizator și cardul Autentik',
+            'Secțiune pentru producători',
+            'Blog și newsletter',
+            'Legătură cu magazinul online Autentik Shop',
+        ],
+        'result' => 'Vizitatorii văd dintr-o privire următorul târg și producătorii lui, iar comunitatea se întâlnește în ambele limbi, în același loc.',
+        'sort' => 8,
+    ],
     [
         'slug' => 'hikevet-platforma-abonamente-clinica-veterinara',
         'client' => 'HiKeVet',
