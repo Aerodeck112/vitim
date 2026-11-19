@@ -1,5 +1,13 @@
 # VITIM AI Cloud — versiuni
 
+## 0.36.0 — cererile din formularele site-urilor ajung în panou
+
+- Site-urile făcute de VITIM (nu doar cele WordPress) pot trimite în panou cererile din formularele lor de contact, ofertă sau programare. Fiecare cerere apare la **Lead-uri**, cu omul adăugat la **Contacte**; acordul pentru noutăți se înregistrează doar dacă a fost bifat în formular.
+
+**Actualizare:**
+- Punct nou pentru conectori: `POST /connector/v1/lead` (semnat ca restul), cu protecție la retrimitere.
+- **Conector pentru site-uri Laravel** (`connectors/laravel/Vitim.php`, un singur fișier): asistentul de chat și vizitatorii „acum pe site”, semnalul orar pentru monitorizare, cererile din formulare și lucrările în jurnal. Pașii de instalare sunt în README-ul de lângă el.
+
 ## 0.35.1 — mai multe materiale în editorul video
 
 - În editorul video poți alege pentru fiecare scenă dintre ultimele 24 de materiale ale firmei (înainte erau 8).

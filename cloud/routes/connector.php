@@ -10,6 +10,7 @@ Route::prefix('v1')->middleware('throttle:connector')->group(function () {
     Route::post('scan', [ConnectorController::class, 'scan']);
     Route::post('backup', [ConnectorController::class, 'backup']);
     Route::post('events', [ConnectorController::class, 'events']);
+    Route::post('lead', [ConnectorController::class, 'lead']);
     Route::post('products', [ConnectorController::class, 'products']);
     Route::get('plugin', [ConnectorController::class, 'plugin']);
 });

@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Connector;
 
+use App\Enums\Channel;
+use App\Enums\ConsentPurpose;
+use App\Enums\ConsentStatus;
+use App\Enums\ContactSource;
+use App\Enums\IdentityType;
+use App\Enums\LeadIntent;
 use App\Enums\WorkCategory;
 use App\Http\Controllers\Controller;
 use App\Models\Site;
 use App\Models\WorkLog;
 use App\Services\BackupMonitor;
+use App\Services\ConsentService;
+use App\Services\ContactService;
 use App\Services\CookieSettings;
+use App\Services\LeadService;
 use App\Services\ScanPayload;
 use App\Services\ShopEvents;
 use App\Services\SiteKeyService;
@@ -19,7 +28,9 @@ use App\Tenancy\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -156,6 +167,57 @@ final class ConnectorController extends Controller
         $result = $this->context->runAs($site->organization, fn () => $shop->ingest($site, $data['events']));
 
         return response()->json(['ok' => true] + $result);
+    }
+
+    /**
+     * O cerere venită dintr-un formular al site-ului (contact, ofertă, programare): devine contact + lead în firma site-ului.
+     * Aceeași cerere trimisă de două ori (același ref) nu se dublează.
+     */
+    public function lead(Request $request, ContactService $contacts, LeadService $leads, ConsentService $consents): JsonResponse
+    {
+        $site = $this->authenticate($request);
+        if (! $site) {
+            return $this->unauthorized();
+        }
+        $data = Validator::make($request->json()->all(), [
+            'ref' => ['required', 'string', 'max:80'],
+            'name' => ['nullable', 'string', 'max:160'],
+            'email' => ['nullable', 'email:rfc', 'max:190', 'required_without:phone'],
+            'phone' => ['nullable', 'string', 'max:40', 'required_without:email'],
+            'message' => ['nullable', 'string', 'max:4000'],
+            'intent' => ['nullable', Rule::enum(LeadIntent::class)],
+            'page' => ['nullable', 'string', 'max:300'],
+            'marketing_consent' => ['nullable', 'boolean'],
+            'consent_text' => ['nullable', 'string', 'max:300'],
+        ])->validate();
+        $lock = 'connector.lead.'.$site->id.'.'.hash('sha256', $data['ref']);
+        if (! Cache::add($lock, 1, now()->addDay())) {
+            return response()->json(['ok' => true, 'duplicate' => true]);
+        }
+
+        $leadId = $this->context->runAs($site->organization, function () use ($site, $data, $contacts, $leads, $consents): int {
+            $contact = (! empty($data['email']) ? $contacts->findByIdentity(IdentityType::Email, $data['email']) : null)
+                ?? (! empty($data['phone']) ? $contacts->findByIdentity(IdentityType::Phone, $data['phone']) : null);
+            if ($contact === null) {
+                $parts = preg_split('/\s+/', trim((string) ($data['name'] ?? '')), 2) ?: [];
+                $contact = $contacts->create(array_filter(['first_name' => $parts[0] ?? null, 'last_name' => $parts[1] ?? null,
+                    'email' => $data['email'] ?? null, 'phone' => $data['phone'] ?? null]), ContactSource::Form);
+            }
+            if (! empty($data['marketing_consent'])) {
+                foreach (array_filter([! empty($data['email']) ? Channel::Email : null, ! empty($data['phone']) ? Channel::Sms : null]) as $channel) {
+                    if ($consents->current($contact, $channel, ConsentPurpose::Marketing) !== ConsentStatus::Revoked) {
+                        $consents->record($contact, $channel, ConsentPurpose::Marketing, ConsentStatus::Granted, 'form',
+                            ['evidence' => Str::limit((string) ($data['consent_text'] ?? 'Bifă de acord în formularul site-ului'), 290), 'page' => $data['page'] ?? null]);
+                    }
+                }
+            }
+            $summary = trim((! empty($data['page']) ? 'Pagina: '.$data['page']."\n" : '').(string) ($data['message'] ?? ''));
+
+            return $leads->create($contact, ['site_id' => $site->id, 'source' => 'website_form', 'intent' => $data['intent'] ?? LeadIntent::Other->value,
+                'summary' => $summary !== '' ? Str::limit($summary, 3000) : null])->id;
+        });
+
+        return response()->json(['ok' => true, 'lead_id' => $leadId]);
     }
 
     /** Catalogul de produse (pe bucăți de cel mult 100). */
