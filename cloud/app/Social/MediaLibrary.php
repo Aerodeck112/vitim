@@ -25,6 +25,10 @@ final class MediaLibrary
 
     public const MAX_BYTES = 8_000_000;
 
+    public const MAX_VIDEO_BYTES = 80_000_000;
+
+    public const MAX_VIDEOS = 20;
+
     private const MIN_SIDE = 500;
 
     private const TYPES = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp'];
@@ -98,21 +102,43 @@ final class MediaLibrary
         $asset->delete();
     }
 
+    public function videoRoom(): bool
+    {
+        return SocialAsset::query()->where('kind', 'video')->count() < self::MAX_VIDEOS;
+    }
+
+    /** Un clip video deja descărcat într-un fișier temporar (din folderul de Drive al firmei). */
+    public function keepVideo(string $origin, string $file, ?string $title, string $extension): ?SocialAsset
+    {
+        $size = (int) @filesize($file);
+        $mime = (string) (new \finfo(FILEINFO_MIME_TYPE))->file($file);
+        if ($size < 10_000 || $size > self::MAX_VIDEO_BYTES || ! str_starts_with($mime, 'video/') || ! in_array($extension, ['mp4', 'mov', 'webm'], true)) {
+            return null;
+        }
+        $path = 'social/'.$this->context->id().'/'.sha1($origin).'.'.$extension;
+        $stream = fopen($file, 'r');
+        Storage::disk('local')->put($path, $stream);
+        fclose($stream);
+
+        return SocialAsset::create(['source' => 'drive', 'kind' => 'video', 'origin' => Str::limit($origin, 990, ''), 'origin_hash' => sha1($origin), 'path' => $path,
+            'title' => $title !== null && trim($title) !== '' ? Str::limit(trim($title), 290, '') : null, 'bytes' => $size]);
+    }
+
     public function full(): bool
     {
         return SocialAsset::query()->count() >= self::MAX_ASSETS;
     }
 
-    private function known(string $origin): bool
+    public function known(string $origin): bool
     {
         return SocialAsset::query()->where('origin_hash', sha1($origin))->exists();
     }
 
-    private function keep(string $source, string $origin, string $bytes, ?string $title): ?SocialAsset
+    public function keep(string $source, string $origin, string $bytes, ?string $title): ?SocialAsset
     {
         $size = strlen($bytes);
         // 2 MB e limita de citire a site-urilor: un fișier exact atât e trunchiat
-        if ($size < 5_000 || $size > self::MAX_BYTES || ($source === 'site' && $size >= 2_000_000)) {
+        if ($size < 5_000 || $size > self::MAX_BYTES || ($source === 'site' && $size >= 2_000_000) || $this->known($origin)) {
             return null;
         }
         $info = @getimagesizefromstring($bytes);

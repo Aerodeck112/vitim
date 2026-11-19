@@ -27,12 +27,14 @@
   <div class="fl"><label for="hashtags">Hashtaguri</label><input id="hashtags" type="text" name="hashtags" maxlength="490" value="{{ old('hashtags', $post->hashtags) }}"></div>
   <div class="fl"><label for="visual">Ideea vizuală (ce fotografie sau filmare se potrivește)</label><textarea id="visual" name="visual" maxlength="1000">{{ old('visual', $post->visual) }}</textarea></div>
   @if ($assets->isNotEmpty())
-  <div class="fl"><label>Fotografia postării (din materialele firmei)</label>
+  <div class="fl"><label>Fotografia sau clipul postării (din materialele firmei)</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <label style="cursor:pointer"><input type="radio" name="asset_id" value="" @checked(! $post->asset_id)> <span class="small">fără</span></label>
       @foreach ($assets as $asset)
         <label style="cursor:pointer" title="{{ $asset->title }}"><input type="radio" name="asset_id" value="{{ $asset->id }}" @checked($post->asset_id === $asset->id) style="position:absolute;opacity:0" data-asset>
-          <img src="{{ route('portal.social.media.file', [$slug, $asset->id]) }}" alt="{{ $asset->title ?: 'Fotografie' }}" loading="lazy" width="84" height="84" style="object-fit:cover;border-radius:8px;display:block;border:3px solid {{ $post->asset_id === $asset->id ? 'var(--brand)' : 'transparent' }}"></label>
+          @if ($asset->kind === 'video')<video src="{{ route('portal.social.media.file', [$slug, $asset->id]) }}#t=0.5" preload="metadata" muted playsinline width="84" height="84" style="object-fit:cover;border-radius:8px;display:block;border:3px solid {{ $post->asset_id === $asset->id ? 'var(--brand)' : 'transparent' }}" aria-label="{{ $asset->title ?: 'Clip video' }}"></video></label>
+          @else          <img src="{{ route('portal.social.media.file', [$slug, $asset->id]) }}" alt="{{ $asset->title ?: 'Fotografie' }}" loading="lazy" width="84" height="84" style="object-fit:cover;border-radius:8px;display:block;border:3px solid {{ $post->asset_id === $asset->id ? 'var(--brand)' : 'transparent' }}"></label>
+          @endif
       @endforeach
     </div></div>
   @endif
@@ -73,7 +75,7 @@
 </style>
 <div id="editor" data-config="{{ json_encode([
     'color' => $settings['color'], 'brand' => $organization->name, 'day' => $post->day->toDateString(), 'design' => $post->design, 'voice' => $post->voice_path ? route('portal.social.voice.file', [$slug, $post->id]).'?v='.$post->updated_at?->timestamp : null,
-    'assets' => $assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(8)->map(fn ($a) => ['url' => route('portal.social.media.file', [$slug, $a->id]), 'title' => $a->title])->values(),
+    'assets' => $assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(8)->map(fn ($a) => ['url' => route('portal.social.media.file', [$slug, $a->id]), 'title' => $a->title, 'video' => $a->kind === 'video'])->values(),
 ]) }}">
 <div class="card">
   <h2>Editor foto</h2>

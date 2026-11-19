@@ -7,6 +7,31 @@
   <p><a href="{{ route('portal.social', $slug) }}">← planul săptămânii</a> · De aici învață agentul: fotografiile firmei (din site, din pagina de Facebook / Instagram sau încărcate de tine) și postările deja publicate, din care ia stilul și temele care au mers.</p></div></div>
 
 <div class="card">
+  <h2>Folderul de Google Drive al firmei</h2>
+  @if (! \App\Social\DriveLibrary::configured())
+    <p class="muted">Google Drive nu este configurat încă pentru platformă.</p>
+  @else
+    <p class="small muted">Pune fotografiile și clipurile video ale firmei într-un folder de Google Drive. Partajează folderul cu adresa de mai jos, ca „Cititor”, apoi lipește aici linkul folderului. Folderul rămâne privat: îl vede doar platforma. Subfolderele (de exemplu câte unul pe lucrare) se citesc și ele, iar numele lor ajută agentul să aleagă materialul potrivit.</p>
+    <p>Partajează cu: <strong class="mono">{{ \App\Social\DriveLibrary::email() }}</strong></p>
+    @if ($drive)
+      <p><span class="badge {{ ['ok' => 'ok', 'error' => 'err'][$drive->status] ?? 'warn' }}">{{ ['ok' => 'conectat', 'error' => 'eroare', 'new' => 'necitit încă'][$drive->status] }}</span>
+        @if ($drive->synced_at) ultima citire: {{ $drive->synced_at->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') }}@endif
+        @if ($drive->last_error)<br><span class="small" style="color:var(--err)">{{ $drive->last_error }}</span>@endif</p>
+    @endif
+    <form method="post" action="{{ route('portal.social.drive', $slug) }}" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">@csrf @method('put')
+      <div class="fl" style="margin:0;flex:1;min-width:260px"><label for="folder">Linkul folderului</label><input id="folder" type="text" name="folder" required value="{{ old('folder', $drive ? 'https://drive.google.com/drive/folders/'.$drive->config['folder_id'] : '') }}" placeholder="https://drive.google.com/drive/folders/…">@error('folder')<div class="err">{{ $message }}</div>@enderror</div>
+      <button class="btn" type="submit">Salvează</button></form>
+    @if ($drive)
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <form method="post" action="{{ route('portal.social.drive.sync', $slug) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se aduc fișierele…'">@csrf<button class="btn btn-p" type="submit">Adu fișierele din Drive</button></form>
+        <form method="post" action="{{ route('portal.social.drive.disconnect', $slug) }}">@csrf @method('delete')<button class="btn" type="submit">Deconectează folderul</button></form>
+      </div>
+      <p class="small muted" style="margin-top:8px">Se aduc fotografii JPG, PNG, WebP (până la 8 MB) și clipuri MP4, MOV, WebM (până la 80 MB, cel mult {{ \App\Social\MediaLibrary::MAX_VIDEOS }} clipuri). Agentul recitește folderul și singur, înainte de planul săptămânii.</p>
+    @endif
+  @endif
+</div>
+
+<div class="card">
   <h2>Pagina de Facebook și contul de Instagram</h2>
   <p class="small muted">Agentul citește pagina prin interfața oficială Meta, cu un cod de acces al paginii (Page access token) creat de un administrator al paginii. Citește doar postările publicate, pozele lor și numărul de reacții. Nu publică și nu trimite mesaje. Codul se păstrează criptat și nu mai este afișat.</p>
   @if ($connection)
@@ -37,7 +62,7 @@
 </div>
 
 <div class="card">
-  <h2>Fotografii ({{ $assets->total() }} din cel mult {{ \App\Social\MediaLibrary::MAX_ASSETS }})</h2>
+  <h2>Fotografii și clipuri ({{ $assets->total() }} din cel mult {{ \App\Social\MediaLibrary::MAX_ASSETS }})</h2>
   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
     @foreach ($sites as $site)
       <form method="post" action="{{ route('portal.social.media.collect', $slug) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se caută fotografii…'">@csrf<input type="hidden" name="site" value="{{ $site->id }}"><button class="btn" type="submit">Adună fotografii din {{ $site->domain }}</button></form>
@@ -53,8 +78,12 @@
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
       @foreach ($assets as $asset)
         <figure style="margin:0">
+          @if ($asset->kind === 'video')
+            <video src="{{ route('portal.social.media.file', [$slug, $asset->id]) }}#t=0.5" preload="metadata" muted playsinline controls style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;display:block;background:#000" aria-label="{{ $asset->title ?: 'Clip video' }}"></video>
+          @else
           <img src="{{ route('portal.social.media.file', [$slug, $asset->id]) }}" alt="{{ $asset->title ?: 'Fotografie' }}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;display:block">
-          <figcaption class="small muted" style="margin-top:4px">{{ ['site' => 'din site', 'meta' => 'din Meta', 'upload' => 'încărcată'][$asset->source] }} · {{ $asset->width }}×{{ $asset->height }}
+          @endif
+          <figcaption class="small muted" style="margin-top:4px">{{ ['site' => 'din site', 'meta' => 'din Meta', 'upload' => 'încărcată', 'drive' => 'din Drive'][$asset->source] ?? $asset->source }} · {{ $asset->kind === 'video' ? 'clip, '.round($asset->bytes / 1_048_576, 1).' MB' : $asset->width.'×'.$asset->height }}@if ($asset->title)<br>{{ \Illuminate\Support\Str::limit($asset->title, 40) }}@endif
             <form method="post" action="{{ route('portal.social.media.delete', [$slug, $asset->id]) }}" style="display:inline">@csrf @method('delete')<button type="submit" class="btn btn-s" aria-label="Șterge fotografia">șterge</button></form></figcaption>
         </figure>
       @endforeach

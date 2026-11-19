@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 /** Un material al firmei pentru postări (poză din site, din pagina de Meta sau încărcată). */
-#[Fillable(['source', 'origin', 'origin_hash', 'path', 'title', 'width', 'height', 'bytes'])]
+#[Fillable(['source', 'kind', 'origin', 'origin_hash', 'path', 'title', 'width', 'height', 'bytes'])]
 class SocialAsset extends Model
 {
     use BelongsToOrganization;

@@ -11,6 +11,8 @@ use App\Models\SocialConnection;
 use App\Models\SocialPost;
 use App\Models\SocialReference;
 use App\Services\AuditLogger;
+use App\Social\DriveError;
+use App\Social\DriveLibrary;
 use App\Social\MediaLibrary;
 use App\Social\MetaError;
 use App\Social\MetaResearch;
@@ -21,6 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -59,7 +62,7 @@ final class SocialController extends PortalController
     public function show(int $post): View
     {
         return view('portal.social.show', ['organization' => $this->organization(), 'post' => SocialPost::query()->findOrFail($post),
-            'settings' => SocialPlanner::settings($this->organization()), 'assets' => SocialAsset::query()->orderByDesc('id')->limit(24)->get(['id', 'title'])]);
+            'settings' => SocialPlanner::settings($this->organization()), 'assets' => SocialAsset::query()->orderByDesc('id')->limit(24)->get(['id', 'title', 'kind'])]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -154,6 +157,7 @@ final class SocialController extends PortalController
             'connection' => $connection,
             'pageId' => $connection?->config['page_id'] ?? '',
             'igId' => $connection?->config['ig_id'] ?? '',
+            'drive' => SocialConnection::query()->where('network', 'drive')->first(),
             'references' => SocialReference::query()->orderByDesc('engagement')->limit(8)->get(),
             'referenceCount' => SocialReference::query()->count(),
             'sites' => Site::query()->where('status', 'active')->orderBy('domain')->get(),
@@ -258,5 +262,40 @@ final class SocialController extends PortalController
         $studio->forget($model);
 
         return $this->to('portal.social.show', ['post' => $model->id], 'Vocea a fost ștearsă.');
+    }
+
+    /** Folderul de Google Drive al firmei: de acolo vin fotografiile și clipurile video. */
+    public function driveConnect(Request $request, AuditLogger $audit): RedirectResponse
+    {
+        $data = $request->validate(['folder' => ['required', 'string', 'max:300']]);
+        $id = DriveLibrary::folderId($data['folder']);
+        if ($id === null) {
+            throw ValidationException::withMessages(['folder' => 'Lipește linkul folderului din Google Drive (drive.google.com/drive/folders/…).']);
+        }
+        $connection = SocialConnection::query()->firstOrNew(['network' => 'drive']);
+        $connection->fill(['config' => ['folder_id' => $id], 'status' => 'new', 'last_error' => null])->save();
+        $audit->record('social.drive_connected', $connection);
+
+        return $this->to('portal.social.media', [], 'Folderul a fost salvat. Apasă „Adu fișierele din Drive”.');
+    }
+
+    public function driveDisconnect(AuditLogger $audit): RedirectResponse
+    {
+        SocialConnection::query()->where('network', 'drive')->get()->each->delete();
+        $audit->record('social.drive_disconnected', null);
+
+        return $this->to('portal.social.media', [], 'Folderul de Drive a fost deconectat. Fișierele deja aduse rămân.');
+    }
+
+    public function driveSync(DriveLibrary $drive): RedirectResponse
+    {
+        $connection = SocialConnection::query()->where('network', 'drive')->firstOrFail();
+        try {
+            $result = $drive->sync($connection);
+        } catch (DriveError $e) {
+            return $this->to('portal.social.media')->with('error', $e->getMessage());
+        }
+
+        return $this->to('portal.social.media', [], "Din Drive: {$result['images']} fotografii și {$result['videos']} clipuri noi".($result['skipped'] ? ", {$result['skipped']} fișiere sărite (alt tip, prea mari sau prea mici)." : '.'));
     }
 }

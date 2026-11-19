@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DriveController as AdminDriveController;
 use App\Http\Controllers\Admin\MonitorController;
 use App\Http\Controllers\Admin\OfficeController as AdminOfficeController;
 use App\Http\Controllers\Admin\OrganizationController;
@@ -106,6 +107,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/agent-ai/toate', [AiController::class, 'bulk'])->middleware('throttle:10,1')->name('ai.bulk');
         Route::put('/agent-ai/voce', [AdminVoiceController::class, 'save'])->middleware('throttle:10,1')->name('voice.key');
         Route::delete('/agent-ai/voce', [AdminVoiceController::class, 'clear'])->middleware('throttle:10,1')->name('voice.key.clear');
+        Route::put('/agent-ai/drive', [AdminDriveController::class, 'save'])->middleware('throttle:10,1')->name('drive.key');
+        Route::delete('/agent-ai/drive', [AdminDriveController::class, 'clear'])->middleware('throttle:10,1')->name('drive.key.clear');
         Route::get('/sistem', [SystemController::class, 'show'])->name('system');
         Route::post('/sistem/actualizare', [SystemController::class, 'upload'])->middleware('throttle:5,1')->name('system.upload');
         Route::post('/sistem/actualizare-urcata', [SystemController::class, 'applyPending'])->middleware('throttle:5,1')->name('system.pending');
@@ -208,6 +211,9 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::post('/social/materiale/site', [Portal\SocialController::class, 'collect'])->middleware('throttle:20,1')->name('social.media.collect');
             Route::get('/social/materiale/{asset}/fisier', [Portal\SocialController::class, 'file'])->where('asset', $id)->name('social.media.file');
             Route::delete('/social/materiale/{asset}', [Portal\SocialController::class, 'deleteAsset'])->where('asset', $id)->name('social.media.delete');
+            Route::put('/social/drive', [Portal\SocialController::class, 'driveConnect'])->middleware('throttle:20,1')->name('social.drive');
+            Route::delete('/social/drive', [Portal\SocialController::class, 'driveDisconnect'])->name('social.drive.disconnect');
+            Route::post('/social/drive/citeste', [Portal\SocialController::class, 'driveSync'])->middleware('throttle:20,1')->name('social.drive.sync');
             Route::put('/social/meta', [Portal\SocialController::class, 'connect'])->middleware('throttle:20,1')->name('social.meta');
             Route::delete('/social/meta', [Portal\SocialController::class, 'disconnect'])->name('social.meta.disconnect');
             Route::post('/social/meta/citeste', [Portal\SocialController::class, 'sync'])->middleware('throttle:20,1')->name('social.meta.sync');

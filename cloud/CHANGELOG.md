@@ -1,5 +1,16 @@
 # VITIM AI Cloud — versiuni
 
+## 0.35.0 — materiale din Google Drive, cu clipuri video
+
+- În **Social media → Materiale** poți lega **folderul de Google Drive al firmei**. Pui acolo fotografiile și clipurile video, partajezi folderul cu adresa afișată în pagină și lipești linkul. Folderul rămâne privat.
+- Agentul aduce fotografiile și clipurile din folder și din subfolderele lui (de exemplu câte unul pe lucrare). Numele subfolderului și al fișierului îl ajută să aleagă materialul potrivit fiecărei postări.
+- **Clipurile video** se pot folosi în editorul video: fiecare scenă poate avea o fotografie sau un clip, cu textul peste el. Sunetul clipului nu se folosește; vocea și muzica vin din panoul de sunet.
+- Agentul recitește folderul singur înainte de planul săptămânii.
+
+**Actualizare:**
+- **Agent AI (Admin) → Google Drive:** cheia contului de serviciu Google (fișier JSON), doar super admin, cu parola contului. Se salvează criptat; accesul este doar de citire. Firmele își partajează folderul cu adresa acelui cont.
+- Limite: fotografii până la 8 MB, clipuri MP4 / MOV / WebM până la 80 MB, cel mult 20 de clipuri și 150 de materiale pe firmă.
+
 ## 0.34.0 — agentul audio: voce în română, muzică și efecte
 
 - Fiecare postare are acum **textul vocii**: ce se aude în video. Agentul de social media îl scrie odată cu planul, cu numerele în litere, ca să fie citite corect.

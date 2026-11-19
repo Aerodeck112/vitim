@@ -56,6 +56,26 @@
     @endif
   </section>
 
+  <section class="card" aria-labelledby="d-h">
+    <h2 id="d-h">Google Drive (materialele firmelor)</h2>
+    <p class="small muted">Fiecare firmă își poate lega un folder de Google Drive, din care agentul de social media ia fotografii și clipuri video. Platforma citește folderele printr-un cont de serviciu Google, doar pentru citire. Cheia lui (fișierul JSON) se salvează criptat și nu se afișează înapoi.</p>
+    <p><span class="badge {{ \App\Social\DriveLibrary::configured() ? 'ok' : 'warn' }}">{{ \App\Social\DriveLibrary::configured() ? 'configurat' : 'neconfigurat' }}</span>
+      @if (\App\Social\DriveLibrary::configured()) folderele se partajează cu <span class="mono">{{ \App\Social\DriveLibrary::email() }}</span>@endif</p>
+    <form method="post" action="{{ route('admin.drive.key') }}" class="ai-form" enctype="multipart/form-data" autocomplete="off">
+      @csrf @method('put')
+      <div class="fl"><label for="drive_key">Cheia contului de serviciu (fișier JSON)</label><input id="drive_key" type="file" name="drive_key" accept="application/json,.json" required>@error('drive_key')<div class="err">{{ $message }}</div>@enderror</div>
+      <div class="fl"><label for="drive_password">Parola contului tău (confirmare)</label><input id="drive_password" type="password" name="password" required autocomplete="current-password"></div>
+      <button class="btn btn-p" type="submit">Salvează</button>
+    </form>
+    @if (\App\Social\DriveLibrary::configured())
+    <details class="ai-danger"><summary>Șterge cheia de Google Drive</summary>
+      <form method="post" action="{{ route('admin.drive.key.clear') }}">@csrf @method('delete')
+        <div class="fl"><label for="drive_password2">Parola contului tău</label><input id="drive_password2" type="password" name="password" required autocomplete="current-password"></div>
+        <button class="btn btn-danger" type="submit">Șterge cheia</button></form>
+    </details>
+    @endif
+  </section>
+
   <section class="card" aria-labelledby="v-h">
     <h2 id="v-h">Vocea (agentul audio)</h2>
     <p class="small muted">Agentul audio generează vocea postărilor în limba română prin serviciul ElevenLabs. Cheia este a platformei, se salvează criptat și nu se afișează înapoi. Fiecare firmă are un plafon de {{ number_format(\App\Social\VoiceStudio::MONTHLY_CHARS, 0, ',', '.') }} de caractere pe lună.</p>

@@ -11,6 +11,8 @@ use App\Models\Organization;
 use App\Models\Site;
 use App\Models\SocialConnection;
 use App\Models\SocialPost;
+use App\Social\DriveError;
+use App\Social\DriveLibrary;
 use App\Social\MediaLibrary;
 use App\Social\MetaError;
 use App\Social\MetaResearch;
@@ -72,6 +74,13 @@ final class SocialAgent extends Command
             }
         } catch (MetaError) {
             // rămâne notată pe legătură; firma o vede în Materiale
+        }
+        try {
+            if ($drive = SocialConnection::query()->where('network', 'drive')->first()) {
+                app(DriveLibrary::class)->sync($drive);
+            }
+        } catch (DriveError) {
+            // rămâne notată pe legătură
         }
         if ($site = Site::query()->where('status', 'active')->orderBy('id')->first()) {
             app(MediaLibrary::class)->collectFromSite($site, 15);

@@ -92,8 +92,9 @@
     ctx.fillStyle = state.color; ctx.fillRect(0, 0, W, H);
     if (img) {
       var contain = state.fit === 'contain';
-      var base = contain ? Math.min(W * 0.9 / img.width, H * 0.72 / img.height) : Math.max(W / img.width, H / img.height);
-      var s = base * (state.zoom / 100) * (o.zoom || 1), w = img.width * s, h = img.height * s;
+      var iw = img.videoWidth || img.width, ih = img.videoHeight || img.height;
+      var base = contain ? Math.min(W * 0.9 / iw, H * 0.72 / ih) : Math.max(W / iw, H / ih);
+      var s = base * (state.zoom / 100) * (o.zoom || 1), w = iw * s, h = ih * s;
       var px = contain ? (W - w) / 2 : (W - w) * (state.x / 100), py = contain ? (H - h) * 0.38 : (H - h) * (state.y / 100);
       if ('filter' in ctx) { ctx.filter = 'brightness(' + state.bright + '%) contrast(' + state.contrast + '%) saturate(' + state.sat + '%)'; }
       if (contain) { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = W * 0.03; ctx.shadowOffsetY = W * 0.01; }
@@ -135,15 +136,26 @@
   }
 
   /* ---------- fotografii ---------- */
-  function addPhoto(src, label, done) {
+  function addPhoto(src, label, done, video) {
+    if (video) { // clip video: se desenează cadru cu cadru, fără sunetul lui
+      var v = document.createElement('video'), ok = false;
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+      v.onloadeddata = function () { if (!ok) { ok = true; photos.push({ img: v, label: 'Clip: ' + label, video: true, url: src }); done(); } };
+      v.onerror = function () { if (!ok) { ok = true; done(); } }; v.src = src; v.load();
+      return;
+    }
     var img = new Image();
-    img.onload = function () { photos.push({ img: img, label: label }); done(); };
+    img.onload = function () { photos.push({ img: img, label: label, url: src }); done(); };
     img.onerror = done; img.src = src;
   }
   function loadLibrary() {
     var left = cfg.assets.length;
     if (!left) { refresh(); return; }
-    cfg.assets.forEach(function (a) { addPhoto(a.url, a.title || 'Fotografie', function () { if (--left === 0) { refresh(); } }); });
+    // se încarcă în paralel, dar rămân în ordinea din materiale (materialul postării e primul)
+    var urls = cfg.assets.map(function (a) { return a.url; });
+    cfg.assets.forEach(function (a) { addPhoto(a.url, a.title || 'Fotografie', function () {
+      if (--left === 0) { photos.sort(function (x, y) { return urls.indexOf(x.url) - urls.indexOf(y.url); }); refresh(); }
+    }, a.video); });
   }
   function photoAt(i) { return photos.length ? photos[Math.min(i, photos.length - 1)].img : null; }
   function scenePhoto(i) {
@@ -211,6 +223,13 @@
   }
   function sizeVideo() { var p = state.ratio.split('x'), c = $('video'); if (c.width !== +p[0] || c.height !== +p[1]) { c.width = +p[0]; c.height = +p[1]; } }
   function still(i) { sizeVideo(); var list = scenes(); i = Math.min(i || 0, list.length - 1); frame($('video'), scenePhoto(i), list[i].text); }
+  var playing = null;
+  function clip(img) { // pornește clipul scenei curente și îl oprește pe cel dinainte
+    if (playing === img) { return; }
+    if (playing && playing.pause) { playing.pause(); }
+    playing = img && img.play ? img : null;
+    if (playing) { playing.currentTime = 0; playing.play().catch(function () {}); }
+  }
   function motion(local) { return state.motion === 'in' ? 1 + local * 0.08 : state.motion === 'out' ? 1.08 - local * 0.08 : 1; }
   var raf = null;
   function play(done) {
@@ -224,6 +243,7 @@
       var t = Math.min((now - start) / 1000, total), acc = 0, i = 0;
       while (i < list.length - 1 && t >= acc + list[i].seconds) { acc += list[i].seconds; i++; }
       var inScene = t - acc, local = Math.min(1, inScene / list[i].seconds);
+      clip(scenePhoto(i));
       var enter = i > 0 && state.transition !== 'none' ? Math.min(1, inScene / T) : 1;
       if (enter < 1) { // tranziție: scena anterioară rămâne dedesubt
         drawPhoto(ctx, W, H, scenePhoto(i - 1), { zoom: motion(1) });
@@ -235,7 +255,7 @@
       } else { drawPhoto(ctx, W, H, scenePhoto(i), { zoom: motion(local) }); }
       drawText(ctx, W, H, list[i].text, { alpha: Math.min(1, Math.max(0, (inScene - (i > 0 ? T * 0.6 : 0)) * 3)) });
       ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillRect(0, H - 6, W * (t / total), 6); // bara de progres
-      if (t < total) { raf = requestAnimationFrame(tick); } else { setTimeout(stopAudio, 150); if (done) { done(); } }
+      if (t < total) { raf = requestAnimationFrame(tick); } else { clip(null); setTimeout(stopAudio, 150); if (done) { done(); } }
     })(start);
   }
   function record() {
@@ -269,13 +289,14 @@
     if (f) { state.music = 'file'; $('a-music').value = 'file'; save(); }
   });
   $('listen').addEventListener('click', function () { play(function () {}); });
-  $('stop').addEventListener('click', function () { cancelAnimationFrame(raf); stopAudio(); });
+  $('stop').addEventListener('click', function () { cancelAnimationFrame(raf); clip(null); stopAudio(); });
   document.querySelectorAll('[data-asset]').forEach(function (r) {
     r.addEventListener('change', function () {
       document.querySelectorAll('[data-asset]').forEach(function (o) { o.nextElementSibling.style.borderColor = o.checked ? 'var(--brand)' : 'transparent'; });
-      var src = r.nextElementSibling.src, found = -1;
+      var el = r.nextElementSibling, src = el.currentSrc || el.src, isVideo = el.tagName === 'VIDEO', found = -1;
+      src = src.split('#')[0];
       photos.forEach(function (p, i) { if (p.img.src === src) { found = i; } });
-      if (found > 0) { photos.unshift(photos.splice(found, 1)[0]); refresh(); } else if (found < 0) { addPhoto(src, r.parentNode.title || 'Fotografie', function () { photos.unshift(photos.pop()); refresh(); }); }
+      if (found > 0) { photos.unshift(photos.splice(found, 1)[0]); refresh(); } else if (found < 0) { addPhoto(src, r.parentNode.title || 'Fotografie', function () { photos.unshift(photos.pop()); refresh(); }, isVideo); }
     });
   });
   $('save-image').addEventListener('click', function () {
