@@ -45,6 +45,7 @@
       @can('view_contacts')<a href="{{ route('portal.contacts.index', $slug) }}" @class(['on' => request()->routeIs('portal.contacts.*')])>Contacte</a>@endcan
       @can('view_leads')<a href="{{ route('portal.leads.index', $slug) }}" @class(['on' => request()->routeIs('portal.leads.*')])>Lead-uri</a>@endcan
       @can('manage_campaigns')<a href="{{ route('portal.campaigns.index', $slug) }}" @class(['on' => request()->routeIs('portal.campaigns.*', 'portal.channels', 'portal.forms.*')])>Campanii</a>@endcan
+      @can('manage_campaigns')<a href="{{ route('portal.social', $slug) }}" @class(['on' => request()->routeIs('portal.social*')])>Social media</a>@endcan
       @can('manage_campaigns')<a href="{{ route('portal.flows.index', $slug) }}" @class(['on' => request()->routeIs('portal.flows.*')])>Automatizări</a>
       <a href="{{ route('portal.audience', $slug) }}" @class(['on' => request()->routeIs('portal.audience*')])>Audiență</a>@endcan
       @can('manage_campaigns')<a href="{{ route('portal.analytics', $slug) }}" @class(['on' => request()->routeIs('portal.analytics')])>Analiză</a>@endcan

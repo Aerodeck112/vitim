@@ -1,5 +1,19 @@
 # VITIM AI Cloud — versiuni
 
+## 0.30.0 — agent de social media
+
+- Secțiune nouă: **Social media**. Agentul scrie planul săptămânii, câte o postare pe zi: textul pentru Facebook și Instagram, hashtagurile, ideea de fotografie și scenariul unui video scurt pentru TikTok sau Reels.
+- Scrie doar din datele firmei: profilul public, informațiile date asistentului de pe site și paginile citite din site. Nu inventează prețuri, reduceri sau rezultate.
+- Fiecare postare este o ciornă: o citești, o corectezi, îi ceri agentului altă variantă („mai scurt”, „despre livrare”) și o aprobi. Publicarea o faci din contul firmei; butonul **Copiază textul** îți dă textul gata de lipit.
+- **Atelier de imagine și video:** alegi fotografii reale ale firmei, iar atelierul pune titlul peste fotografie, în culoarea firmei, și montează un video vertical din scenele postării. Descarci imaginea (portret, pătrat sau story) și video-ul. Fotografiile rămân pe dispozitivul tău.
+- Opțional, agentul scrie singur planul săptămânii următoare în fiecare duminică și îți trimite dimineața, pe email, postarea zilei.
+- Alegi rețelele, zilele cu postare, tonul, temele dorite și ce trebuie evitat.
+
+**Actualizare:**
+- Scrierea planului folosește modelul AI al platformei și intră în plafonul lunar de cost al firmei (un apel pe săptămână, plus rescrierile cerute). Fără cheie AI, secțiunea rămâne pentru postări scrise de om.
+- Publicarea automată pe Facebook, Instagram și TikTok nu este inclusă: are nevoie de aplicații aprobate de Meta și TikTok.
+- Comanda `php artisan vitim:social` rulează la oră din cronul existent.
+
 ## 0.29.0 — actualizări automate ale pluginurilor
 
 - Pentru site-urile WordPress administrate de VITIM, pluginurile se pot actualiza automat o dată pe săptămână, noaptea. Înainte se face backup, iar după actualizare verificăm că site-ul se deschide. Fără un backup reușit nu se actualizează nimic.

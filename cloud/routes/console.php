@@ -33,3 +33,6 @@ Schedule::command('vitim:monitor')->everyFifteenMinutes()->withoutOverlapping(30
 
 // actualizările automate ale pluginurilor: noaptea, un site la 10 minute, fiecare o dată pe săptămână
 Schedule::command('vitim:maintain')->everyTenMinutes()->withoutOverlapping(20);
+
+// agentul de social media: planul săptămânii (duminica) și postarea zilei (dimineața)
+Schedule::command('vitim:social')->hourlyAt(7)->withoutOverlapping(30);
