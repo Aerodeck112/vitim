@@ -190,13 +190,21 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/conversatii/{conversation}/scrie', [Portal\ConversationController::class, 'typing'])->middleware('can:handle_conversations')->where('conversation', $id)->name('conversations.typing');
         Route::middleware('can:manage_campaigns')->group(function () use ($id) {
             Route::get('/social', [Portal\SocialController::class, 'index'])->name('social');
-            Route::post('/social/plan', [Portal\SocialController::class, 'plan'])->middleware('throttle:6,1')->name('social.plan');
+            Route::post('/social/plan', [Portal\SocialController::class, 'plan'])->middleware('throttle:20,1')->name('social.plan');
             Route::put('/social/setari', [Portal\SocialController::class, 'settings'])->name('social.settings');
             Route::post('/social/postari', [Portal\SocialController::class, 'store'])->name('social.store');
             Route::get('/social/postari/{post}', [Portal\SocialController::class, 'show'])->where('post', $id)->name('social.show');
             Route::put('/social/postari/{post}', [Portal\SocialController::class, 'update'])->where('post', $id)->name('social.update');
             Route::post('/social/postari/{post}/stare', [Portal\SocialController::class, 'status'])->where('post', $id)->name('social.status');
-            Route::post('/social/postari/{post}/rescrie', [Portal\SocialController::class, 'rewrite'])->middleware('throttle:10,1')->where('post', $id)->name('social.rewrite');
+            Route::post('/social/postari/{post}/rescrie', [Portal\SocialController::class, 'rewrite'])->middleware('throttle:20,1')->where('post', $id)->name('social.rewrite');
+            Route::get('/social/materiale', [Portal\SocialController::class, 'media'])->name('social.media');
+            Route::post('/social/materiale', [Portal\SocialController::class, 'upload'])->middleware('throttle:20,1')->name('social.media.upload');
+            Route::post('/social/materiale/site', [Portal\SocialController::class, 'collect'])->middleware('throttle:20,1')->name('social.media.collect');
+            Route::get('/social/materiale/{asset}/fisier', [Portal\SocialController::class, 'file'])->where('asset', $id)->name('social.media.file');
+            Route::delete('/social/materiale/{asset}', [Portal\SocialController::class, 'deleteAsset'])->where('asset', $id)->name('social.media.delete');
+            Route::put('/social/meta', [Portal\SocialController::class, 'connect'])->middleware('throttle:20,1')->name('social.meta');
+            Route::delete('/social/meta', [Portal\SocialController::class, 'disconnect'])->name('social.meta.disconnect');
+            Route::post('/social/meta/citeste', [Portal\SocialController::class, 'sync'])->middleware('throttle:20,1')->name('social.meta.sync');
             Route::delete('/social/postari/{post}', [Portal\SocialController::class, 'destroy'])->where('post', $id)->name('social.destroy');
         });
         Route::get('/campanii', [Portal\CampaignController::class, 'index'])->middleware('can:manage_campaigns')->name('campaigns.index');

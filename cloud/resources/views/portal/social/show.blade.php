@@ -26,6 +26,16 @@
   <div class="fl"><label for="caption">Textul postării (Facebook, Instagram, descrierea de pe TikTok)</label><textarea id="caption" name="caption" maxlength="2200" required style="min-height:150px">{{ old('caption', $post->caption) }}</textarea></div>
   <div class="fl"><label for="hashtags">Hashtaguri</label><input id="hashtags" type="text" name="hashtags" maxlength="490" value="{{ old('hashtags', $post->hashtags) }}"></div>
   <div class="fl"><label for="visual">Ideea vizuală (ce fotografie sau filmare se potrivește)</label><textarea id="visual" name="visual" maxlength="1000">{{ old('visual', $post->visual) }}</textarea></div>
+  @if ($assets->isNotEmpty())
+  <div class="fl"><label>Fotografia postării (din materialele firmei)</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <label style="cursor:pointer"><input type="radio" name="asset_id" value="" @checked(! $post->asset_id)> <span class="small">fără</span></label>
+      @foreach ($assets as $asset)
+        <label style="cursor:pointer" title="{{ $asset->title }}"><input type="radio" name="asset_id" value="{{ $asset->id }}" @checked($post->asset_id === $asset->id) style="position:absolute;opacity:0" data-asset>
+          <img src="{{ route('portal.social.media.file', [$slug, $asset->id]) }}" alt="{{ $asset->title ?: 'Fotografie' }}" loading="lazy" width="84" height="84" style="object-fit:cover;border-radius:8px;display:block;border:3px solid {{ $post->asset_id === $asset->id ? 'var(--brand)' : 'transparent' }}"></label>
+      @endforeach
+    </div></div>
+  @endif
   <h2 style="margin-top:14px">Scenariul video (TikTok / Reels)</h2>
   <p class="small muted">Fiecare scenă: textul de pe ecran, ce se filmează sau ce fotografie se pune, și câte secunde durează. Scenele goale se șterg la salvare.</p>
   @php($scenes = array_pad(old('scenes', $post->scenes ?? []), max(5, count($post->scenes ?? [])), ['text' => '', 'shot' => '', 'seconds' => 4]))
@@ -49,7 +59,7 @@
 
 <div class="card" id="atelier">
   <h2>Atelier: imagine și video</h2>
-  <p class="small muted">Alege fotografii reale ale firmei de pe dispozitivul tău. Atelierul pune titlul peste fotografie, în culoarea firmei, și montează un video vertical din scenele de mai sus (câte o fotografie pe scenă, cu textul scenei). Fotografiile rămân pe dispozitivul tău: nu se încarcă în platformă.</p>
+  <p class="small muted">Atelierul pornește de la fotografia aleasă mai sus și de la celelalte materiale ale firmei; poți alege și fotografii de pe dispozitivul tău (acelea nu se încarcă în platformă). Atelierul pune titlul peste fotografie, în culoarea firmei, și montează un video vertical din scenele de mai sus (câte o fotografie pe scenă, cu textul scenei).</p>
   <div class="row">
     <div class="fl"><label for="photos">Fotografii (una sau mai multe)</label><input id="photos" type="file" accept="image/*" multiple></div>
     <div class="fl"><label for="shape">Format imagine</label><select id="shape"><option value="1080x1350">Portret 4:5 (Instagram, Facebook)</option><option value="1080x1080">Pătrat 1:1</option><option value="1080x1920">Vertical 9:16 (story)</option></select></div>
@@ -149,7 +159,17 @@
     $('record').disabled = true; note.textContent = 'Se înregistrează… ține pagina deschisă.';
     rec.start(); play(function () { setTimeout(function () { rec.stop(); }, 150); });
   });
-  drawImage(); frame($('video'), null, scenes()[0].text);
+  // fotografiile din materialele firmei: cea aleasă pentru postare prima, apoi celelalte (pentru scenele video)
+  var library = @json($assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(6)->map(fn ($a) => route('portal.social.media.file', [$slug, $a->id]))->values());
+  function loadLibrary() {
+    var loaded = [], left = library.length;
+    library.forEach(function (src, i) { var img = new Image(); img.onload = img.onerror = function () { if (img.width) { loaded[i] = img; } if (--left === 0 && !$('photos').files.length) { photos = loaded.filter(Boolean); drawImage(); frame($('video'), photos[0] || null, scenes()[0].text); } }; img.src = src; });
+  }
+  document.querySelectorAll('[data-asset]').forEach(function (r) { r.addEventListener('change', function () {
+    document.querySelectorAll('[data-asset]').forEach(function (o) { o.nextElementSibling.style.borderColor = o.checked ? 'var(--brand)' : 'transparent'; });
+    var img = new Image(); img.onload = function () { photos = [img].concat(photos.filter(function (p) { return p.src !== img.src; })); drawImage(); }; img.src = r.nextElementSibling.src;
+  }); });
+  drawImage(); frame($('video'), null, scenes()[0].text); loadLibrary();
 })();
 </script>
 @endsection

@@ -8,7 +8,12 @@ use App\Enums\OrgRole;
 use App\Mail\TeamAlert;
 use App\Models\Membership;
 use App\Models\Organization;
+use App\Models\Site;
+use App\Models\SocialConnection;
 use App\Models\SocialPost;
+use App\Social\MediaLibrary;
+use App\Social\MetaError;
+use App\Social\MetaResearch;
 use App\Social\SocialPlanner;
 use App\Tenancy\TenantContext;
 use Illuminate\Console\Attributes\Description;
@@ -41,6 +46,7 @@ final class SocialAgent extends Command
                         $next = SocialPlanner::monday()->addWeek();
                         $exists = SocialPost::query()->betweenDays($next->toDateString(), $next->copy()->addDays(6)->toDateString())->exists();
                         if (! $exists && $planner->available()) {
+                            $this->research();
                             $this->line("{$organization->name}: {$planner->plan($next)} postări pentru săptămâna ".$next->format('d.m'));
                         }
                     }
@@ -55,6 +61,21 @@ final class SocialAgent extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /** Înainte de plan: citește din nou pagina de Meta și pozele din site. O eroare aici nu oprește planul. */
+    private function research(): void
+    {
+        try {
+            if ($connection = SocialConnection::query()->where('network', 'meta')->first()) {
+                app(MetaResearch::class)->sync($connection);
+            }
+        } catch (MetaError) {
+            // rămâne notată pe legătură; firma o vede în Materiale
+        }
+        if ($site = Site::query()->where('status', 'active')->orderBy('id')->first()) {
+            app(MediaLibrary::class)->collectFromSite($site, 15);
+        }
     }
 
     private function remind(Organization $organization, string $today): void

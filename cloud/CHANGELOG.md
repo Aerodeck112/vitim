@@ -1,5 +1,17 @@
 # VITIM AI Cloud — versiuni
 
+## 0.31.0 — agentul de social media cercetează firma
+
+- **Materiale și cercetare** (în Social media): agentul strânge singur fotografiile firmei din site și din pagina ei de Facebook / Instagram; poți încărca și fotografii de pe dispozitiv.
+- **Pagina de Facebook și contul de Instagram** se conectează cu un cod de acces al paginii, prin interfața oficială Meta. Agentul citește postările deja publicate, pozele lor și numărul de reacții, ca să învețe stilul firmei și temele care au mers. Nu publică și nu trimite mesaje. Codul se păstrează criptat.
+- La scrierea planului, agentul ține cont de postările vechi și **alege pentru fiecare postare o fotografie potrivită** din materialele firmei. O poți schimba din pagina postării.
+- Atelierul de imagine și video pornește direct de la fotografia aleasă și de la celelalte materiale ale firmei.
+- Înainte de planul automat de duminică, agentul recitește pagina de Meta și fotografiile din site.
+
+**Actualizare:**
+- Fotografiile se descarcă o singură dată și se țin în platformă (cel mult 150 pe firmă, minimum 500 px, JPG / PNG / WebP). Din site se iau doar de pe domeniul site-ului; din Meta doar de pe gazdele Meta.
+- Codul de acces al paginii îl creează un administrator al paginii, dintr-o aplicație Meta. Fără el, cercetarea se face doar din site și din încărcări. Clipurile video de pe Meta nu se descarcă (doar imaginea lor de copertă).
+
 ## 0.30.0 — agent de social media
 
 - Secțiune nouă: **Social media**. Agentul scrie planul săptămânii, câte o postare pe zi: textul pentru Facebook și Instagram, hashtagurile, ideea de fotografie și scenariul unui video scurt pentru TikTok sau Reels.

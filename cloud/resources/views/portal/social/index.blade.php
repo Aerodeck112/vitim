@@ -14,6 +14,7 @@
   <div class="alert alert-warn">Agentul de social media nu poate scrie acum: modelul AI nu este configurat pentru platformă sau plafonul lunar al firmei a fost atins. Poți adăuga postări scrise de tine.</div>
 @endunless
 
+<p style="margin:0 0 12px"><a class="btn" href="{{ route('portal.social.media', $slug) }}">Materiale și pagina de Facebook / Instagram</a> <span class="small muted">de aici ia agentul fotografiile și stilul firmei</span></p>
 <div class="tabs">
   <a href="{{ route('portal.social', [$slug, 's' => $week->copy()->subWeek()->toDateString()]) }}">← săptămâna anterioară</a>
   <a class="on" href="{{ route('portal.social', [$slug, 's' => $week->toDateString()]) }}">{{ $week->format('d.m') }} – {{ $end->format('d.m.Y') }}</a>

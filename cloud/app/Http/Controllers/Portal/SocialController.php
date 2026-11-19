@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Portal;
 
 use App\Ai\AiUnavailable;
+use App\Models\Site;
+use App\Models\SocialAsset;
+use App\Models\SocialConnection;
 use App\Models\SocialPost;
+use App\Models\SocialReference;
 use App\Services\AuditLogger;
+use App\Social\MediaLibrary;
+use App\Social\MetaError;
+use App\Social\MetaResearch;
 use App\Social\SocialPlanner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Social media: planul săptămânii scris de agent, aprobarea postărilor și atelierul de imagine / video. */
 final class SocialController extends PortalController
@@ -48,7 +57,7 @@ final class SocialController extends PortalController
     public function show(int $post): View
     {
         return view('portal.social.show', ['organization' => $this->organization(), 'post' => SocialPost::query()->findOrFail($post),
-            'settings' => SocialPlanner::settings($this->organization())]);
+            'settings' => SocialPlanner::settings($this->organization()), 'assets' => SocialAsset::query()->orderByDesc('id')->limit(24)->get(['id', 'title'])]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -67,6 +76,7 @@ final class SocialController extends PortalController
             'caption' => ['required', 'string', 'max:2200'], 'hashtags' => ['nullable', 'string', 'max:490'], 'visual' => ['nullable', 'string', 'max:1000'],
             'scenes' => ['nullable', 'array', 'max:8'], 'scenes.*.text' => ['nullable', 'string', 'max:140'], 'scenes.*.shot' => ['nullable', 'string', 'max:300'],
             'scenes.*.seconds' => ['nullable', 'integer', 'min:2', 'max:10'],
+            'asset_id' => ['nullable', 'integer', Rule::exists('social_assets', 'id')->where('organization_id', $this->organization()->id)],
         ]);
         $data['scenes'] = array_values(array_map(fn (array $s) => ['text' => trim((string) $s['text']), 'shot' => trim((string) ($s['shot'] ?? '')), 'seconds' => (int) ($s['seconds'] ?? 4)],
             array_filter($data['scenes'] ?? [], fn ($s) => trim((string) ($s['text'] ?? '')) !== '')));
@@ -125,5 +135,91 @@ final class SocialController extends PortalController
         $audit->record('social.settings', $organization);
 
         return $this->to('portal.social', [], 'Setările agentului de social media au fost salvate.');
+    }
+
+    /** Materialele firmei: pozele strânse din site și din pagina de Meta, încărcările și legătura cu Meta. */
+    public function media(): View
+    {
+        $connection = SocialConnection::query()->where('network', 'meta')->first();
+
+        return view('portal.social.media', [
+            'organization' => $this->organization(),
+            'assets' => SocialAsset::query()->orderByDesc('id')->paginate(48),
+            'connection' => $connection,
+            'pageId' => $connection?->config['page_id'] ?? '',
+            'igId' => $connection?->config['ig_id'] ?? '',
+            'references' => SocialReference::query()->orderByDesc('engagement')->limit(8)->get(),
+            'referenceCount' => SocialReference::query()->count(),
+            'sites' => Site::query()->where('status', 'active')->orderBy('domain')->get(),
+        ]);
+    }
+
+    public function file(int $asset): StreamedResponse
+    {
+        $model = SocialAsset::query()->findOrFail($asset);
+        abort_unless(Storage::disk('local')->exists($model->path), 404);
+
+        return Storage::disk('local')->response($model->path, null, ['Cache-Control' => 'private, max-age=86400', 'X-Content-Type-Options' => 'nosniff']);
+    }
+
+    public function collect(Request $request, MediaLibrary $library): RedirectResponse
+    {
+        $site = Site::query()->where('status', 'active')->findOrFail((int) $request->input('site'));
+        $count = $library->collectFromSite($site);
+
+        return $this->to('portal.social.media', [], $count > 0 ? "Am adăugat {$count} fotografii din {$site->domain}." : "Nu am găsit fotografii noi, destul de mari, pe {$site->domain}.");
+    }
+
+    public function upload(Request $request, MediaLibrary $library): RedirectResponse
+    {
+        $request->validate(['photos' => ['required', 'array', 'max:10'], 'photos.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'max:8000']]);
+        $count = 0;
+        foreach ($request->file('photos') as $file) {
+            $count += $library->upload((string) file_get_contents($file->getRealPath()), $file->getClientOriginalName()) ? 1 : 0;
+        }
+
+        return $this->to('portal.social.media', [], "{$count} fotografii adăugate. Cele prea mici (sub 500 px) sau deja existente au fost sărite.");
+    }
+
+    public function deleteAsset(MediaLibrary $library, int $asset): RedirectResponse
+    {
+        $library->delete(SocialAsset::query()->findOrFail($asset));
+
+        return $this->to('portal.social.media', [], 'Fotografia a fost ștearsă.');
+    }
+
+    public function connect(Request $request, AuditLogger $audit): RedirectResponse
+    {
+        $connection = SocialConnection::query()->firstOrNew(['network' => 'meta']);
+        $data = $request->validate([
+            'page_id' => ['required', 'regex:/^\d{5,30}$/'], 'ig_id' => ['nullable', 'regex:/^\d{5,30}$/'],
+            'token' => [$connection->exists ? 'nullable' : 'required', 'string', 'min:20', 'max:600'],
+        ], ['page_id.regex' => 'ID-ul paginii este un număr (îl găsești în Meta Business Suite).', 'ig_id.regex' => 'ID-ul contului de Instagram este un număr.']);
+        // codul de acces se păstrează criptat; câmpul gol la editare îl lasă pe cel existent
+        $connection->fill(['config' => ['page_id' => $data['page_id'], 'ig_id' => $data['ig_id'] ?? null, 'token' => $data['token'] ?? ($connection->config['token'] ?? '')],
+            'status' => 'new', 'last_error' => null])->save();
+        $audit->record('social.meta_connected', $connection);
+
+        return $this->to('portal.social.media', [], 'Pagina a fost salvată. Apasă „Citește pagina acum” pentru prima cercetare.');
+    }
+
+    public function disconnect(AuditLogger $audit): RedirectResponse
+    {
+        SocialConnection::query()->where('network', 'meta')->get()->each->delete();
+        $audit->record('social.meta_disconnected', null);
+
+        return $this->to('portal.social.media', [], 'Legătura cu Meta a fost ștearsă. Fotografiile și postările deja citite rămân.');
+    }
+
+    public function sync(MetaResearch $research): RedirectResponse
+    {
+        $connection = SocialConnection::query()->where('network', 'meta')->firstOrFail();
+        try {
+            $result = $research->sync($connection);
+        } catch (MetaError $e) {
+            return $this->to('portal.social.media')->with('error', $e->getMessage());
+        }
+
+        return $this->to('portal.social.media', [], "Am citit pagina: {$result['posts']} postări noi și {$result['images']} fotografii noi.");
     }
 }
