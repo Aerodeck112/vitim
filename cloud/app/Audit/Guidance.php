@@ -32,6 +32,7 @@ final class Guidance
         'core_update' => ['updates', "Fă întâi un backup, apoi actualizează din butonul „Actualizează WordPress” sau din WordPress → Panou → Actualizări.\nVerifică după aceea formularul de contact, coșul (dacă e magazin) și paginile principale."],
         'plugin_update' => ['updates', 'Actualizează pluginul din buton. Pentru pluginuri mari (constructor de pagini, WooCommerce) fă înainte un backup și verifică site-ul după.'],
         'theme_update' => ['updates', 'Actualizează tema din buton. Dacă tema a fost modificată direct (fără temă copil), modificările se pierd: verifică întâi cu echipa care a făcut site-ul.'],
+        'update.site_broken' => ['updates', "Site-ul nu se mai deschide corect după actualizarea automată a pluginurilor.\n1. Deschide site-ul și WordPress → Pluginuri: dezactivează pluginul actualizat ultimul (vezi rezultatul din fișa site-ului).\n2. Dacă nu poți intra în WordPress, redenumește folderul pluginului din File Manager (wp-content/plugins).\n3. Dacă nu se rezolvă, restaurează backup-ul făcut înainte de actualizare.\nProblema se închide singură la următoarea actualizare reușită."],
         'php_old' => ['updates', "cPanel → Select PHP Version (sau MultiPHP Manager) → alege PHP 8.2 sau 8.3 pentru domeniu.\nÎnainte, verifică pe o copie că tema și pluginurile merg pe versiunea nouă."],
 
         // ---------- securitate (plugin) ----------

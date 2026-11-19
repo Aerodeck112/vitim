@@ -30,3 +30,6 @@ Schedule::command('vitim:backups-check')->hourly()->withoutOverlapping(30);
 
 // agentul de monitorizare al echipei VITIM: rezumatul de dimineață și alertele critice noi
 Schedule::command('vitim:monitor')->everyFifteenMinutes()->withoutOverlapping(30);
+
+// actualizările automate ale pluginurilor: noaptea, un site la 10 minute, fiecare o dată pe săptămână
+Schedule::command('vitim:maintain')->everyTenMinutes()->withoutOverlapping(20);

@@ -13,6 +13,7 @@ use App\Services\Remediation;
 use App\Services\SeoAutopilot;
 use App\Services\SiteAuditService;
 use App\Services\SiteCommandService;
+use App\Services\UpdateAutopilot;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -84,5 +85,28 @@ final class SiteHealthController extends Controller
             $command->status === 'done' => $back->with('ok', 'Pilot SEO: '.Remediation::label('seo_fix:'.$command->target).' — '.$command->result),
             default => $back->with('error', 'Pilot SEO: '.$command->result),
         };
+    }
+
+    public function updates(Request $request, AuditLogger $audit, int $site): RedirectResponse
+    {
+        $model = Site::query()->findOrFail($site);
+        $model->forceFill(['update_autopilot' => $request->boolean('on')])->save();
+        $audit->record('site.update_autopilot', $model, ['on' => $model->update_autopilot]);
+
+        return redirect()->route('admin.sites.health', [$this->context->organization()->slug, $model->id])
+            ->with('ok', $model->update_autopilot ? 'Actualizările automate sunt pornite pe acest site.' : 'Actualizările automate sunt oprite pe acest site.');
+    }
+
+    public function updatesRun(UpdateAutopilot $autopilot, AuditLogger $audit, int $site): RedirectResponse
+    {
+        $model = Site::query()->findOrFail($site);
+        $back = redirect()->route('admin.sites.health', [$this->context->organization()->slug, $model->id]);
+        if (! SeoAutopilot::supported($model)) {
+            return $back->with('error', 'Site-ul nu poate primi actualizări de la distanță.');
+        }
+        $result = $autopilot->run($model);
+        $audit->record('site.update_autopilot.run', $model);
+
+        return $back->with(str_starts_with($result, 'ATENȚIE') ? 'error' : 'ok', 'Actualizări: '.$result);
     }
 }

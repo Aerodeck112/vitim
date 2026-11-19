@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'domain', 'allowed_origins', 'platform', 'status', 'ai_enabled', 'widget_config', 'cookie_config', 'learn_auto', 'seo_autopilot'])]
+#[Fillable(['name', 'domain', 'allowed_origins', 'platform', 'status', 'ai_enabled', 'widget_config', 'cookie_config', 'learn_auto', 'seo_autopilot', 'update_autopilot'])]
 class Site extends Model
 {
     use BelongsToOrganization;
@@ -24,6 +24,8 @@ class Site extends Model
             'learn_auto' => 'boolean',
             'seo_autopilot' => 'boolean',
             'seo_autopilot_at' => 'datetime',
+            'update_autopilot' => 'boolean',
+            'update_autopilot_at' => 'datetime',
             'learned_at' => 'datetime',
             'widget_config' => 'array',
             'cookie_config' => 'array',

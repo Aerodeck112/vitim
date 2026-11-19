@@ -1,5 +1,15 @@
 # VITIM AI Cloud — versiuni
 
+## 0.29.0 — actualizări automate ale pluginurilor
+
+- Pentru site-urile WordPress administrate de VITIM, pluginurile se pot actualiza automat o dată pe săptămână, noaptea. Înainte se face backup, iar după actualizare verificăm că site-ul se deschide. Fără un backup reușit nu se actualizează nimic.
+
+**Actualizare:**
+- **Fișa site-ului (Admin):** caseta nouă **Actualizări automate**, cu comutator, rezultatul ultimei rulări și butonul **Actualizează acum**. Implicit oprite: le pornești pe fiecare site sau pe toate, din **Monitorizare → Pornește la toate** (doar super admin).
+- Rulează între 1 și 5 noaptea (ora României), un site la 10 minute, fiecare o dată pe săptămână. Pașii: verificare că site-ul se deschide, backup, actualizarea pluginurilor, verificare din nou, scanare.
+- Dacă site-ul nu se mai deschide după actualizare, apare ca problemă critică în Monitorizare și pleacă alerta imediată. Restaurarea backup-ului nu este automată.
+- Tema și nucleul WordPress rămân pe buton. Comanda: `php artisan vitim:maintain` (cronul rămâne același).
+
 ## 0.28.0 — agent de monitorizare
 
 - Echipa VITIM este anunțată automat când un site nu mai raportează, un backup eșuează, HTTPS-ul nu mai funcționează sau un certificat este pe cale să expire, ca să intervenim înainte să observați problema.

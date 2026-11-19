@@ -24,6 +24,27 @@
   @endif
 </div>
 @php($pilotOk = \App\Services\SeoAutopilot::supported($site))
+<div class="card pilot" aria-labelledby="upd-h">
+  <div class="pilot-head">
+    <div><h2 id="upd-h" style="margin:0 0 4px">Actualizări automate</h2>
+      <p class="small muted" style="margin:0">O dată pe săptămână, noaptea: backup, actualizarea pluginurilor, apoi verificarea că site-ul se deschide. Fără backup reușit nu actualizează nimic. Tema și nucleul WordPress rămân pe buton.</p></div>
+    <form method="post" action="{{ route('admin.sites.updates', [$slug, $site->id]) }}">@csrf
+      <input type="hidden" name="on" value="{{ $site->update_autopilot ? 0 : 1 }}">
+      <button type="submit" class="sw-btn{{ $site->update_autopilot ? ' on' : '' }}" role="switch" aria-checked="{{ $site->update_autopilot ? 'true' : 'false' }}">
+        <span class="sw-track" aria-hidden="true"><span class="sw-knob"></span></span>
+        <span class="sw-text"><span class="sw-label">Actualizări automate</span><span class="sw-state">{{ $site->update_autopilot ? 'pornite' : 'oprite' }}</span></span></button></form>
+  </div>
+  <p class="small" style="margin:10px 0 0">
+    @if (! \App\Services\SeoAutopilot::supported($site))<span class="badge warn">nu se poate aplica</span> Are nevoie de WordPress cu pluginul VITIM {{ \App\Services\Remediation::SEO_PLUGIN_VERSION }}+ și remedierile de la distanță permise.
+    @else Ultima rulare: <strong>{{ $site->update_autopilot_at ? $site->update_autopilot_at->setTimezone('Europe/Bucharest')->format('d.m.Y H:i') : 'încă nu' }}</strong>
+      · pluginuri de actualizat acum: {{ app(\App\Services\UpdateAutopilot::class)->pending($site) }}
+      @if ($site->update_autopilot_result)<br>{{ $site->update_autopilot_result }}@endif
+    @endif
+  </p>
+  @if (\App\Services\SeoAutopilot::supported($site))
+    <form method="post" action="{{ route('admin.sites.updates.run', [$slug, $site->id]) }}" style="margin-top:10px" onsubmit="return confirm('Faci acum backup și actualizezi pluginurile acestui site?')">@csrf<button class="btn" type="submit">Actualizează acum</button></form>
+  @endif
+</div>
 @php($pilotPending = app(\App\Services\SeoAutopilot::class)->pending($site))
 <div class="card pilot" aria-labelledby="pilot-h">
   <div class="pilot-head">

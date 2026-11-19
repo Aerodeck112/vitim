@@ -40,6 +40,18 @@
   <p class="small muted">Alte {{ $report['other_warnings'] }} avertismente de audit sunt deschise (SEO, legal, performanță); le găsești la <a href="{{ route('admin.sites.index') }}">Site-uri</a>.</p>
 @endif
 
+<div class="card" style="margin-top:18px">
+  <h2>Actualizări automate ale pluginurilor</h2>
+  <p class="small muted">O dată pe săptămână, noaptea (între 1 și 5), fiecare site WordPress pornit aici primește actualizările de pluginuri: întâi backup, apoi actualizarea, apoi verificarea că site-ul se deschide. Fără backup reușit nu se actualizează nimic. Dacă site-ul nu se mai deschide după, apare aici ca problemă critică și pleacă alerta. Tema și nucleul WordPress rămân pe buton, în fișa site-ului.</p>
+  <p style="margin:0 0 10px"><strong>{{ $wpAuto }}</strong> din {{ $wpSites }} site-uri WordPress au actualizările automate pornite. Se pot porni și pe rând, din fișa fiecărui site.</p>
+  @if (auth()->user()->platform_role === \App\Enums\PlatformRole::SuperAdmin)
+  <div class="row">
+    <form method="post" action="{{ route('admin.monitor.updates') }}" onsubmit="return confirm('Pornești actualizările automate pe toate site-urile WordPress?')">@csrf<input type="hidden" name="on" value="1"><button class="btn" type="submit">Pornește la toate</button></form>
+    <form method="post" action="{{ route('admin.monitor.updates') }}">@csrf<input type="hidden" name="on" value="0"><button class="btn" type="submit">Oprește la toate</button></form>
+  </div>
+  @endif
+</div>
+
 <form method="post" action="{{ route('admin.monitor.settings') }}" class="card" style="margin-top:18px">
   @csrf @method('put')
   <h2>Rezumat și alerte</h2>

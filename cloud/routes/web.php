@@ -118,6 +118,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::delete('/noutati/{announcement}', [AnnouncementController::class, 'destroy'])->whereNumber('announcement')->name('announcements.destroy');
         Route::get('/monitorizare', [MonitorController::class, 'show'])->name('monitor');
         Route::put('/monitorizare', [MonitorController::class, 'settings'])->name('monitor.settings');
+        Route::post('/monitorizare/actualizari', [MonitorController::class, 'updates'])->name('monitor.updates');
         Route::post('/monitorizare/trimite', [MonitorController::class, 'send'])->middleware('throttle:6,1')->name('monitor.send');
         Route::post('/abonamente/activeaza-expirate', [SubscriptionController::class, 'activateExpired'])->name('subscriptions.activate');
         Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
@@ -131,6 +132,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::get('/site-uri/{site}', [SiteHealthController::class, 'show'])->whereNumber('site')->name('sites.health');
             Route::post('/site-uri/{site}/audit', [SiteHealthController::class, 'audit'])->whereNumber('site')->middleware('throttle:10,1')->name('sites.audit');
             Route::post('/site-uri/{site}/remediere', [SiteHealthController::class, 'command'])->whereNumber('site')->middleware('throttle:20,1')->name('sites.command');
+            Route::post('/site-uri/{site}/pilot-actualizari', [SiteHealthController::class, 'updates'])->whereNumber('site')->name('sites.updates');
+            Route::post('/site-uri/{site}/pilot-actualizari/ruleaza', [SiteHealthController::class, 'updatesRun'])->whereNumber('site')->middleware('throttle:6,1')->name('sites.updates.run');
             Route::post('/site-uri/{site}/pilot-seo', [SiteHealthController::class, 'autopilot'])->whereNumber('site')->name('sites.autopilot');
             Route::post('/site-uri/{site}/pilot-seo/ruleaza', [SiteHealthController::class, 'autopilotRun'])->whereNumber('site')->middleware('throttle:10,1')->name('sites.autopilot.run');
             Route::get('/rapoarte', [ReportController::class, 'index'])->name('reports.index');
