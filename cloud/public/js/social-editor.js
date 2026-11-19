@@ -9,11 +9,73 @@
   var defaults = {
     shape: '1080x1350', fit: 'cover', zoom: 100, x: 50, y: 50, bright: 100, contrast: 100, sat: 100, dark: 60,
     pos: 'bottom', size: 100, brand: true, bar: true, color: cfg.color,
-    ratio: '720x1280', transition: 'fade', motion: 'in', scenePhotos: []
+    ratio: '720x1280', transition: 'fade', motion: 'in', scenePhotos: [],
+    music: 'none', musicVol: 35, voiceVol: 100, whoosh: true, fitVoice: true
   };
   var state = Object.assign({}, defaults, cfg.design || {});
   var photos = [];   // {img, label}
-  var music = null;  // HTMLAudioElement
+
+  /* ---------- sunet: voce, muzică generată sau fișier, efecte ---------- */
+  var AC = window.AudioContext || window.webkitAudioContext, actx = null, master = null, recDest = null;
+  var voiceEl = $('voice-audio'), voiceNode = null, fileEl = null, fileNode = null, live = [];
+  var CHORDS = { calm: [[220, 261.6, 329.6], [174.6, 220, 261.6], [261.6, 329.6, 392], [196, 246.9, 293.7]],
+    bright: [[261.6, 329.6, 392], [392, 493.9, 587.3], [440, 523.3, 659.3], [349.2, 440, 523.3]],
+    pulse: [[220, 261.6, 329.6], [174.6, 220, 261.6], [261.6, 329.6, 392], [196, 246.9, 293.7]] };
+  function audioInit() {
+    if (!AC) { return false; }
+    if (!actx) { actx = new AC(); master = actx.createGain(); master.connect(actx.destination); recDest = actx.createMediaStreamDestination(); master.connect(recDest); }
+    if (actx.state === 'suspended') { actx.resume(); }
+    return true;
+  }
+  function tone(out, type, freq, at, len, peak) {
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(peak, at + Math.min(0.4, len * 0.3)); g.gain.linearRampToValueAtTime(0, at + len);
+    o.connect(g); g.connect(out); o.start(at); o.stop(at + len + 0.05); live.push(o);
+  }
+  function generated(kind, out, t0, total) {
+    var chords = CHORDS[kind], bar = kind === 'calm' ? 3 : 2, n = 0, t, c;
+    for (t = 0; t < total; t += bar, n++) {
+      c = chords[n % chords.length];
+      c.forEach(function (f) { tone(out, 'sine', f, t0 + t, bar * 1.15, 0.16); tone(out, 'triangle', f / 2, t0 + t, bar * 1.15, 0.07); });
+      if (kind !== 'calm') { for (var k = 0; k < bar * 4; k++) { tone(out, 'triangle', c[k % 3] * 2, t0 + t + k * 0.25, 0.22, kind === 'pulse' ? 0.07 : 0.05); } }
+      if (kind === 'pulse') { for (var b = 0; b < bar * 2; b++) { var o = actx.createOscillator(), g = actx.createGain(), at = t0 + t + b * 0.5; o.frequency.setValueAtTime(120, at); o.frequency.exponentialRampToValueAtTime(40, at + 0.18); g.gain.setValueAtTime(0.5, at); g.gain.exponentialRampToValueAtTime(0.001, at + 0.2); o.connect(g); g.connect(out); o.start(at); o.stop(at + 0.22); live.push(o); } }
+    }
+  }
+  function whoosh(at) {
+    var len = 0.4, buf = actx.createBuffer(1, actx.sampleRate * len, actx.sampleRate), d = buf.getChannelData(0), i;
+    for (i = 0; i < d.length; i++) { d[i] = Math.random() * 2 - 1; }
+    var src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+    src.buffer = buf; f.type = 'bandpass'; f.Q.value = 1.2; f.frequency.setValueAtTime(400, at); f.frequency.exponentialRampToValueAtTime(3200, at + len);
+    g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(0.22, at + len * 0.5); g.gain.linearRampToValueAtTime(0, at + len);
+    src.connect(f); f.connect(g); g.connect(master); src.start(at); live.push(src);
+  }
+  function hasVoice() { return !!(voiceEl && voiceEl.duration && isFinite(voiceEl.duration)); }
+  function stopAudio() {
+    live.forEach(function (n) { try { n.stop(); } catch (e) {} }); live = [];
+    if (voiceEl) { voiceEl.pause(); } if (fileEl) { fileEl.pause(); }
+  }
+  /* pornește tot sunetul pentru un video de `total` secunde; `starts` = momentele în care încep scenele */
+  function startAudio(total, starts) {
+    stopAudio();
+    if (!audioInit()) { return; }
+    var t0 = actx.currentTime + 0.05, voice = hasVoice() && state.voiceVol > 0, level = state.musicVol / 100;
+    var mg = actx.createGain(); mg.connect(master);
+    // muzica stă mai încet cât vorbește vocea și se stinge la final
+    mg.gain.setValueAtTime(level * (voice ? 0.35 : 1), t0);
+    if (voice) { var end = t0 + 0.4 + voiceEl.duration; if (end < t0 + total - 1) { mg.gain.setValueAtTime(level * 0.35, end); mg.gain.linearRampToValueAtTime(level, end + 0.8); } }
+    mg.gain.setValueAtTime(mg.gain.value, t0 + Math.max(0, total - 1)); mg.gain.linearRampToValueAtTime(0, t0 + total);
+    if (CHORDS[state.music]) { generated(state.music, mg, t0, total); }
+    else if (state.music === 'file' && fileEl) { if (!fileNode) { fileNode = actx.createMediaElementSource(fileEl); } fileNode.disconnect(); fileNode.connect(mg); fileEl.currentTime = 0; fileEl.play().catch(function () {}); }
+    if (voice) {
+      if (!voiceNode) { voiceNode = actx.createMediaElementSource(voiceEl); voiceNode._gain = actx.createGain(); voiceNode.connect(voiceNode._gain); voiceNode._gain.connect(master); }
+      voiceNode._gain.gain.value = state.voiceVol / 100; voiceEl.currentTime = 0;
+      setTimeout(function () { voiceEl.play().catch(function () {}); }, 400);
+    }
+    if (state.whoosh && state.transition !== 'none') { starts.slice(1).forEach(function (s) { whoosh(t0 + Math.max(0, s - 0.15)); }); }
+  }
+  function hasSound() { return (hasVoice() && state.voiceVol > 0) || CHORDS[state.music] || (state.music === 'file' && fileEl); }
+  if (voiceEl) { voiceEl.addEventListener('play', function () { if (voiceNode) { audioInit(); } }); voiceEl.addEventListener('loadedmetadata', function () { sceneList(); }); }
 
   /* ---------- desen ---------- */
   function wrap(ctx, text, max) {
@@ -125,7 +187,12 @@
   function scenes() {
     var texts = document.querySelectorAll('[data-scene-text]'), secs = document.querySelectorAll('[data-scene-seconds]'), out = [];
     texts.forEach(function (t, i) { if (t.value.trim()) { out.push({ text: t.value.trim(), seconds: Math.max(2, Math.min(10, parseInt(secs[i].value, 10) || 4)) }); } });
-    return out.length ? out : [{ text: $('hook').value, seconds: 4 }];
+    out = out.length ? out : [{ text: $('hook').value, seconds: 4 }];
+    if (state.fitVoice && hasVoice()) { // video-ul durează cât vocea, cu scenele în aceeași proporție
+      var sum = out.reduce(function (a, x) { return a + x.seconds; }, 0), k = (voiceEl.duration + 1.2) / sum;
+      out.forEach(function (x) { x.seconds = Math.round(x.seconds * k * 10) / 10; });
+    }
+    return out;
   }
   function sceneList() {
     var box = $('scene-list'), list = scenes(), total = 0;
@@ -140,7 +207,7 @@
       sel.addEventListener('change', function () { state.scenePhotos[i] = +sel.value; save(); still(i); });
       row.appendChild(label); row.appendChild(sel); box.appendChild(row);
     });
-    $('video-length').textContent = 'Durată: ' + total + ' secunde, ' + list.length + (list.length === 1 ? ' scenă' : ' scene');
+    $('video-length').textContent = 'Durată: ' + Math.round(total) + ' secunde, ' + list.length + (list.length === 1 ? ' scenă' : ' scene');
   }
   function sizeVideo() { var p = state.ratio.split('x'), c = $('video'); if (c.width !== +p[0] || c.height !== +p[1]) { c.width = +p[0]; c.height = +p[1]; } }
   function still(i) { sizeVideo(); var list = scenes(); i = Math.min(i || 0, list.length - 1); frame($('video'), scenePhoto(i), list[i].text); }
@@ -151,7 +218,8 @@
     var list = scenes(), canvas = $('video'), ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height, start = performance.now(), T = 0.5;
     var total = list.reduce(function (a, s) { return a + s.seconds; }, 0);
     cancelAnimationFrame(raf);
-    if (music) { music.currentTime = 0; music.play().catch(function () {}); }
+    var starts = [], acc0 = 0; list.forEach(function (x) { starts.push(acc0); acc0 += x.seconds; });
+    startAudio(total, starts);
     (function tick(now) {
       var t = Math.min((now - start) / 1000, total), acc = 0, i = 0;
       while (i < list.length - 1 && t >= acc + list[i].seconds) { acc += list[i].seconds; i++; }
@@ -167,7 +235,7 @@
       } else { drawPhoto(ctx, W, H, scenePhoto(i), { zoom: motion(local) }); }
       drawText(ctx, W, H, list[i].text, { alpha: Math.min(1, Math.max(0, (inScene - (i > 0 ? T * 0.6 : 0)) * 3)) });
       ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillRect(0, H - 6, W * (t / total), 6); // bara de progres
-      if (t < total) { raf = requestAnimationFrame(tick); } else { if (music) { music.pause(); } if (done) { done(); } }
+      if (t < total) { raf = requestAnimationFrame(tick); } else { setTimeout(stopAudio, 150); if (done) { done(); } }
     })(start);
   }
   function record() {
@@ -175,21 +243,14 @@
     if (!window.MediaRecorder || !canvas.captureStream) { note.textContent = 'Browserul acesta nu poate crea video. Încearcă în Chrome, Edge sau Safari, la zi.'; return; }
     var type = ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'].filter(function (t) { return MediaRecorder.isTypeSupported(t); })[0];
     if (!type) { note.textContent = 'Browserul acesta nu poate crea video.'; return; }
-    var stream = canvas.captureStream(30), audioCtx = null;
-    if (music) {
-      try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        var dest = audioCtx.createMediaStreamDestination(), src = music._node || (music._node = audioCtx.createMediaElementSource(music));
-        src.connect(dest); src.connect(audioCtx.destination);
-        dest.stream.getAudioTracks().forEach(function (tr) { stream.addTrack(tr); });
-      } catch (e) { note.textContent = 'Muzica nu a putut fi adăugată; video-ul se creează fără sunet.'; }
-    }
+    var stream = canvas.captureStream(30), sound = hasSound() && audioInit();
+    if (sound) { recDest.stream.getAudioTracks().forEach(function (tr) { stream.addTrack(tr); }); }
     var chunks = [], rec = new MediaRecorder(stream, { mimeType: type, videoBitsPerSecond: 8000000 });
     rec.ondataavailable = function (e) { if (e.data.size) { chunks.push(e.data); } };
     rec.onstop = function () {
       var ext = type.indexOf('mp4') > -1 ? 'mp4' : 'webm', a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob(chunks, { type: type.split(';')[0] })); a.download = 'video-' + cfg.day + '.' + ext; a.click();
-      note.textContent = 'Video creat (' + ext.toUpperCase() + (music ? ', cu muzică' : ', fără sunet') + ').' + (ext === 'webm' ? ' Pentru Instagram creează-l din Safari sau dintr-un Chrome la zi, care salvează MP4.' : '');
+      note.textContent = 'Video creat (' + ext.toUpperCase() + (sound ? ', cu sunet' : ', fără sunet') + ').' + (ext === 'webm' ? ' Pentru Instagram creează-l din Safari sau dintr-un Chrome la zi, care salvează MP4.' : '');
       $('record').disabled = false;
     };
     $('record').disabled = true; note.textContent = 'Se înregistrează… ține pagina deschisă și în față.';
@@ -204,9 +265,11 @@
   });
   $('music').addEventListener('change', function (e) {
     var f = e.target.files[0];
-    music = f ? new Audio(URL.createObjectURL(f)) : null;
-    $('video-note').textContent = f ? 'Muzică adăugată: ' + f.name + '. Folosește doar muzică pentru care ai drept de folosire.' : '';
+    fileEl = f ? new Audio(URL.createObjectURL(f)) : null; fileNode = null;
+    if (f) { state.music = 'file'; $('a-music').value = 'file'; save(); }
   });
+  $('listen').addEventListener('click', function () { play(function () {}); });
+  $('stop').addEventListener('click', function () { cancelAnimationFrame(raf); stopAudio(); });
   document.querySelectorAll('[data-asset]').forEach(function (r) {
     r.addEventListener('change', function () {
       document.querySelectorAll('[data-asset]').forEach(function (o) { o.nextElementSibling.style.borderColor = o.checked ? 'var(--brand)' : 'transparent'; });

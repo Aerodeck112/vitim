@@ -1,5 +1,17 @@
 # VITIM AI Cloud — versiuni
 
+## 0.34.0 — agentul audio: voce în română, muzică și efecte
+
+- Fiecare postare are acum **textul vocii**: ce se aude în video. Agentul de social media îl scrie odată cu planul, cu numerele în litere, ca să fie citite corect.
+- **Seniorul audio** citește textul cu o voce în limba română și pune înregistrarea peste video. O asculți înainte, o poți genera din nou după ce corectezi textul și îți alegi vocea din setări.
+- **Muzică de fundal:** trei variante compuse pe loc de editor (calmă, luminoasă, ritmată), fără drepturi de autor ale altcuiva, sau un fișier al tău. Muzica stă mai încet cât vorbește vocea și se stinge la final.
+- **Efect sonor** la schimbarea scenei, volume separate pentru voce și muzică și opțiunea ca video-ul să dureze exact cât vocea.
+- Seniorul audio are biroul lui în pagina **Birou**.
+
+**Actualizare:**
+- **Agent AI (Admin) → Vocea:** cheia serviciului de voce (ElevenLabs) și ID-ul vocii implicite, doar super admin, cu parola contului. Cheia se salvează criptat. Fără cheie, muzica și efectele merg, vocea nu.
+- Plafon de 40.000 de caractere de voce pe lună pentru fiecare firmă (se poate schimba pe abonament, la `voice_chars_per_month`). Un text de voce are cel mult 1.200 de caractere.
+
 ## 0.33.0 — plan de birou, editor foto și editor video
 
 - **Birou:** deasupra listei apare planul biroului, văzut de sus: câte o cameră pe zonă și câte o masă pe agent. Culoarea agentului arată starea (lucrează, te așteaptă, are o problemă, în așteptare, oprit), iar un click pe masă te duce unde rezolvi.

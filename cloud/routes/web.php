@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Admin\SiteHealthController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\SystemController;
+use App\Http\Controllers\Admin\VoiceController as AdminVoiceController;
 use App\Http\Controllers\Admin\WorkLogController;
 use App\Http\Controllers\Api\V1 as Api;
 use App\Http\Controllers\Auth\LoginController;
@@ -103,6 +104,8 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/agent-ai/test', [AiController::class, 'test'])->middleware('throttle:20,1')->name('ai.test');
         Route::post('/agent-ai/site-uri/{site}', [AiController::class, 'toggle'])->whereNumber('site')->middleware('throttle:120,1')->name('ai.toggle');
         Route::post('/agent-ai/toate', [AiController::class, 'bulk'])->middleware('throttle:10,1')->name('ai.bulk');
+        Route::put('/agent-ai/voce', [AdminVoiceController::class, 'save'])->middleware('throttle:10,1')->name('voice.key');
+        Route::delete('/agent-ai/voce', [AdminVoiceController::class, 'clear'])->middleware('throttle:10,1')->name('voice.key.clear');
         Route::get('/sistem', [SystemController::class, 'show'])->name('system');
         Route::post('/sistem/actualizare', [SystemController::class, 'upload'])->middleware('throttle:5,1')->name('system.upload');
         Route::post('/sistem/actualizare-urcata', [SystemController::class, 'applyPending'])->middleware('throttle:5,1')->name('system.pending');
@@ -208,6 +211,9 @@ Route::middleware(['auth', '2fa'])->group(function () {
             Route::put('/social/meta', [Portal\SocialController::class, 'connect'])->middleware('throttle:20,1')->name('social.meta');
             Route::delete('/social/meta', [Portal\SocialController::class, 'disconnect'])->name('social.meta.disconnect');
             Route::post('/social/meta/citeste', [Portal\SocialController::class, 'sync'])->middleware('throttle:20,1')->name('social.meta.sync');
+            Route::post('/social/postari/{post}/voce', [Portal\SocialController::class, 'voice'])->middleware('throttle:20,1')->where('post', $id)->name('social.voice');
+            Route::get('/social/postari/{post}/voce', [Portal\SocialController::class, 'voiceFile'])->where('post', $id)->name('social.voice.file');
+            Route::delete('/social/postari/{post}/voce', [Portal\SocialController::class, 'voiceDelete'])->where('post', $id)->name('social.voice.delete');
             Route::delete('/social/postari/{post}', [Portal\SocialController::class, 'destroy'])->where('post', $id)->name('social.destroy');
         });
         Route::get('/campanii', [Portal\CampaignController::class, 'index'])->middleware('can:manage_campaigns')->name('campaigns.index');

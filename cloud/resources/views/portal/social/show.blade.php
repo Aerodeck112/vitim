@@ -46,6 +46,8 @@
       <input type="number" name="scenes[{{ $i }}][seconds]" min="2" max="10" value="{{ $scene['seconds'] ?? 4 }}" aria-label="Scena {{ $i + 1 }}: secunde" data-scene-seconds>
     </div>
   @endforeach
+  <h2 style="margin-top:14px">Textul vocii</h2>
+  <div class="fl"><label for="voiceover">Ce spune vocea în video (numerele scrise în litere, cum se pronunță)</label><textarea id="voiceover" name="voiceover" maxlength="{{ \App\Social\VoiceStudio::MAX_TEXT }}" style="min-height:110px">{{ old('voiceover', $post->voiceover) }}</textarea></div>
   <input type="hidden" name="design" id="design" value="">
   <button class="btn btn-p" type="submit">Salvează</button>
 </form>
@@ -70,7 +72,7 @@
 @media (max-width:820px){.ed{grid-template-columns:1fr}}
 </style>
 <div id="editor" data-config="{{ json_encode([
-    'color' => $settings['color'], 'brand' => $organization->name, 'day' => $post->day->toDateString(), 'design' => $post->design,
+    'color' => $settings['color'], 'brand' => $organization->name, 'day' => $post->day->toDateString(), 'design' => $post->design, 'voice' => $post->voice_path ? route('portal.social.voice.file', [$slug, $post->id]).'?v='.$post->updated_at?->timestamp : null,
     'assets' => $assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(8)->map(fn ($a) => ['url' => route('portal.social.media.file', [$slug, $a->id]), 'title' => $a->title])->values(),
 ]) }}">
 <div class="card">
@@ -99,6 +101,30 @@
   </div>
 </div>
 
+<div class="card" id="audio">
+  <h2>Sunet: voce, muzică, efecte</h2>
+  <p class="small muted">Agentul audio citește „Textul vocii” cu o voce în limba română și îl pune peste video, cu muzica mai încet sub voce. Ascultă înregistrarea înainte: pronunția numelor proprii se corectează scriindu-le în text cum se aud.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+    @if ($post->voice_path)
+      <audio id="voice-audio" controls preload="auto" src="{{ route('portal.social.voice.file', [$slug, $post->id]) }}?v={{ $post->updated_at?->timestamp }}"></audio>
+    @endif
+    <form method="post" action="{{ route('portal.social.voice', [$slug, $post->id]) }}" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Se generează vocea…'">@csrf
+      <button class="btn{{ $post->voice_path ? '' : ' btn-p' }}" type="submit" @disabled(! \App\Social\VoiceStudio::configured() || ! $post->voiceover)>{{ $post->voice_path ? 'Generează din nou vocea' : 'Generează vocea' }}</button></form>
+    @if ($post->voice_path)<form method="post" action="{{ route('portal.social.voice.delete', [$slug, $post->id]) }}">@csrf @method('delete')<button class="btn" type="submit">Șterge vocea</button></form>@endif
+  </div>
+  @unless (\App\Social\VoiceStudio::configured())<p class="small" style="color:var(--err)">Serviciul de voce nu este configurat încă pentru platformă. Muzica și efectele merg și fără el.</p>
+  @elseif (! $post->voiceover)<p class="small muted">Scrie „Textul vocii” mai sus și salvează postarea, apoi generează vocea.</p>@endunless
+  <div class="ed-tools">
+    <div><label for="a-music">Muzică de fundal</label><select id="a-music" data-set="music"><option value="none">Fără muzică</option><option value="calm">Calmă (generată)</option><option value="bright">Luminoasă (generată)</option><option value="pulse">Ritmată (generată)</option><option value="file">Fișierul meu</option></select></div>
+    <div><label for="music">Fișier audio propriu</label><input id="music" type="file" accept="audio/*"></div>
+    <div><label for="a-mvol">Volumul muzicii</label><input id="a-mvol" type="range" min="0" max="100" data-set="musicVol"></div>
+    <div><label for="a-vvol">Volumul vocii</label><input id="a-vvol" type="range" min="0" max="100" data-set="voiceVol"></div>
+    <div><label class="chk"><input type="checkbox" data-set="whoosh"> <span>Efect sonor la schimbarea scenei</span></label><label class="chk"><input type="checkbox" data-set="fitVoice"> <span>Potrivește durata video-ului la voce</span></label></div>
+    <div><button class="btn" type="button" id="listen">Ascultă mixajul</button> <button class="btn" type="button" id="stop">Oprește</button></div>
+  </div>
+  <p class="small muted" style="margin-top:8px">Muzica „generată” este compusă pe loc de editor, deci nu are drepturi de autor ale altcuiva. Pentru un fișier propriu, folosește doar muzică pentru care ai drept de folosire.</p>
+</div>
+
 <div class="card">
   <h2>Editor video</h2>
   <p class="small muted">Video-ul se montează din scenele postării: fiecare scenă are textul ei, fotografia ei și durata ei. Alegi tranziția, mișcarea și, dacă vrei, muzica. Folosește aceleași reglaje de imagine ca editorul foto.</p>
@@ -111,7 +137,6 @@
         <div><label for="v-ratio">Format</label><select id="v-ratio" data-set="ratio"><option value="720x1280">Vertical 9:16 (TikTok, Reels)</option><option value="1080x1080">Pătrat 1:1</option><option value="1080x1350">Portret 4:5</option><option value="1280x720">Orizontal 16:9</option></select></div>
         <div><label for="v-transition">Tranziție între scene</label><select id="v-transition" data-set="transition"><option value="fade">Topire</option><option value="slide">Glisare</option><option value="zoom">Apropiere</option><option value="none">Tăietură</option></select></div>
         <div><label for="v-motion">Mișcarea fotografiei</label><select id="v-motion" data-set="motion"><option value="in">Apropiere lentă</option><option value="out">Depărtare lentă</option><option value="still">Fără mișcare</option></select></div>
-        <div><label for="music">Muzică (fișier audio, opțional)</label><input id="music" type="file" accept="audio/*"></div>
       </div>
       <p class="small" id="video-length" style="margin:12px 0 4px;font-weight:600"></p>
       <div id="scene-list"></div>

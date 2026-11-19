@@ -15,6 +15,8 @@ use App\Social\MediaLibrary;
 use App\Social\MetaError;
 use App\Social\MetaResearch;
 use App\Social\SocialPlanner;
+use App\Social\VoiceError;
+use App\Social\VoiceStudio;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -76,6 +78,7 @@ final class SocialController extends PortalController
             'caption' => ['required', 'string', 'max:2200'], 'hashtags' => ['nullable', 'string', 'max:490'], 'visual' => ['nullable', 'string', 'max:1000'],
             'scenes' => ['nullable', 'array', 'max:8'], 'scenes.*.text' => ['nullable', 'string', 'max:140'], 'scenes.*.shot' => ['nullable', 'string', 'max:300'],
             'scenes.*.seconds' => ['nullable', 'integer', 'min:2', 'max:10'],
+            'voiceover' => ['nullable', 'string', 'max:'.VoiceStudio::MAX_TEXT],
             'design' => ['nullable', 'json', 'max:3000'],
             'asset_id' => ['nullable', 'integer', Rule::exists('social_assets', 'id')->where('organization_id', $this->organization()->id)],
         ]);
@@ -114,6 +117,7 @@ final class SocialController extends PortalController
     {
         $model = SocialPost::query()->findOrFail($post);
         $week = SocialPlanner::monday($model->day->toDateString())->toDateString();
+        app(VoiceStudio::class)->forget($model);
         $model->delete();
 
         return $this->to('portal.social', ['s' => $week], 'Postarea a fost ștearsă.');
@@ -125,13 +129,13 @@ final class SocialController extends PortalController
             'platforms' => ['required', 'array', 'min:1'], 'platforms.*' => [Rule::in(array_keys(SocialPlanner::PLATFORMS))],
             'days' => ['required', 'array', 'min:1'], 'days.*' => ['integer', 'between:1,7'],
             'tone' => ['nullable', 'string', 'max:300'], 'topics' => ['nullable', 'string', 'max:600'], 'avoid' => ['nullable', 'string', 'max:400'],
-            'cta' => ['nullable', 'string', 'max:200'], 'color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'cta' => ['nullable', 'string', 'max:200'], 'voice' => ['nullable', 'regex:/^[A-Za-z0-9]{10,40}$/'], 'color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
         ], ['platforms.required' => 'Alege cel puțin o rețea.', 'days.required' => 'Alege cel puțin o zi.']);
         $organization = $this->organization();
         $organization->forceFill(['social' => [
             'platforms' => array_values($data['platforms']), 'days' => array_values(array_unique(array_map('intval', $data['days']))),
             'tone' => trim((string) ($data['tone'] ?? '')), 'topics' => trim((string) ($data['topics'] ?? '')), 'avoid' => trim((string) ($data['avoid'] ?? '')),
-            'cta' => trim((string) ($data['cta'] ?? '')), 'color' => strtolower($data['color']),
+            'cta' => trim((string) ($data['cta'] ?? '')), 'voice' => (string) ($data['voice'] ?? ''), 'color' => strtolower($data['color']),
             'auto' => $request->boolean('auto'), 'remind' => $request->boolean('remind'),
         ]])->save();
         $audit->record('social.settings', $organization);
@@ -223,5 +227,36 @@ final class SocialController extends PortalController
         }
 
         return $this->to('portal.social.media', [], "Am citit pagina: {$result['posts']} postări noi și {$result['images']} fotografii noi.");
+    }
+
+    /** Agentul audio: generează vocea postării din textul vocii. */
+    public function voice(VoiceStudio $studio, AuditLogger $audit, int $post): RedirectResponse
+    {
+        $model = SocialPost::query()->findOrFail($post);
+        $voice = SocialPlanner::settings($this->organization())['voice'] ?: VoiceStudio::defaultVoice();
+        try {
+            $studio->speak($model, $voice);
+        } catch (VoiceError $e) {
+            return $this->to('portal.social.show', ['post' => $model->id])->with('error', $e->getMessage());
+        }
+        $audit->record('social.voice', $model, ['chars' => mb_strlen((string) $model->voiceover)]);
+
+        return $this->to('portal.social.show', ['post' => $model->id], 'Vocea a fost generată. Ascult-o înainte să creezi video-ul.');
+    }
+
+    public function voiceFile(int $post): StreamedResponse
+    {
+        $model = SocialPost::query()->findOrFail($post);
+        abort_unless($model->voice_path && Storage::disk('local')->exists($model->voice_path), 404);
+
+        return Storage::disk('local')->response($model->voice_path, null, ['Content-Type' => 'audio/mpeg', 'Cache-Control' => 'private, max-age=3600', 'X-Content-Type-Options' => 'nosniff']);
+    }
+
+    public function voiceDelete(VoiceStudio $studio, int $post): RedirectResponse
+    {
+        $model = SocialPost::query()->findOrFail($post);
+        $studio->forget($model);
+
+        return $this->to('portal.social.show', ['post' => $model->id], 'Vocea a fost ștearsă.');
     }
 }

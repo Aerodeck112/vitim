@@ -16,6 +16,7 @@ use App\Models\SitePage;
 use App\Models\SocialAsset;
 use App\Models\SocialPost;
 use App\Social\SocialPlanner;
+use App\Social\VoiceStudio;
 use App\Tenancy\TenantContext;
 use Illuminate\Support\Collection;
 
@@ -125,6 +126,19 @@ final class Office
                 $drafts > 0 => "{$drafts} postări așteaptă aprobarea ta.", $posts->isNotEmpty() => 'Planul săptămânii este aprobat.', $social['auto'] => 'Scrie planul duminică.', default => 'Niciun plan săptămâna aceasta.'
             },
             'facts' => [$posts->where('status', 'published')->count().' publicate săptămâna aceasta', SocialAsset::query()->count().' fotografii în materiale'], 'url' => route('portal.social', $slug)];
+
+        // --- audio
+        $voiced = $posts->filter(fn (SocialPost $p) => $p->voice_path !== null)->count();
+        $toVoice = $posts->filter(fn (SocialPost $p) => $p->voice_path === null && trim((string) $p->voiceover) !== '' && $p->status !== 'skipped')->count();
+        $voiceOn = VoiceStudio::configured();
+        $desks[] = ['key' => 'audio', 'zone' => 'marketing', 'name' => 'Seniorul audio', 'role' => 'Vocea în română, muzica și sunetul din video',
+            'state' => match (true) {
+                ! $voiceOn => 'off', $toVoice > 0 => 'needs', $voiced > 0 => 'working', default => 'idle'
+            },
+            'line' => match (true) {
+                ! $voiceOn => 'Serviciul de voce nu este configurat.', $toVoice > 0 => "{$toVoice} postări au text de voce, fără înregistrare.", $voiced > 0 => 'Vocile săptămânii sunt înregistrate.', default => 'Nimic de înregistrat acum.'
+            },
+            'facts' => ["{$voiced} voci înregistrate săptămâna aceasta"], 'url' => route('portal.social', $slug)];
 
         // --- campanii și automatizări
         $sending = Campaign::query()->whereIn('status', ['sending', 'scheduled'])->count();

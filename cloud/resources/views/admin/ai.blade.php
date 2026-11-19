@@ -56,6 +56,27 @@
     @endif
   </section>
 
+  <section class="card" aria-labelledby="v-h">
+    <h2 id="v-h">Vocea (agentul audio)</h2>
+    <p class="small muted">Agentul audio generează vocea postărilor în limba română prin serviciul ElevenLabs. Cheia este a platformei, se salvează criptat și nu se afișează înapoi. Fiecare firmă are un plafon de {{ number_format(\App\Social\VoiceStudio::MONTHLY_CHARS, 0, ',', '.') }} de caractere pe lună.</p>
+    <p><span class="badge {{ \App\Social\VoiceStudio::configured() ? 'ok' : 'warn' }}">{{ \App\Social\VoiceStudio::configured() ? 'configurată' : 'neconfigurată' }}</span>
+      @if (\App\Social\VoiceStudio::configured()) vocea implicită: <span class="mono">{{ \App\Social\VoiceStudio::defaultVoice() }}</span>@endif</p>
+    <form method="post" action="{{ route('admin.voice.key') }}" class="ai-form" autocomplete="off">
+      @csrf @method('put')
+      <div class="fl"><label for="voice_key">Cheia API a serviciului de voce</label><input id="voice_key" type="password" name="voice_key" required autocomplete="off" spellcheck="false" class="mono">@error('voice_key')<div class="err">{{ $message }}</div>@enderror</div>
+      <div class="fl"><label for="voice_default">ID-ul vocii implicite (o voce care vorbește bine românește)</label><input id="voice_default" type="text" name="voice_default" required value="{{ old('voice_default', \App\Social\VoiceStudio::defaultVoice()) }}" class="mono">@error('voice_default')<div class="err">{{ $message }}</div>@enderror</div>
+      <div class="fl"><label for="voice_password">Parola contului tău (confirmare)</label><input id="voice_password" type="password" name="password" required autocomplete="current-password"></div>
+      <button class="btn btn-p" type="submit">Salvează</button>
+    </form>
+    @if (\App\Social\VoiceStudio::configured())
+    <details class="ai-danger"><summary>Șterge cheia de voce</summary>
+      <form method="post" action="{{ route('admin.voice.key.clear') }}">@csrf @method('delete')
+        <div class="fl"><label for="voice_password2">Parola contului tău</label><input id="voice_password2" type="password" name="password" required autocomplete="current-password"></div>
+        <button class="btn btn-danger" type="submit">Șterge cheia</button></form>
+    </details>
+    @endif
+  </section>
+
   <section class="card ai-help" aria-labelledby="h-h">
     <h2 id="h-h">Cum funcționează</h2>
     <ul class="ai-steps">

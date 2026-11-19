@@ -70,6 +70,10 @@
     <div class="fl"><label for="avoid">De evitat</label><textarea id="avoid" name="avoid" maxlength="400" placeholder="ex. prețuri, comparații cu alte firme">{{ old('avoid', $settings['avoid']) }}</textarea></div>
   </div>
   <div class="fl"><label for="color">Culoarea firmei pe imagini și video</label><input id="color" type="color" name="color" value="{{ old('color', $settings['color']) }}" style="width:70px;height:38px;padding:2px"></div>
+  @php($voices = \App\Social\VoiceStudio::voices())
+  @if ($voices)
+  <div class="fl"><label for="voice">Vocea pentru video</label><select id="voice" name="voice"><option value="">vocea implicită a platformei</option>@foreach ($voices as $id => $name)<option value="{{ $id }}" @selected($settings['voice'] === $id)>{{ $name }}</option>@endforeach</select></div>
+  @endif
   <label class="chk"><input type="checkbox" name="auto" value="1" @checked($settings['auto'])> <span><strong>Scrie singur planul săptămânii următoare</strong>, în fiecare duminică după-amiază. Postările rămân ciorne până le aprobi.</span></label>
   <label class="chk"><input type="checkbox" name="remind" value="1" @checked($settings['remind'])> <span><strong>Trimite-mi dimineața postarea zilei pe email</strong> (proprietarului și administratorilor firmei), cu textul gata de copiat.</span></label>
   <p class="small muted">Agentul folosește profilul public al firmei, informațiile date asistentului de pe site și paginile citite din site. Cu cât acestea sunt mai complete, cu atât postările sunt mai bune.</p>

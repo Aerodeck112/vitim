@@ -42,7 +42,7 @@ final class OfficeTest extends TestCase
     public function test_each_agent_shows_its_real_state(): void
     {
         [$org, $owner, $site] = $this->firm('Podreg', 'podreg.ro');
-        $this->assertSame(['chat' => 'working', 'knowledge' => 'idle', 'seo' => 'working', 'security' => 'working', 'backup' => 'off', 'social' => 'off', 'marketing' => 'idle'], $this->states($org));
+        $this->assertSame(['chat' => 'working', 'knowledge' => 'idle', 'seo' => 'working', 'security' => 'working', 'backup' => 'off', 'social' => 'off', 'audio' => 'off', 'marketing' => 'idle'], $this->states($org));
 
         $this->tenant()->runAs($org, function () use ($site): void {
             SiteIssue::create(['site_id' => $site->id, 'code' => 'plugin_update:x/x.php', 'category' => 'updates', 'source' => 'plugin', 'severity' => 'warning', 'title' => 'Plugin de actualizat', 'status' => 'open', 'first_seen_at' => now(), 'last_seen_at' => now()]);
