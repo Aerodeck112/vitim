@@ -47,8 +47,8 @@ final class MediaLibrary
             if ($html === null || $html['status'] !== 200) {
                 continue;
             }
-            foreach (self::imagesIn($html['body'], $fetcher, $html['url']) as $src) {
-                $candidates[$src] ??= (string) $page->title;
+            foreach (self::imagesIn($html['body'], $fetcher, $html['url']) as $src => $alt) {
+                $candidates[$src] ??= $alt !== '' ? $alt : (string) $page->title;
             }
         }
         $added = 0;
@@ -126,20 +126,24 @@ final class MediaLibrary
             'title' => $title !== null && trim($title) !== '' ? Str::limit(trim($title), 290, '') : null, 'width' => $info[0], 'height' => $info[1], 'bytes' => $size]);
     }
 
-    /** @return list<string> adresele pozelor mari dintr-o pagină: og:image și imaginile din conținut (fără logo-uri și iconițe) */
+    /**
+     * Fotografiile din conținutul unei pagini, cu descrierea lor (textul alternativ). Fără logo-uri, iconițe și
+     * cartonașele generate pentru distribuire (og:image), care sunt text pe fundal, nu fotografii.
+     *
+     * @return array<string, string> adresă => descriere
+     */
     private static function imagesIn(string $html, SafeFetcher $fetcher, string $base): array
     {
         $found = [];
-        if (preg_match('/<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)/i', $html, $m)) {
-            $found[] = $m[1];
-        }
-        preg_match_all('/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $html, $all, PREG_SET_ORDER);
-        foreach ($all as $img) {
-            if (! preg_match('/logo|icon|sprite|avatar|placeholder|\.svg|\.gif|data:/i', $img[0])) {
-                $found[] = $img[1];
+        preg_match_all('/<img\b[^>]*>/i', $html, $all);
+        foreach ($all[0] as $tag) {
+            if (preg_match('/logo|icon|sprite|avatar|placeholder|\.svg|\.gif|data:/i', $tag) || ! preg_match('/\bsrc=["\']([^"\']+)["\']/i', $tag, $src)) {
+                continue;
             }
+            $alt = preg_match('/\balt=["\']([^"\']*)["\']/i', $tag, $m) ? trim(html_entity_decode($m[1])) : '';
+            $found[$fetcher->absolute($base, html_entity_decode($src[1]))] ??= $alt;
         }
 
-        return array_slice(array_values(array_unique(array_map(fn (string $src) => $fetcher->absolute($base, html_entity_decode($src)), $found))), 0, 8);
+        return array_slice($found, 0, 8, true);
     }
 }

@@ -1,5 +1,9 @@
 # VITIM AI Cloud — versiuni
 
+## 0.32.1 — fotografii mai potrivite din site
+
+- Agentul de social media ia din site doar fotografiile din conținut și le reține descrierea, ca să aleagă mai bine fotografia fiecărei postări. Cartonașele de text generate pentru distribuire nu mai sunt luate drept fotografii.
+
 ## 0.32.0 — biroul cu agenți
 
 - Pagină nouă: **Birou**. Fiecare agent al platformei are biroul lui și răspunde de un singur lucru: asistentul de pe site, documentaristul (citește site-ul), specialistul SEO, paznicul (securitate și actualizări), arhivarul (backup), agentul de social media și curierul (campanii și mesaje automate).

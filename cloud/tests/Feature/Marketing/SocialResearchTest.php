@@ -63,8 +63,8 @@ final class SocialResearchTest extends TestCase
             'title' => 'Cabane din lemn', 'content' => 'x', 'kind' => 'page', 'status' => 'ok', 'run' => 1]));
         $big = self::photo();
         Http::fake(fn (Request $r) => match ($r->url()) {
-            'https://podreg.ro/cabane' => Http::response('<html><head><meta property="og:image" content="https://podreg.ro/img/cabana.jpg"></head><body>'
-                .'<img src="/img/logo.png"><img src="/img/mica.jpg"><img src="https://alt-site.ro/poza.jpg"><img src="/img/cabana.jpg"></body></html>', 200, ['Content-Type' => 'text/html']),
+            'https://podreg.ro/cabane' => Http::response('<html><head><meta property="og:image" content="https://podreg.ro/og/cabane.png"></head><body>'
+                .'<img src="/img/logo.png"><img src="/img/mica.jpg"><img src="https://alt-site.ro/poza.jpg"><img src="/img/cabana.jpg" alt="Cabană de 60 mp la Sovata"></body></html>', 200, ['Content-Type' => 'text/html']),
             'https://podreg.ro/img/cabana.jpg' => Http::response($big, 200, ['Content-Type' => 'image/jpeg']),
             'https://podreg.ro/img/mica.jpg' => Http::response(self::photo(200, 200), 200, ['Content-Type' => 'image/jpeg']),
             default => Http::response('nu', 404),
@@ -73,7 +73,8 @@ final class SocialResearchTest extends TestCase
         $this->actingAs($owner)->post("/app/{$org->slug}/social/materiale/site", ['site' => $site->id])->assertSessionHas('ok', 'Am adăugat 1 fotografii din podreg.ro.');
         Http::assertNotSent(fn (Request $r) => str_contains($r->url(), 'alt-site.ro'));
         $asset = $this->tenant()->runAs($org, fn () => SocialAsset::query()->sole());
-        $this->assertSame(['site', 'Cabane din lemn', 900], [$asset->source, $asset->title, $asset->width]);
+        Http::assertNotSent(fn (Request $r) => str_contains($r->url(), '/og/'));
+        $this->assertSame(['site', 'Cabană de 60 mp la Sovata', 900], [$asset->source, $asset->title, $asset->width]);
         $this->get("/app/{$org->slug}/social/materiale")->assertOk()->assertSee('din site');
         $this->get("/app/{$org->slug}/social/materiale/{$asset->id}/fisier")->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
 
