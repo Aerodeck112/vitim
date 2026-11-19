@@ -1,5 +1,14 @@
 # VITIM AI Cloud — versiuni
 
+## 0.32.0 — biroul cu agenți
+
+- Pagină nouă: **Birou**. Fiecare agent al platformei are biroul lui și răspunde de un singur lucru: asistentul de pe site, documentaristul (citește site-ul), specialistul SEO, paznicul (securitate și actualizări), arhivarul (backup), agentul de social media și curierul (campanii și mesaje automate).
+- La fiecare vezi pe loc starea: lucrează, te așteaptă pe tine, are o problemă, e în așteptare sau e oprit, cu un rând despre ce face acum și un buton spre locul unde rezolvi.
+
+**Actualizare:**
+- **Birou (Admin):** aceiași agenți, văzuți peste toți clienții, cu firmele la care fiecare are o problemă sau așteaptă un om, plus biroul agentului de monitorizare. Din fiecare firmă ajungi direct în biroul ei.
+- Stările se calculează din datele existente ale panoului; pagina nu pornește și nu oprește nimic.
+
 ## 0.31.0 — agentul de social media cercetează firma
 
 - **Materiale și cercetare** (în Social media): agentul strânge singur fotografiile firmei din site și din pagina ei de Facebook / Instagram; poți încărca și fotografii de pe dispozitiv.

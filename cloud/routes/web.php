@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MonitorController;
+use App\Http\Controllers\Admin\OfficeController as AdminOfficeController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SiteController;
@@ -116,6 +117,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/noutati/{announcement}/trimite', [AnnouncementController::class, 'send'])->whereNumber('announcement')->name('announcements.send');
         Route::post('/noutati/{announcement}/opreste', [AnnouncementController::class, 'cancel'])->whereNumber('announcement')->name('announcements.cancel');
         Route::delete('/noutati/{announcement}', [AnnouncementController::class, 'destroy'])->whereNumber('announcement')->name('announcements.destroy');
+        Route::get('/birou', AdminOfficeController::class)->name('office');
         Route::get('/monitorizare', [MonitorController::class, 'show'])->name('monitor');
         Route::put('/monitorizare', [MonitorController::class, 'settings'])->name('monitor.settings');
         Route::post('/monitorizare/actualizari', [MonitorController::class, 'updates'])->name('monitor.updates');
@@ -153,6 +155,7 @@ Route::middleware(['auth', '2fa'])->group(function () {
     Route::prefix('app/{organization}')->name('portal.')->middleware('org')->group(function () {
         $id = '[0-9]+';
         Route::get('/', [Portal\OverviewController::class, 'show'])->middleware('can:view_reports')->name('home');
+        Route::get('/birou', Portal\OfficeController::class)->middleware('can:view_reports')->name('office');
         Route::get('/acum', Portal\LiveController::class)->middleware('throttle:60,1')->name('live');
         Route::get('/in-curand/{section}', [Portal\OverviewController::class, 'upcoming'])->middleware('can:view_reports')->name('upcoming');
 

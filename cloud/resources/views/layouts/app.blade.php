@@ -19,6 +19,7 @@
     @if ($user->isPlatformStaff())
       <div class="grp">Echipa VITIM</div>
       <a href="{{ route('admin.organizations.index') }}" @class(['on' => request()->routeIs('admin.organizations.index', 'admin.organizations.create')])>Prezentare</a>
+      <a href="{{ route('admin.office') }}" @class(['on' => request()->routeIs('admin.office')])>Birou</a>
       @php($monitorLast = (array) \App\Models\PlatformSetting::get('monitor.last', []))
       <a href="{{ route('admin.monitor') }}" @class(['on' => request()->routeIs('admin.monitor*')])>Monitorizare @if (($monitorLast['critical'] ?? 0) > 0)<span class="badge err">{{ $monitorLast['critical'] }}</span>@endif</a>
       <a href="{{ route('admin.sites.index') }}" @class(['on' => request()->routeIs('admin.sites.*')])>Site-uri</a>
@@ -37,6 +38,7 @@
         <a href="{{ route('admin.reports.index', $slug) }}" @class(['on' => request()->routeIs('admin.reports.*')])>Servicii și rapoarte</a>
       @endif
       <a href="{{ route('portal.home', $slug) }}" @class(['on' => request()->routeIs('portal.home')])>Prezentare</a>
+      <a href="{{ route('portal.office', $slug) }}" @class(['on' => request()->routeIs('portal.office')])>Birou</a>
       <a href="{{ route('portal.worklogs', $slug) }}" @class(['on' => request()->routeIs('portal.worklogs')])>Lucrări VITIM</a>
       <a href="{{ route('portal.reports.index', $slug) }}" @class(['on' => request()->routeIs('portal.reports.*')])>Rapoarte lunare</a>
       <a href="{{ route('portal.news', $slug) }}" @class(['on' => request()->routeIs('portal.news*')])>Noutăți VITIM</a>
