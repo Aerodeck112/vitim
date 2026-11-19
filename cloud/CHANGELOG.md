@@ -1,5 +1,15 @@
 # VITIM AI Cloud — versiuni
 
+## 0.33.0 — plan de birou, editor foto și editor video
+
+- **Birou:** deasupra listei apare planul biroului, văzut de sus: câte o cameră pe zonă și câte o masă pe agent. Culoarea agentului arată starea (lucrează, te așteaptă, are o problemă, în așteptare, oprit), iar un click pe masă te duce unde rezolvi.
+- **Editor foto** (în pagina fiecărei postări): tragi de fotografie ca să o încadrezi, alegi formatul (portret, pătrat, vertical, orizontal), mărirea, poziția și mărimea textului, umbra de sub text, luminozitatea, contrastul, saturația și culoarea. Opțiunea „Întreagă, pe fundal” păstrează toată fotografia, potrivită pentru capturi de site.
+- **Editor video:** fiecare scenă are textul, fotografia și durata ei. Alegi formatul (9:16, 1:1, 4:5, 16:9), tranziția între scene (topire, glisare, apropiere, tăietură), mișcarea fotografiei și poți adăuga muzică dintr-un fișier al tău. Video-ul se descarcă gata de urcat.
+- Aranjamentul fiecărei postări se păstrează la salvare.
+
+**Actualizare:**
+- Editoarele lucrează în browser; pe server nu se procesează imagini sau video. Formatul video (MP4 sau WebM) depinde de browserul folosit.
+
 ## 0.32.1 — fotografii mai potrivite din site
 
 - Agentul de social media ia din site doar fotografiile din conținut și le reține descrierea, ca să aleagă mai bine fotografia fiecărei postări. Cartonașele de text generate pentru distribuire nu mai sunt luate drept fotografii.

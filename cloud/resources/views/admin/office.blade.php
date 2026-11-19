@@ -4,6 +4,10 @@
 @include('partials.office-style')
 <div class="head"><div><h1>Biroul VITIM AI</h1><p>Agenții platformei, văzuți peste toți clienții. Fiecare răspunde de un singur lucru; sub fiecare apar firmele la care are o problemă sau așteaptă un om.</p></div>
   <a class="btn" href="{{ route('admin.monitor') }}">Monitorizare</a></div>
+@php($mPlan = ! $monitorOn ? 'off' : (($monitor['critical'] ?? 0) > 0 ? 'problem' : 'working'))
+@include('partials.office-plan', ['rooms' => ['Echipa VITIM' => [['name' => 'Agentul de monitorizare', 'state' => $mPlan, 'url' => route('admin.monitor'), 'note' => 'Urmărește toți clienții']]]
+    + collect(\App\Office\Office::ZONES)->mapWithKeys(fn ($label, $zone) => [$label => collect($agents)->where('zone', $zone)
+        ->map(fn ($a) => ['name' => $a['name'], 'state' => $a['state'], 'url' => null, 'note' => count($a['attention']).' firme cer atenție'])->values()->all()])->filter()->all()])
 <div class="office">
   <section class="zone" aria-label="Echipa VITIM">
     <h2>Echipa VITIM</h2>

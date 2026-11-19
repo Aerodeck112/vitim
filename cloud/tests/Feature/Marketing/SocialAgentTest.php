@@ -76,10 +76,11 @@ final class SocialAgentTest extends TestCase
 
         // omul corectează, aprobă și marchează publicarea
         $this->put("{$base}/postari/{$first->id}", ['day' => $first->day->toDateString(), 'topic' => 'Cabane', 'hook' => 'Cabana ta, la cheie', 'caption' => 'Text corectat.',
-            'hashtags' => '#cabane', 'scenes' => [['text' => 'O scenă', 'shot' => '', 'seconds' => 4], ['text' => '', 'shot' => 'x', 'seconds' => 4]]])->assertSessionHas('ok');
+            'hashtags' => '#cabane', 'design' => '{"fit":"contain","zoom":120}', 'scenes' => [['text' => 'O scenă', 'shot' => '', 'seconds' => 4], ['text' => '', 'shot' => 'x', 'seconds' => 4]]])->assertSessionHas('ok');
         $this->post("{$base}/postari/{$first->id}/stare", ['status' => 'approved'])->assertSessionHas('ok');
-        $this->get("{$base}/postari/{$first->id}")->assertOk()->assertSee('Cabana ta, la cheie')->assertSee('Atelier: imagine și video')->assertSee('Am publicat-o');
+        $this->get("{$base}/postari/{$first->id}")->assertOk()->assertSee('Cabana ta, la cheie')->assertSee('Editor foto')->assertSee('Editor video')->assertSee('Am publicat-o');
         $this->assertCount(1, $first->fresh()->scenes);
+        $this->assertSame(['fit' => 'contain', 'zoom' => 120], $first->fresh()->design);
 
         // rescrierea săptămânii nu atinge postarea aprobată
         $ai2 = new FakeAiClient([$this->answer($this->week($monday), 'Varianta nouă')]);

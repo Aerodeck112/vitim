@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /** Postarea unei zile din planul de social media: text, hashtaguri, ideea vizuală și scenariul video scurt. */
-#[Fillable(['day', 'topic', 'hook', 'caption', 'hashtags', 'visual', 'scenes', 'asset_id', 'status', 'source', 'reminded_at', 'published_at'])]
+#[Fillable(['day', 'topic', 'hook', 'caption', 'hashtags', 'visual', 'scenes', 'asset_id', 'design', 'status', 'source', 'reminded_at', 'published_at'])]
 class SocialPost extends Model
 {
     use BelongsToOrganization;
@@ -19,7 +19,7 @@ class SocialPost extends Model
 
     protected function casts(): array
     {
-        return ['day' => 'date', 'scenes' => 'array', 'reminded_at' => 'datetime', 'published_at' => 'datetime'];
+        return ['day' => 'date', 'scenes' => 'array', 'design' => 'array', 'reminded_at' => 'datetime', 'published_at' => 'datetime'];
     }
 
     /**

@@ -76,10 +76,12 @@ final class SocialController extends PortalController
             'caption' => ['required', 'string', 'max:2200'], 'hashtags' => ['nullable', 'string', 'max:490'], 'visual' => ['nullable', 'string', 'max:1000'],
             'scenes' => ['nullable', 'array', 'max:8'], 'scenes.*.text' => ['nullable', 'string', 'max:140'], 'scenes.*.shot' => ['nullable', 'string', 'max:300'],
             'scenes.*.seconds' => ['nullable', 'integer', 'min:2', 'max:10'],
+            'design' => ['nullable', 'json', 'max:3000'],
             'asset_id' => ['nullable', 'integer', Rule::exists('social_assets', 'id')->where('organization_id', $this->organization()->id)],
         ]);
         $data['scenes'] = array_values(array_map(fn (array $s) => ['text' => trim((string) $s['text']), 'shot' => trim((string) ($s['shot'] ?? '')), 'seconds' => (int) ($s['seconds'] ?? 4)],
             array_filter($data['scenes'] ?? [], fn ($s) => trim((string) ($s['text'] ?? '')) !== '')));
+        $data['design'] = isset($data['design']) ? array_filter((array) json_decode($data['design'], true), fn ($v) => is_scalar($v) || is_array($v)) : $model->design;
         $model->fill($data)->save();
 
         return $this->to('portal.social.show', ['post' => $model->id], 'Postarea a fost salvată.');

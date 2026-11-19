@@ -46,6 +46,7 @@
       <input type="number" name="scenes[{{ $i }}][seconds]" min="2" max="10" value="{{ $scene['seconds'] ?? 4 }}" aria-label="Scena {{ $i + 1 }}: secunde" data-scene-seconds>
     </div>
   @endforeach
+  <input type="hidden" name="design" id="design" value="">
   <button class="btn btn-p" type="submit">Salvează</button>
 </form>
 
@@ -57,119 +58,70 @@
   <p class="small muted" style="margin:8px 0 0">Rescrierea înlocuiește textul de mai sus și duce postarea înapoi la ciornă.</p>
 </div>
 
-<div class="card" id="atelier">
-  <h2>Atelier: imagine și video</h2>
-  <p class="small muted">Atelierul pornește de la fotografia aleasă mai sus și de la celelalte materiale ale firmei; poți alege și fotografii de pe dispozitivul tău (acelea nu se încarcă în platformă). Atelierul pune titlul peste fotografie, în culoarea firmei, și montează un video vertical din scenele de mai sus (câte o fotografie pe scenă, cu textul scenei).</p>
-  <div class="row">
-    <div class="fl"><label for="photos">Fotografii (una sau mai multe)</label><input id="photos" type="file" accept="image/*" multiple></div>
-    <div class="fl"><label for="shape">Format imagine</label><select id="shape"><option value="1080x1350">Portret 4:5 (Instagram, Facebook)</option><option value="1080x1080">Pătrat 1:1</option><option value="1080x1920">Vertical 9:16 (story)</option></select></div>
+<style>
+.ed{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:18px;align-items:start}
+.ed canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--border);display:block;touch-action:none}
+.ed #image{cursor:grab}
+.ed-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 14px}
+.ed-tools label{display:block;font-size:12.5px;font-weight:600;margin-bottom:3px}
+.ed-tools input[type=range]{width:100%}
+.scene-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+.scene-row select{max-width:230px}
+@media (max-width:820px){.ed{grid-template-columns:1fr}}
+</style>
+<div id="editor" data-config="{{ json_encode([
+    'color' => $settings['color'], 'brand' => $organization->name, 'day' => $post->day->toDateString(), 'design' => $post->design,
+    'assets' => $assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(8)->map(fn ($a) => ['url' => route('portal.social.media.file', [$slug, $a->id]), 'title' => $a->title])->values(),
+]) }}">
+<div class="card">
+  <h2>Editor foto</h2>
+  <p class="small muted">Pornește de la fotografia postării. Trage de imagine ca să o încadrezi. „Întreagă, pe fundal” păstrează toată fotografia (bun pentru capturi de site). Poți adăuga și fotografii de pe dispozitiv; acelea nu se încarcă în platformă.</p>
+  <div class="ed">
+    <div><canvas id="image" width="1080" height="1350" aria-label="Previzualizarea imaginii"></canvas>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-p" type="button" id="save-image">Descarcă imaginea</button><button class="btn" type="button" id="reset">Revino la început</button></div></div>
+    <div>
+      <div class="ed-tools">
+        <div><label for="photos">Fotografii de pe dispozitiv</label><input id="photos" type="file" accept="image/*" multiple></div>
+        <div><label for="e-shape">Format</label><select id="e-shape" data-set="shape"><option value="1080x1350">Portret 4:5</option><option value="1080x1080">Pătrat 1:1</option><option value="1080x1920">Vertical 9:16</option><option value="1200x630">Orizontal (link)</option></select></div>
+        <div><label for="e-fit">Încadrare</label><select id="e-fit" data-set="fit"><option value="cover">Umple imaginea</option><option value="contain">Întreagă, pe fundal</option></select></div>
+        <div><label for="e-pos">Poziția textului</label><select id="e-pos" data-set="pos"><option value="bottom">Jos</option><option value="center">Centru</option><option value="top">Sus</option></select></div>
+        <div><label for="e-zoom">Mărire</label><input id="e-zoom" type="range" min="60" max="250" data-set="zoom"></div>
+        <div><label for="e-size">Mărimea textului</label><input id="e-size" type="range" min="60" max="160" data-set="size"></div>
+        <div><label for="e-dark">Umbra de sub text</label><input id="e-dark" type="range" min="0" max="95" data-set="dark"></div>
+        <div><label for="e-bright">Luminozitate</label><input id="e-bright" type="range" min="50" max="150" data-set="bright"></div>
+        <div><label for="e-contrast">Contrast</label><input id="e-contrast" type="range" min="50" max="150" data-set="contrast"></div>
+        <div><label for="e-sat">Saturație</label><input id="e-sat" type="range" min="0" max="200" data-set="sat"></div>
+        <div><label for="e-color">Culoare</label><input id="e-color" type="color" data-set="color" style="width:60px;height:34px;padding:2px"></div>
+        <div><label class="chk"><input type="checkbox" data-set="brand"> <span>Numele firmei</span></label><label class="chk"><input type="checkbox" data-set="bar"> <span>Linia de accent</span></label></div>
+      </div>
+      <p class="small muted" style="margin-top:10px">Textul de pe imagine este „Titlul de pe imagine” de mai sus. Aranjamentul se păstrează când apeși „Salvează” la postare.</p>
+    </div>
   </div>
-  <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
-    <div><canvas id="image" width="1080" height="1350" style="width:260px;height:auto;border-radius:10px;border:1px solid var(--border)"></canvas>
-      <div style="margin-top:8px"><button class="btn" type="button" id="save-image">Descarcă imaginea</button></div></div>
-    <div><canvas id="video" width="720" height="1280" style="width:200px;height:auto;border-radius:10px;border:1px solid var(--border)"></canvas>
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="play">Previzualizează</button><button class="btn" type="button" id="record">Creează video</button></div>
-      <p class="small muted" id="video-note" style="margin:6px 0 0;max-width:260px"></p></div>
+</div>
+
+<div class="card">
+  <h2>Editor video</h2>
+  <p class="small muted">Video-ul se montează din scenele postării: fiecare scenă are textul ei, fotografia ei și durata ei. Alegi tranziția, mișcarea și, dacă vrei, muzica. Folosește aceleași reglaje de imagine ca editorul foto.</p>
+  <div class="ed">
+    <div><canvas id="video" width="720" height="1280" aria-label="Previzualizarea video-ului"></canvas>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="play">Previzualizează</button><button class="btn btn-p" type="button" id="record">Creează video</button></div>
+      <p class="small muted" id="video-note" style="margin:6px 0 0" role="status"></p></div>
+    <div>
+      <div class="ed-tools">
+        <div><label for="v-ratio">Format</label><select id="v-ratio" data-set="ratio"><option value="720x1280">Vertical 9:16 (TikTok, Reels)</option><option value="1080x1080">Pătrat 1:1</option><option value="1080x1350">Portret 4:5</option><option value="1280x720">Orizontal 16:9</option></select></div>
+        <div><label for="v-transition">Tranziție între scene</label><select id="v-transition" data-set="transition"><option value="fade">Topire</option><option value="slide">Glisare</option><option value="zoom">Apropiere</option><option value="none">Tăietură</option></select></div>
+        <div><label for="v-motion">Mișcarea fotografiei</label><select id="v-motion" data-set="motion"><option value="in">Apropiere lentă</option><option value="out">Depărtare lentă</option><option value="still">Fără mișcare</option></select></div>
+        <div><label for="music">Muzică (fișier audio, opțional)</label><input id="music" type="file" accept="audio/*"></div>
+      </div>
+      <p class="small" id="video-length" style="margin:12px 0 4px;font-weight:600"></p>
+      <div id="scene-list"></div>
+      <p class="small muted" style="margin-top:8px">Textele și duratele scenelor se schimbă în „Scenariul video” de mai sus.</p>
+    </div>
   </div>
+</div>
 </div>
 
 <form method="post" action="{{ route('portal.social.destroy', [$slug, $post->id]) }}" onsubmit="return confirm('Ștergi această postare?')">@csrf @method('delete')<button class="btn btn-s" type="submit">Șterge postarea</button></form>
 
-<script>
-(function () {
-  var color = @json($settings['color']), brand = @json($organization->name);
-  var $ = function (id) { return document.getElementById(id); };
-  var photos = [];
-  $('copy').addEventListener('click', function () {
-    navigator.clipboard.writeText(($('caption').value + '\n\n' + $('hashtags').value).trim()).then(function () { $('copy').textContent = 'Copiat'; setTimeout(function () { $('copy').textContent = 'Copiază textul'; }, 1500); });
-  });
-
-  function wrap(ctx, text, max) {
-    var words = String(text).split(/\s+/), lines = [], line = '';
-    words.forEach(function (w) { var t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > max && line) { lines.push(line); line = w; } else { line = t; } });
-    if (line) { lines.push(line); }
-    return lines;
-  }
-  // desenează un cadru: fotografia (sau culoarea firmei), o bandă întunecată jos și textul; zoom = mișcare lentă pe video
-  function frame(canvas, photo, text, zoom, alpha) {
-    var ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
-    ctx.globalAlpha = 1; ctx.fillStyle = color; ctx.fillRect(0, 0, W, H);
-    if (photo) {
-      var s = Math.max(W / photo.width, H / photo.height) * (zoom || 1), w = photo.width * s, h = photo.height * s;
-      ctx.drawImage(photo, (W - w) / 2, (H - h) / 2, w, h);
-      var g = ctx.createLinearGradient(0, H * 0.45, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.78)');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    }
-    ctx.globalAlpha = alpha === undefined ? 1 : alpha;
-    var size = Math.round(W * 0.072);
-    ctx.font = '700 ' + size + 'px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
-    ctx.fillStyle = '#fff'; ctx.textBaseline = 'alphabetic'; ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = size / 3;
-    var lines = wrap(ctx, text, W * 0.84), y = H - H * 0.11 - (lines.length - 1) * size * 1.2;
-    lines.forEach(function (l, i) { ctx.fillText(l, W * 0.08, y + i * size * 1.2); });
-    ctx.shadowBlur = 0;
-    ctx.font = '600 ' + Math.round(size * 0.42) + 'px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
-    ctx.fillText(brand, W * 0.08, H - H * 0.045);
-    ctx.fillStyle = color; ctx.fillRect(W * 0.08, y - size * 1.5, W * 0.14, Math.max(6, size * 0.12));
-    ctx.globalAlpha = 1;
-  }
-  function drawImage() { frame($('image'), photos[0] || null, $('hook').value); }
-  function scenes() {
-    var texts = document.querySelectorAll('[data-scene-text]'), secs = document.querySelectorAll('[data-scene-seconds]'), out = [];
-    texts.forEach(function (t, i) { if (t.value.trim()) { out.push({ text: t.value.trim(), seconds: Math.max(2, Math.min(10, parseInt(secs[i].value, 10) || 4)) }); } });
-    return out.length ? out : [{ text: $('hook').value, seconds: 4 }];
-  }
-  var raf = null;
-  function play(done) {
-    var list = scenes(), canvas = $('video'), start = performance.now();
-    var total = list.reduce(function (a, s) { return a + s.seconds; }, 0);
-    cancelAnimationFrame(raf);
-    (function tick(now) {
-      var t = (now - start) / 1000, acc = 0, i = 0;
-      while (i < list.length - 1 && t >= acc + list[i].seconds) { acc += list[i].seconds; i++; }
-      var local = Math.min(1, (t - acc) / list[i].seconds);
-      frame(canvas, photos.length ? photos[i % photos.length] : null, list[i].text, 1 + local * 0.08, Math.min(1, local * 5));
-      if (t < total) { raf = requestAnimationFrame(tick); } else if (done) { done(); }
-    })(start);
-    return total;
-  }
-  $('photos').addEventListener('change', function (e) {
-    photos = [];
-    var files = Array.prototype.slice.call(e.target.files, 0, 8), left = files.length;
-    files.forEach(function (f, i) { var img = new Image(); img.onload = function () { photos[i] = img; if (--left === 0) { photos = photos.filter(Boolean); drawImage(); play(); } }; img.onerror = function () { if (--left === 0) { photos = photos.filter(Boolean); drawImage(); } }; img.src = URL.createObjectURL(f); });
-  });
-  $('shape').addEventListener('change', function () { var p = this.value.split('x'); $('image').width = +p[0]; $('image').height = +p[1]; drawImage(); });
-  $('hook').addEventListener('input', drawImage);
-  $('save-image').addEventListener('click', function () {
-    $('image').toBlob(function (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'postare-{{ $post->day->toDateString() }}.png'; a.click(); }, 'image/png');
-  });
-  $('play').addEventListener('click', function () { play(); });
-  $('record').addEventListener('click', function () {
-    var note = $('video-note'), canvas = $('video');
-    if (!window.MediaRecorder || !canvas.captureStream) { note.textContent = 'Browserul acesta nu poate crea video. Încearcă în Chrome, Edge sau Safari, la zi.'; return; }
-    var type = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'].filter(function (t) { return MediaRecorder.isTypeSupported(t); })[0];
-    if (!type) { note.textContent = 'Browserul acesta nu poate crea video.'; return; }
-    var chunks = [], rec = new MediaRecorder(canvas.captureStream(30), { mimeType: type, videoBitsPerSecond: 6000000 });
-    rec.ondataavailable = function (e) { if (e.data.size) { chunks.push(e.data); } };
-    rec.onstop = function () {
-      var ext = type.indexOf('mp4') > -1 ? 'mp4' : 'webm', a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob(chunks, { type: type })); a.download = 'video-{{ $post->day->toDateString() }}.' + ext; a.click();
-      note.textContent = 'Video creat (' + ext.toUpperCase() + ', fără sunet). ' + (ext === 'webm' ? 'TikTok acceptă WebM; pentru Instagram creează-l din Safari sau dintr-un Chrome la zi, care salvează MP4.' : 'Adaugă muzica din aplicația rețelei, la publicare.');
-      $('record').disabled = false;
-    };
-    $('record').disabled = true; note.textContent = 'Se înregistrează… ține pagina deschisă.';
-    rec.start(); play(function () { setTimeout(function () { rec.stop(); }, 150); });
-  });
-  // fotografiile din materialele firmei: cea aleasă pentru postare prima, apoi celelalte (pentru scenele video)
-  var library = @json($assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(6)->map(fn ($a) => route('portal.social.media.file', [$slug, $a->id]))->values());
-  function loadLibrary() {
-    var loaded = [], left = library.length;
-    library.forEach(function (src, i) { var img = new Image(); img.onload = img.onerror = function () { if (img.width) { loaded[i] = img; } if (--left === 0 && !$('photos').files.length) { photos = loaded.filter(Boolean); drawImage(); frame($('video'), photos[0] || null, scenes()[0].text); } }; img.src = src; });
-  }
-  document.querySelectorAll('[data-asset]').forEach(function (r) { r.addEventListener('change', function () {
-    document.querySelectorAll('[data-asset]').forEach(function (o) { o.nextElementSibling.style.borderColor = o.checked ? 'var(--brand)' : 'transparent'; });
-    var img = new Image(); img.onload = function () { photos = [img].concat(photos.filter(function (p) { return p.src !== img.src; })); drawImage(); }; img.src = r.nextElementSibling.src;
-  }); });
-  drawImage(); frame($('video'), null, scenes()[0].text); loadLibrary();
-})();
-</script>
+<script src="{{ asset('js/social-editor.js') }}?v={{ @filemtime(public_path('js/social-editor.js')) }}" defer></script>
 @endsection

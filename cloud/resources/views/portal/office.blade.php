@@ -7,6 +7,8 @@
     @if ($summary['problem'] + $summary['needs'] === 0) Acum nu ai nimic de făcut.
     @else Acum: @if ($summary['problem'])<strong>{{ $summary['problem'] }} cu probleme</strong>@endif @if ($summary['problem'] && $summary['needs']) și @endif @if ($summary['needs'])<strong>{{ $summary['needs'] }} te așteaptă</strong>@endif.
     @endif</p></div></div>
+@include('partials.office-plan', ['rooms' => collect(\App\Office\Office::ZONES)->mapWithKeys(fn ($label, $zone) => [$label => collect($desks)->where('zone', $zone)
+    ->map(fn ($d) => ['name' => $d['name'], 'state' => $d['state'], 'url' => $d['url'], 'note' => $d['line']])->values()->all()])->all()])
 <div class="office">
   @foreach (\App\Office\Office::ZONES as $zone => $label)
     <section class="zone" aria-label="{{ $label }}">
