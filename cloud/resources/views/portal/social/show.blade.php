@@ -75,7 +75,7 @@
 </style>
 <div id="editor" data-config="{{ json_encode([
     'color' => $settings['color'], 'brand' => $organization->name, 'day' => $post->day->toDateString(), 'design' => $post->design, 'voice' => $post->voice_path ? route('portal.social.voice.file', [$slug, $post->id]).'?v='.$post->updated_at?->timestamp : null,
-    'assets' => $assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(8)->map(fn ($a) => ['url' => route('portal.social.media.file', [$slug, $a->id]), 'title' => $a->title, 'video' => $a->kind === 'video'])->values(),
+    'assets' => $assets->sortBy(fn ($a) => $a->id === $post->asset_id ? 0 : 1)->take(24)->map(fn ($a) => ['url' => route('portal.social.media.file', [$slug, $a->id]), 'title' => $a->title, 'video' => $a->kind === 'video'])->values(),
 ]) }}">
 <div class="card">
   <h2>Editor foto</h2>

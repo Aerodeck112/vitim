@@ -1,5 +1,9 @@
 # VITIM AI Cloud — versiuni
 
+## 0.35.1 — mai multe materiale în editorul video
+
+- În editorul video poți alege pentru fiecare scenă dintre ultimele 24 de materiale ale firmei (înainte erau 8).
+
 ## 0.35.0 — materiale din Google Drive, cu clipuri video
 
 - În **Social media → Materiale** poți lega **folderul de Google Drive al firmei**. Pui acolo fotografiile și clipurile video, partajezi folderul cu adresa afișată în pagină și lipești linkul. Folderul rămâne privat.
