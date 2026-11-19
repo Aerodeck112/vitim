@@ -27,3 +27,6 @@ Schedule::command('vitim:audit')->everyFiveMinutes()->withoutOverlapping(30);
 // agenții învață din site-uri: câteva zeci de pagini pe minut, la prima instalare și apoi săptămânal
 Schedule::command('vitim:learn')->everyMinute()->withoutOverlapping(10);
 Schedule::command('vitim:backups-check')->hourly()->withoutOverlapping(30);
+
+// agentul de monitorizare al echipei VITIM: rezumatul de dimineață și alertele critice noi
+Schedule::command('vitim:monitor')->everyFifteenMinutes()->withoutOverlapping(30);

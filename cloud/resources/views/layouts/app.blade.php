@@ -19,6 +19,8 @@
     @if ($user->isPlatformStaff())
       <div class="grp">Echipa VITIM</div>
       <a href="{{ route('admin.organizations.index') }}" @class(['on' => request()->routeIs('admin.organizations.index', 'admin.organizations.create')])>Prezentare</a>
+      @php($monitorLast = (array) \App\Models\PlatformSetting::get('monitor.last', []))
+      <a href="{{ route('admin.monitor') }}" @class(['on' => request()->routeIs('admin.monitor*')])>Monitorizare @if (($monitorLast['critical'] ?? 0) > 0)<span class="badge err">{{ $monitorLast['critical'] }}</span>@endif</a>
       <a href="{{ route('admin.sites.index') }}" @class(['on' => request()->routeIs('admin.sites.*')])>Site-uri</a>
       <a href="{{ route('admin.agents.index') }}" @class(['on' => request()->routeIs('admin.agents.*')])>Agenți</a>
       <a href="{{ route('admin.users.index') }}" @class(['on' => request()->routeIs('admin.users.*')])>Utilizatori</a>

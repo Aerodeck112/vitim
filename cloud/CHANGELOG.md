@@ -1,5 +1,15 @@
 # VITIM AI Cloud — versiuni
 
+## 0.28.0 — agent de monitorizare
+
+- Echipa VITIM este anunțată automat când un site nu mai raportează, un backup eșuează, HTTPS-ul nu mai funcționează sau un certificat este pe cale să expire, ca să intervenim înainte să observați problema.
+
+**Actualizare:**
+- **Monitorizare (Admin):** pagină nouă cu tot ce cere atenție la toți clienții, grupat pe client: site-uri al căror conector nu mai raportează, probleme critice din audit, backup-uri, certificate, abonamente de probă expirate sau pe terminate, site-uri pe care agentul nu le-a putut citi, remedieri eșuate, pluginuri vechi, conversații care așteaptă un om de peste 2 ore, conturi de trimitere cu erori.
+- **Rezumat pe email în fiecare dimineață** (implicit la 7, ora României) către conturile echipei VITIM, plus adrese în plus din setări. Include scorurile care au scăzut cu cel puțin 10 puncte față de rezumatul anterior. În zilele fără probleme nu pleacă nimic (se poate schimba).
+- **Alertă imediată** pentru problemele critice noi, verificate la 15 minute; fiecare problemă anunță o singură dată și din nou doar dacă reapare după ce a fost rezolvată.
+- Butonul **Trimite rezumatul acum** și comanda `php artisan vitim:monitor --acum`. Cronul rămâne același.
+
 ## 0.27.1 — abonamente: proba expirată nu mai oprește chatul pe ascuns
 
 - Pe pagina agentului apare clar când asistentul nu e afișat pe site pentru că abonamentul nu e activ.

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MonitorController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SiteController;
@@ -115,6 +116,9 @@ Route::middleware(['auth', '2fa'])->group(function () {
         Route::post('/noutati/{announcement}/trimite', [AnnouncementController::class, 'send'])->whereNumber('announcement')->name('announcements.send');
         Route::post('/noutati/{announcement}/opreste', [AnnouncementController::class, 'cancel'])->whereNumber('announcement')->name('announcements.cancel');
         Route::delete('/noutati/{announcement}', [AnnouncementController::class, 'destroy'])->whereNumber('announcement')->name('announcements.destroy');
+        Route::get('/monitorizare', [MonitorController::class, 'show'])->name('monitor');
+        Route::put('/monitorizare', [MonitorController::class, 'settings'])->name('monitor.settings');
+        Route::post('/monitorizare/trimite', [MonitorController::class, 'send'])->middleware('throttle:6,1')->name('monitor.send');
         Route::post('/abonamente/activeaza-expirate', [SubscriptionController::class, 'activateExpired'])->name('subscriptions.activate');
         Route::get('/clienti/nou', [OrganizationController::class, 'create'])->name('organizations.create');
         Route::post('/clienti', [OrganizationController::class, 'store'])->name('organizations.store');
