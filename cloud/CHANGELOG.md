@@ -1,5 +1,13 @@
 # VITIM AI Cloud — versiuni
 
+## 0.36.1 — biroul și raportul site-ului, pe înțelesul clientului
+
+- În **Birou**, ce ține de echipa VITIM (site, SEO, securitate, actualizări, backup) apare ca „în grija echipei VITIM”, cu mesajul că nu ai nimic de făcut. Rămâne „te așteaptă” doar ce poți rezolva chiar tu: un vizitator care vrea un om, postări de aprobat, o voce de generat.
+- În **raportul site-ului**, lista „De îmbunătățit” se numește acum „În lucru la echipa VITIM”, fără etichete de alarmă. Punctele rămân vizibile și trec la „Rezolvate” când sunt reparate.
+
+**Actualizare:**
+- Echipa VITIM vede în continuare starea brută (probleme, critic, actualizări disponibile) când deschide biroul sau raportul unui client, și în Admin → Birou și Monitorizare. Doar prezentarea pentru client s-a schimbat; nimic nu este ascuns.
+
 ## 0.36.0 — cererile din formularele site-urilor ajung în panou
 
 - Site-urile făcute de VITIM (nu doar cele WordPress) pot trimite în panou cererile din formularele lor de contact, ofertă sau programare. Fiecare cerere apare la **Lead-uri**, cu omul adăugat la **Contacte**; acordul pentru noutăți se înregistrează doar dacă a fost bifat în formular.

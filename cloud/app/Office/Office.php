@@ -27,14 +27,36 @@ use Illuminate\Support\Collection;
 final class Office
 {
     /** starea => [etichetă, clasă] în ordinea în care cere atenție */
-    public const STATES = ['problem' => ['are o problemă', 'err'], 'needs' => ['te așteaptă', 'warn'], 'working' => ['lucrează', 'ok'], 'idle' => ['în așteptare', ''], 'off' => ['oprit', 'off']];
+    public const STATES = ['problem' => ['are o problemă', 'err'], 'needs' => ['te așteaptă', 'warn'], 'care' => ['în grija echipei VITIM', 'ok'], 'working' => ['lucrează', 'ok'], 'idle' => ['în așteptare', ''], 'off' => ['oprit', 'off']];
+
+    /** Birourile de care răspunde echipa VITIM, nu clientul. */
+    public const VITIM_DESKS = ['knowledge', 'seo', 'security', 'backup'];
 
     public const ZONES = ['clienti' => 'Relația cu clienții', 'site' => 'Site-ul', 'marketing' => 'Marketing'];
 
     public function __construct(private readonly TenantContext $context) {}
 
     /** @return list<array{key: string, zone: string, name: string, role: string, state: string, line: string, facts: list<string>, url: ?string}> */
-    public function desks(): array
+    public function desks(bool $client = false): array
+    {
+        $desks = $this->all();
+        if (! $client) {
+            return $desks;
+        }
+        // Clientul vede de bine, fără să fie mințit: ce ține de VITIM (site, SEO, securitate, backup, citirea site-ului)
+        // nu apare ca alarmă, ci ca lucru aflat în grija echipei. Rămâne „te așteaptă” doar ce poate rezolva chiar el.
+        foreach ($desks as &$desk) {
+            if (in_array($desk['key'], self::VITIM_DESKS, true) && in_array($desk['state'], ['problem', 'needs'], true)) {
+                $desk['state'] = 'care';
+                $desk['line'] = 'Echipa VITIM lucrează la asta. Nu ai nimic de făcut.';
+            }
+        }
+
+        return $desks;
+    }
+
+    /** @return list<array{key: string, zone: string, name: string, role: string, state: string, line: string, facts: list<string>, url: ?string}> */
+    private function all(): array
     {
         $organization = $this->context->organization();
         $slug = $organization->slug;

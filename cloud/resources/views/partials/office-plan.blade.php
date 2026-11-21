@@ -1,6 +1,6 @@
 {{-- Planul biroului, văzut de sus: câte o cameră pe zonă, câte o masă pe agent. $rooms = [etichetă => listă de [name, state, url, note]] --}}
 @php
-  $colors = ['working' => '#10b981', 'needs' => '#d99a12', 'problem' => '#ef4444', 'idle' => '#94a3b8', 'off' => '#cbd5e1'];
+  $colors = ['working' => '#10b981', 'needs' => '#d99a12', 'care' => '#2f6bff', 'problem' => '#ef4444', 'idle' => '#94a3b8', 'off' => '#cbd5e1'];
   $deskW = 190; $deskH = 150; $pad = 26; $gap = 22; $x = 20; $layout = [];
   foreach ($rooms as $label => $list) {
       $cols = max(1, (int) ceil(count($list) / 2)); $rows = count($list) > $cols ? 2 : 1;
@@ -59,5 +59,5 @@
     @endforeach
   @endforeach
 </svg>
-<div class="plan-legend">@foreach (\App\Office\Office::STATES as $key => $state)<span><i style="background:{{ $colors[$key] }}"></i>{{ $state[0] }}</span>@endforeach</div>
+<div class="plan-legend">@foreach (\App\Office\Office::STATES as $key => $state)@continue(! collect($rooms)->flatten(1)->contains('state', $key) && in_array($key, ['problem', 'care'], true))<span><i style="background:{{ $colors[$key] }}"></i>{{ $state[0] }}</span>@endforeach</div>
 </div>

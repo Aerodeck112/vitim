@@ -53,8 +53,15 @@ final class OfficeTest extends TestCase
         $states = $this->states($org->fresh());
         $this->assertSame(['off', 'problem', 'needs', 'needs'], [$states['chat'], $states['seo'], $states['security'], $states['social']]);
 
+        // clientul: ce ține de VITIM apare ca „în grija echipei”, fără alarmă; ce poate rezolva el rămâne „te așteaptă”
         $this->actingAs($owner)->get("/app/{$org->slug}/birou")->assertOk()->assertSee('Biroul Podreg')->assertSee('Specialistul SEO')
-            ->assertSee('1 postări așteaptă aprobarea ta.')->assertSee('Oprit: abonamentul nu este activ.')->assertSee('1 actualizări disponibile.');
+            ->assertSee('1 postări așteaptă aprobarea ta.')->assertSee('Oprit: abonamentul nu este activ.')
+            ->assertSee('în grija echipei VITIM')->assertSee('De 2 puncte se ocupă echipa VITIM.')->assertDontSee('are o problemă')->assertDontSee('1 actualizări disponibile.');
+        $this->get("/app/{$org->slug}/site-uri/{$site->id}")->assertOk()->assertSee('În lucru la echipa VITIM (2)')->assertSee('cu prioritate')->assertSee('Site ascuns din Google')->assertDontSee('Critic');
+
+        // echipa VITIM vede aceeași firmă cu starea brută
+        $this->actingAs($this->staff())->get("/app/{$org->slug}/birou")->assertOk()->assertSee('are o problemă')->assertSee('1 actualizări disponibile.');
+        $this->get("/app/{$org->slug}/site-uri/{$site->id}")->assertOk()->assertSee('De îmbunătățit (2)')->assertSee('Critic');
     }
 
     public function test_staff_office_sums_all_clients_and_firms_see_only_their_own(): void

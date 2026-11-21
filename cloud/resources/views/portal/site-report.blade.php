@@ -16,14 +16,19 @@
   @endforelse
 </div>
 <div class="card">
-  <h2>De îmbunătățit ({{ $open->count() }})</h2>
+  @if ($staff)
+    <h2>De îmbunătățit ({{ $open->count() }})</h2>
+  @else
+    <h2>În lucru la echipa VITIM ({{ $open->count() }})</h2>
+    @if ($open->isNotEmpty())<p class="small muted" style="margin:0 0 8px">Verificăm site-ul zilnic. Punctele de mai jos sunt în grija noastră; nu ai nimic de făcut. Cele rezolvate trec în lista de mai sus.</p>@endif
+  @endif
   @forelse ($open as $issue)
-    <p style="margin:6px 0"><span class="badge {{ ['critical' => 'err', 'warning' => 'warn', 'info' => ''][$issue->severity] ?? '' }}">{{ \App\Models\SiteIssue::SEVERITIES[$issue->severity] ?? '' }}</span>
+    <p style="margin:6px 0">@if ($staff)<span class="badge {{ ['critical' => 'err', 'warning' => 'warn', 'info' => ''][$issue->severity] ?? '' }}">{{ \App\Models\SiteIssue::SEVERITIES[$issue->severity] ?? '' }}</span>@else<span class="badge {{ $issue->severity === 'critical' ? 'warn' : '' }}">{{ $issue->severity === 'critical' ? 'cu prioritate' : 'în lucru' }}</span>@endif
       {{ $issue->title }} <span class="small muted">· {{ \App\Audit\Guidance::CATEGORIES[$issue->category] ?? '' }}</span></p>
   @empty
-    <p class="muted" style="margin:0">Nicio problemă deschisă.</p>
+    <p class="muted" style="margin:0">{{ $staff ? 'Nicio problemă deschisă.' : 'Totul este la zi: nimic de reparat acum.' }}</p>
   @endforelse
-  @if ($open->isNotEmpty())<p class="tag-note" style="margin:10px 0 0">Pentru detalii și remediere, contactează echipa VITIM.</p>@endif
+  @if ($staff && $open->isNotEmpty())<p class="tag-note" style="margin:10px 0 0">Pentru detalii și remediere, contactează echipa VITIM.</p>@endif
 </div>
 @include('partials.site-backups', ['site' => $site, 'backups' => $backups, 'staff' => false])
 <div class="card">
