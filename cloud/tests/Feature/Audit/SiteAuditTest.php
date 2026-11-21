@@ -132,7 +132,7 @@ final class SiteAuditTest extends TestCase
         $client = User::factory()->create();
         $this->tenant()->runAs($org, fn () => Membership::create(['user_id' => $client->id, 'role' => OrgRole::Viewer]));
         $this->actingAs($client);
-        $this->get("/app/{$org->slug}/site-uri/{$site->id}")->assertOk()->assertSee('De îmbunătățit')->assertSee('Lipsește linkul ANPC')->assertDontSee('Cum rezolvi');
+        $this->get("/app/{$org->slug}/site-uri/{$site->id}")->assertOk()->assertSee('În lucru la echipa VITIM')->assertSee('Lipsește linkul ANPC')->assertDontSee('Cum rezolvi');
         $this->get("/app/{$org->slug}")->assertSee('raport');
         $this->post("/admin/clienti/{$org->slug}/site-uri/{$site->id}/audit")->assertNotFound();
 
